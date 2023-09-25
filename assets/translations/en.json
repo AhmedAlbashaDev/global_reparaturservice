@@ -1,0 +1,12 @@
+{
+  "global" : "GLOBAL",
+  "professional" : "Professional,",
+  "inexpensive" : "Inexpensive,",
+  "fast_repair_service" : "Fast Repair Service",
+  "sign_in" : "Sign In",
+  "forget_password" : "Forget Password ?",
+  "routes" : "Routes",
+  "orders" : "Orders",
+  "users" : "Users",
+  "more" : "More"
+}
