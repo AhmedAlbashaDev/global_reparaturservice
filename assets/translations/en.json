@@ -8,5 +8,6 @@
   "routes" : "Routes",
   "orders" : "Orders",
   "users" : "Users",
-  "more" : "More"
+  "more" : "More",
+  "welcome" : "Welcome,"
 }

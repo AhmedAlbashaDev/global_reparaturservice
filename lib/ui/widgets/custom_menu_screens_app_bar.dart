@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:global_reparaturservice/utils/globals.dart';
 
@@ -22,7 +23,7 @@ class CustomMenuScreenAppBar extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AutoSizeText(
-                      'Welcome,',
+                      'welcome'.tr(),
                       style: TextStyle(
                           color: Theme.of(context).primaryColor,
                           fontSize: 15,
