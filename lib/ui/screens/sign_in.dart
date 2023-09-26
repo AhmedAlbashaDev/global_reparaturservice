@@ -8,16 +8,37 @@ import '../widgets/custom_button.dart';
 import '../widgets/sign_in_top_view.dart';
 import 'home.dart';
 
-class SignIn extends ConsumerWidget {
-  SignIn({super.key});
+class SignIn extends ConsumerStatefulWidget {
+  const SignIn({super.key});
 
-  final TextEditingController email = TextEditingController();
-  final TextEditingController password = TextEditingController();
+  @override
+  ConsumerState createState() => _SignInState();
+}
+
+class _SignInState extends ConsumerState<SignIn> {
+
+  late TextEditingController email;
+  late TextEditingController password;
 
   static GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
 
   @override
-  Widget build(BuildContext context , WidgetRef ref) {
+  void initState() {
+    super.initState();
+    email = TextEditingController();
+    password = TextEditingController();
+
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    email.dispose();
+    password.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -49,9 +70,6 @@ class SignIn extends ConsumerWidget {
                             height: 60,
                             child: TextFormField(
                               controller: email,
-                              onChanged: (text){
-                                print('Text is : $text');
-                              },
                               decoration: InputDecoration(
                                 labelText: 'User Email',
                                 enabledBorder: OutlineInputBorder(
@@ -116,7 +134,7 @@ class SignIn extends ConsumerWidget {
                                 else {
                                   ref.read(currentAppModeProvider.notifier).state = AppMode.admins;
                                 }
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home()));
                               },
                               text: 'sign_in'.tr(),
                               bgColor: Theme.of(context).primaryColor,

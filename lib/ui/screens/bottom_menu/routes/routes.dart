@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:global_reparaturservice/providers/app_mode.dart';
 
 import '../../../../providers/search_field_status.dart';
 import '../../../widgets/custom_menu_screens_app_bar.dart';
@@ -181,10 +182,13 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> with TickerProvider
           ),
         ],
       ),
-      floatingActionButton: FloatingAddButton(
-        onPresses: (){
-          Navigator.push(context, MaterialPageRoute(builder: (context) => NewRouteScreen()));
-        },
+      floatingActionButton: Visibility(
+        visible: ref.watch(currentAppModeProvider) == AppMode.admins,
+        child: FloatingAddButton(
+          onPresses: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context) => NewRouteScreen()));
+          },
+        ),
       ),
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

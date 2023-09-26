@@ -27,5 +27,25 @@
   "selected_orders_for_this_route" : "Selected orders for this route",
   "assigned_technician" : "Assigned Technician",
   "ongoing" : "Ongoing",
-  "place_route" : "Place Route"
+  "place_route" : "Place Route",
+  "new_order" : "New Order",
+  "select_customer" : "Select Customer",
+  "select" : "Select",
+  "maintenance_device" : "Maintenance Device",
+  "brand" : "Brand",
+  "address" : "Address",
+  "zip_code" : "ZIP Code",
+  "city" : "City",
+  "block_no" : "Block No.",
+  "additional_info" : "Additional info",
+  "place_an_order" : "Place an order",
+  "change" : "Change",
+  "add_new_customer" : "Add New Customer",
+  "add_new_technician" : "Add New Technician",
+  "customer_name" : "Customer name",
+  "surname" : "Surname",
+  "phone_no" : "Phone NO.",
+  "email" : "Email",
+  "technician_name" : "Technician name"
+
 }

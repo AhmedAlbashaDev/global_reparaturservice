@@ -9,6 +9,7 @@ import '../../../widgets/floating_add_button.dart';
 import '../../../widgets/gradient_background.dart';
 import '../../../widgets/order_card.dart';
 import '../../../widgets/search.dart';
+import 'new_order.dart';
 
 class OrdersScreen extends ConsumerStatefulWidget {
   const OrdersScreen({super.key});
@@ -164,7 +165,9 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
         ],
       ),
       floatingActionButton: FloatingAddButton(
-        onPresses: () {},
+        onPresses: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => NewOrderScreen()));
+        },
       ),
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

@@ -37,7 +37,7 @@ class Home extends ConsumerWidget {
             : technicianScreens.elementAt(currentBottomMenuItemSelected),
       ),
       bottomNavigationBar: SizedBox(
-        height: 83,
+        height: 82,
         child: Stack(
           children: [
             Align(
@@ -49,7 +49,7 @@ class Home extends ConsumerWidget {
             Align(
               alignment: Alignment.bottomCenter,
               child: BottomNavigationBar(
-                backgroundColor: Colors.red,
+                // backgroundColor: Colors.red,
                 items: currentAppMode == AppMode.admins
                     ? <BottomNavigationBarItem>[
                   BottomNavigationBarItem(
@@ -96,7 +96,7 @@ class Home extends ConsumerWidget {
                       label: 'routes'.tr()),
                   BottomNavigationBarItem(
                       icon: Image.asset(
-                        currentBottomMenuItemSelected == 3
+                        currentBottomMenuItemSelected == 1
                             ? 'assets/images/active_more.png'
                             : 'assets/images/more.png',
                         height: 30,

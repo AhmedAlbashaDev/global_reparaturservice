@@ -6,6 +6,8 @@ import '../../../../utils/globals.dart';
 import '../../../widgets/custom_menu_screens_app_bar.dart';
 import '../../../widgets/floating_add_button.dart';
 import '../../../widgets/gradient_background.dart';
+import 'add_new_customer.dart';
+import 'add_new_technician.dart';
 import 'users_customers_tab.dart';
 import 'users_technicians_tab.dart';
 
@@ -22,10 +24,13 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
   late Animation<double> _fadeInFadeOut;
   late TextEditingController searchController;
 
+  TabController? tabController;
+
   @override
   void initState() {
     super.initState();
     searchController = TextEditingController();
+    tabController = TabController(length: 2, vsync: this);
     animation = AnimationController(vsync: this, duration: const Duration(milliseconds: 400),);
     _fadeInFadeOut = Tween<double>(begin: 0.0, end: 1.0).animate(animation);
   }
@@ -66,6 +71,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
                               color: Colors.white,
                             ),
                             child: TabBar(
+                              controller: tabController,
                               labelColor: Colors.white,
                               unselectedLabelColor: Colors.black,
                               indicator: BoxDecoration(
@@ -112,7 +118,15 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
         ],
       ),
       floatingActionButton: FloatingAddButton(
-        onPresses: (){},
+        onPresses: (){
+          if(tabController?.index == 0){
+            Navigator.push(context, MaterialPageRoute(builder: (context) => AddNewCustomerScreen()));
+          }
+          else {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => AddNewTechnicianScreen()));
+
+          }
+        },
       ),
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

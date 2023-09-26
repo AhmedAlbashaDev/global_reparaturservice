@@ -8,7 +8,6 @@ import 'package:global_reparaturservice/utils/globals.dart';
 
 import '../../../../providers/search_field_status.dart';
 import '../../../widgets/custom_app_bar.dart';
-import '../../../widgets/floating_add_button.dart';
 import '../../../widgets/gradient_background.dart';
 import '../../../widgets/search.dart';
 import 'confirm_new_route.dart';
