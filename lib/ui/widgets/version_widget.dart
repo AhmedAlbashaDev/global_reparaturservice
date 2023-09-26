@@ -6,12 +6,15 @@ class VersionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AutoSizeText(
-      'v 1.0.0',
-      style: TextStyle(
-          fontSize: 15,
-          color: Theme.of(context).primaryColor,
-          fontWeight: FontWeight.bold
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: AutoSizeText(
+        'v 1.0.0',
+        style: TextStyle(
+            fontSize: 15,
+            color: Theme.of(context).primaryColor,
+            fontWeight: FontWeight.bold
+        ),
       ),
     );
   }

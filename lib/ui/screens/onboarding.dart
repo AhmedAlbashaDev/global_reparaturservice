@@ -1,9 +1,10 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:global_reparaturservice/ui/screens/sign_in.dart';
-import 'package:global_reparaturservice/ui/widgets/custom_button.dart';
-import 'package:global_reparaturservice/utils/globals.dart';
+
+import '../../utils/globals.dart';
+import '../widgets/custom_button.dart';
+import 'sign_in.dart';
 
 class OnBoarding extends StatelessWidget {
   const OnBoarding({super.key});

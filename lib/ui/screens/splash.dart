@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:global_reparaturservice/ui/screens/onboarding.dart';
-import 'package:global_reparaturservice/utils/globals.dart';
+import 'package:lottie/lottie.dart';
+import '../../utils/globals.dart';
 import '../widgets/version_widget.dart';
+import 'onboarding.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -11,14 +12,11 @@ class Splash extends StatefulWidget {
 }
 
 class _SplashState extends State<Splash> {
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    Future.microtask(() =>
-      const Duration(seconds: 2),
-    ).then((value) => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OnBoarding())));
+    Future.delayed(const Duration(seconds: 4)).then((value) => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OnBoarding())));
   }
 
   @override
@@ -30,8 +28,20 @@ class _SplashState extends State<Splash> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(),
-            Image.asset('assets/images/titled_logo.png' , height: screenHeight * 24,),
-            const VersionWidget()
+            Image.asset(
+              'assets/images/titled_logo.png',
+              fit: BoxFit.contain,
+              height: screenHeight * 20,
+            ),
+            Column(
+              children: [
+                Lottie.asset(
+                    'assets/images/global_loader.json',
+                    height: 50
+                ),
+                const VersionWidget(),
+              ],
+            )
           ],
         ),
       ),

@@ -14,9 +14,9 @@ class CustomButton extends StatelessWidget {
     return MaterialButton(
       onPressed: onPressed,
       color: bgColor,
-      height: 55,
+      height: 50,
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30)
+          borderRadius: BorderRadius.circular(25)
       ),
       child:  Center(
         child: AutoSizeText(

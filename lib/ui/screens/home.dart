@@ -1,12 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:global_reparaturservice/providers/app_mode.dart';
-import 'package:global_reparaturservice/providers/bottom_navigation_menu.dart';
-import 'package:global_reparaturservice/ui/screens/bottom_menu/more.dart';
-import 'package:global_reparaturservice/ui/screens/bottom_menu/orders.dart';
-import 'package:global_reparaturservice/ui/screens/bottom_menu/routes.dart';
-import 'package:global_reparaturservice/ui/screens/bottom_menu/users.dart';
+
+import '../../providers/app_mode.dart';
+import '../../providers/bottom_navigation_menu.dart';
+import 'bottom_menu/more/more.dart';
+import 'bottom_menu/orders/orders.dart';
+import 'bottom_menu/routes/routes.dart';
+import 'bottom_menu/users/users.dart';
 
 class Home extends ConsumerWidget {
   Home({super.key});
@@ -31,12 +32,12 @@ class Home extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-          child: currentAppMode == AppMode.admins
-              ? adminScreens.elementAt(currentBottomMenuItemSelected)
-              : technicianScreens.elementAt(currentBottomMenuItemSelected),
+        child: currentAppMode == AppMode.admins
+            ? adminScreens.elementAt(currentBottomMenuItemSelected)
+            : technicianScreens.elementAt(currentBottomMenuItemSelected),
       ),
       bottomNavigationBar: SizedBox(
-        height: 90,
+        height: 83,
         child: Stack(
           children: [
             Align(
@@ -48,6 +49,7 @@ class Home extends ConsumerWidget {
             Align(
               alignment: Alignment.bottomCenter,
               child: BottomNavigationBar(
+                backgroundColor: Colors.red,
                 items: currentAppMode == AppMode.admins
                     ? <BottomNavigationBarItem>[
                   BottomNavigationBarItem(
@@ -105,7 +107,6 @@ class Home extends ConsumerWidget {
                 fixedColor: Theme.of(context).primaryColor,
                 selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
                 elevation: 0,
-                selectedFontSize: 16,
                 onTap: (index) {
                   ref.read(bottomNavigationMenuProvider.notifier).state = index;
                 },
