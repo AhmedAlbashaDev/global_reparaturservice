@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "340869523603",
+    "project_id": "global-reparaturservice-21630",
+    "storage_bucket": "global-reparaturservice-21630.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:340869523603:android:cc1472397ba3ec63eb8566",
+        "android_client_info": {
+          "package_name": "com.ahmedalbasha.global_reparaturservice"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBb9l0YQtXPCXVAhKXYjxo-j1BjMCjD85k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
