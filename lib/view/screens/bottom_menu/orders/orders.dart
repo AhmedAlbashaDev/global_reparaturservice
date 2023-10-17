@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:global_reparaturservice/models/order.dart';
 import 'package:global_reparaturservice/view/screens/bottom_menu/orders/order_details_admin.dart';
-import 'package:lottie/lottie.dart';
+import 'package:global_reparaturservice/view/screens/search.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../../../core/providers/search_field_status.dart';
@@ -17,6 +18,7 @@ import '../../../widgets/floating_add_button.dart';
 import '../../../widgets/gradient_background.dart';
 import '../../../widgets/order_card.dart';
 import '../../../widgets/orders_loading.dart';
+import '../../../widgets/pagination_footer.dart';
 import '../../../widgets/search.dart';
 import 'new_order.dart';
 
@@ -30,11 +32,7 @@ class OrdersScreen extends ConsumerStatefulWidget {
   ConsumerState createState() => _OrdersScreenState();
 }
 
-class _OrdersScreenState extends ConsumerState<OrdersScreen>
-    with TickerProviderStateMixin {
-  late AnimationController animation;
-  late Animation<double> _fadeInFadeOut;
-  late TextEditingController searchController;
+class _OrdersScreenState extends ConsumerState<OrdersScreen> {
 
   final RefreshController _refreshController =
   RefreshController(initialRefresh: false);
@@ -46,21 +44,11 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
     Future.microtask(() {
       ref.read(ordersViewModelProvider.notifier).loadAll();
     });
-
-    searchController = TextEditingController();
-    animation = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
-    _fadeInFadeOut = Tween<double>(begin: 0.0, end: 1.0).animate(animation);
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
-    animation.dispose();
-    searchController.dispose();
   }
 
   @override
@@ -87,16 +75,23 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
                           if(ref.watch(ordersFilterProvider) == 'all'.tr()){
                             filteredList = orders.data;
                           }
-                          else if (ref.watch(ordersFilterProvider) == 'completed'.tr()){
-                            filteredList = orders.data.where((order) => order.statusName.toLowerCase() == 'Finished'.toLowerCase()).toList();
+                          else if (ref.watch(ordersFilterProvider) == 'Pending'.tr()){
+                            filteredList = orders.data.where((order) => order.statusName == 'Pending').toList();
                           }
-                          else if (ref.watch(ordersFilterProvider) == 'not_completed'.tr()){
-                            filteredList = orders.data.where((order) => order.statusName.toLowerCase() != 'Finished'.toLowerCase()).toList();
+                          else if (ref.watch(ordersFilterProvider) == 'On progress'.tr()){
+                            filteredList = orders.data.where((order) => order.statusName == 'On progress').toList();
+                          }
+                          else if (ref.watch(ordersFilterProvider) == 'Finished'.tr()){
+                            filteredList = orders.data.where((order) => order.statusName == 'Finished').toList();
+                          }
+                          else if (ref.watch(ordersFilterProvider) == 'Cancelled'.tr()){
+                            filteredList = orders.data.where((order) => order.statusName == 'Cancelled').toList();
                           }
 
-                          return orders.data.isEmpty
-                            ? EmptyWidget(text: 'no_orders'.tr())
-                            : Column(
+                          if (orders.data.isEmpty) {
+                            return EmptyWidget(text: 'no_orders'.tr());
+                          } else {
+                            return Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Stack(
@@ -126,7 +121,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
                                             'assets/images/filter.png',
                                             height: 18,
                                           ),
-                                          items: <String>['all'.tr(), 'completed'.tr(), 'not_completed'.tr()]
+                                          items: <String>['all'.tr(), 'Pending'.tr(), 'On progress'.tr() , 'Finished'.tr() , 'Cancelled'.tr()]
                                               .map<DropdownMenuItem<String>>((String value) {
                                             return DropdownMenuItem(
                                               value: value,
@@ -149,11 +144,12 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
                                               materialTapTargetSize:
                                               MaterialTapTargetSize.shrinkWrap,
                                               onPressed: () {
-                                                ref
-                                                    .read(searchFieldStatusProvider
-                                                    .notifier)
-                                                    .state = true;
-                                                animation.forward();
+                                                Navigator.push(
+                                                    context,
+                                                    PageTransition(
+                                                        type: PageTransitionType.rightToLeft,
+                                                        duration: const Duration(milliseconds: 500),
+                                                        child:  SearchScreen(endPoint: 'orders', title: 'orders'.tr())));
                                               },
                                               child: Image.asset(
                                                 'assets/images/search.png',
@@ -166,24 +162,12 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
                                     )
                                   ],
                                 ),
-                                SizedBox(
-                                  width: !ref.watch(searchFieldStatusProvider) ? 0.0 : null,
-                                  child: SearchWidget(
-                                    fadeInFadeOut: _fadeInFadeOut,
-                                    searchController: searchController,
-                                    onChanged: (text) {},
-                                    onClose: () {
-                                      ref.read(searchFieldStatusProvider.notifier).state =
-                                      false;
-                                      animation.reverse();
-                                    },
-                                    enabled: ref.watch(searchFieldStatusProvider),
-                                  ),
-                                )
                               ],
                             ),
                             Expanded(
-                              child: SmartRefresher(
+                              child: filteredList.isEmpty
+                                  ? EmptyWidget(text: 'no_data'.tr())
+                                  : SmartRefresher(
                                 controller: _refreshController,
                                 enablePullDown: true,
                                 enablePullUp: true,
@@ -202,30 +186,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
                                   }
                                 },
                                 header: const WaterDropHeader(),
-                                footer: CustomFooter(
-                                  builder: (context, mode) {
-                                    Widget body;
-
-                                    if (mode == LoadStatus.idle) {
-                                      body = Text("pull_up_to_load".tr());
-                                    } else if (mode == LoadStatus.loading) {
-                                      body = Lottie.asset(
-                                          'assets/images/global_loader.json',
-                                          height: 50);
-                                    } else if (mode == LoadStatus.failed) {
-                                      body = Text("load_failed".tr());
-                                    } else if (mode == LoadStatus.canLoading) {
-                                      body = Text("release_to_load_more".tr());
-                                    } else {
-                                      body = Text("no_more_data".tr());
-                                    }
-
-                                    return SizedBox(
-                                      height: 60.0,
-                                      child: Center(child: body),
-                                    );
-                                  },
-                                ),
+                                footer: const PaginationFooter(),
                                 child: SingleChildScrollView(
                                   child: AnimationLimiter(
                                     child: ListView.builder(
@@ -259,6 +220,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
                             )
                           ],
                         );
+                          }
                       },
                       error: (error) => CustomError(
                         message: error.errorMessage ?? '',

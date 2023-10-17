@@ -14,7 +14,7 @@ import '../../../widgets/empty_widget.dart';
 import '../../../widgets/gradient_background.dart';
 
 class OrderDetailsAdmin extends ConsumerStatefulWidget {
-  const OrderDetailsAdmin({super.key, required this.orderId});
+   const OrderDetailsAdmin({super.key, required this.orderId});
 
   final int orderId;
 
@@ -41,7 +41,7 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
       body: SafeArea(
         child: Stack(
           children: [
-            const GradientBackgroundWidget(),
+             const GradientBackgroundWidget(),
             Column(
               children: [
                 CustomAppBar(
@@ -60,71 +60,37 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                       child: SizedBox(
                         width: screenWidth * 95,
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding:  const EdgeInsets.all(8.0),
                           child: SingleChildScrollView(
                             child: Column(
                               children: [
-                                const SizedBox(height: 10,),
+                                 const SizedBox(height: 10,),
                                 Container(
                                   width: double.infinity,
                                   decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                          color: const Color(0xffDCDCDC))),
-                                  padding: const EdgeInsets.all(12),
-                                  child: const Column(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      AutoSizeText(
-                                        'Visit #',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Color(0xFF555B6A),
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                      AutoSizeText(
-                                        'This is first visit',
-                                        style: TextStyle(
-                                          color: Color(0xFF555B6A),
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 10,),
-                                Container(
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                          color: const Color(0xffDCDCDC))),
-                                  padding: const EdgeInsets.all(12),
+                                          color:  const Color(0xffDCDCDC))),
+                                  padding:  const EdgeInsets.all(12),
                                   child: Column(
                                     mainAxisAlignment:
                                     MainAxisAlignment.start,
                                     crossAxisAlignment:
                                     CrossAxisAlignment.start,
                                     children: [
-                                      const AutoSizeText(
-                                        'Order status',
-                                        style: TextStyle(
+                                      AutoSizeText(
+                                        'visit'.tr(),
+                                        style:  TextStyle(
                                           fontSize: 11,
-                                          color: Color(0xFF555B6A),
+                                          color: Theme.of(context).primaryColor,
                                           fontWeight: FontWeight.w400,
                                         ),
                                       ),
                                       AutoSizeText(
-                                        orderModel.statusName,
-                                        style: const TextStyle(
-                                          color: Color(0xFF555B6A),
+                                          orderModel.isVisit ? 'second_visit'.tr() : 'first_visit'.tr(),
+                                        style:  TextStyle(
+                                          color: Theme.of(context).primaryColor,
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -132,49 +98,81 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 10,),
+                                 const SizedBox(height: 10,),
                                 Container(
                                   width: double.infinity,
                                   decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                          color: const Color(0xffDCDCDC))),
-                                  padding: const EdgeInsets.all(12),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                          color:  const Color(0xffDCDCDC))),
+                                  padding:  const EdgeInsets.all(12),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const AutoSizeText(
-                                        'Payment status',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Color(0xFF555B6A),
-                                          fontWeight: FontWeight.w400,
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            AutoSizeText(
+                                              'order_status'.tr(),
+                                              style:  TextStyle(
+                                                fontSize: 11,
+                                                color: Theme.of(context).primaryColor,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                            AutoSizeText(
+                                              orderModel.statusName,
+                                              style:  TextStyle(
+                                                color: Theme.of(context).primaryColor,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            )
+                                          ],
                                         ),
                                       ),
-                                      AutoSizeText(
-                                        orderModel.isPaid ? 'paid'.tr() : 'not_paid'.tr(),
-                                        style: const TextStyle(
-                                          color: Color(0xFF555B6A),
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600,
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            AutoSizeText(
+                                              'payment_status'.tr(),
+                                              style:  TextStyle(
+                                                fontSize: 11,
+                                                color: Theme.of(context).primaryColor,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                            AutoSizeText(
+                                              orderModel.isPaid ? 'paid'.tr() : 'not_paid'.tr(),
+                                              style:  TextStyle(
+                                                color: Theme.of(context).primaryColor,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            )
+                                          ],
                                         ),
-                                      )
+                                      ),
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 10,),
+                                 const SizedBox(height: 10,),
                                 Container(
                                   width: double.infinity,
                                   decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                          color: const Color(0xffDCDCDC))),
-                                  padding: const EdgeInsets.all(12),
+                                          color:  const Color(0xffDCDCDC))),
+                                  padding:  const EdgeInsets.all(12),
                                   child: Column(
                                     mainAxisAlignment:
                                     MainAxisAlignment.start,
@@ -183,16 +181,16 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                     children: [
                                       AutoSizeText(
                                         'problem_summary'.tr(),
-                                        style: const TextStyle(
+                                        style:  TextStyle(
                                           fontSize: 11,
-                                          color: Color(0xFF555B6A),
+                                          color: Theme.of(context).primaryColor,
                                           fontWeight: FontWeight.w400,
                                         ),
                                       ),
                                       AutoSizeText(
                                         orderModel.description,
-                                        style: const TextStyle(
-                                          color: Color(0xFF555B6A),
+                                        style:  TextStyle(
+                                          color: Theme.of(context).primaryColor,
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -200,33 +198,33 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 10,),
+                                 const SizedBox(height: 10,),
                                 Container(
                                   width: double.infinity,
                                   decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                          color: const Color(0xffDCDCDC))),
-                                  padding: const EdgeInsets.all(12),
+                                          color:  const Color(0xffDCDCDC))),
+                                  padding:  const EdgeInsets.all(12),
                                   child: Column(
                                     mainAxisAlignment:
                                     MainAxisAlignment.start,
                                     crossAxisAlignment:
                                     CrossAxisAlignment.start,
                                     children: [
-                                      const AutoSizeText(
-                                        'Order location',
-                                        style: TextStyle(
+                                      AutoSizeText(
+                                        'order_address'.tr(),
+                                        style:  TextStyle(
                                           fontSize: 11,
-                                          color: Color(0xFF555B6A),
+                                          color: Theme.of(context).primaryColor,
                                           fontWeight: FontWeight.w400,
                                         ),
                                       ),
                                       AutoSizeText(
                                         orderModel.address,
-                                        style: const TextStyle(
-                                          color: Color(0xFF555B6A),
+                                        style:  TextStyle(
+                                          color: Theme.of(context).primaryColor,
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -234,7 +232,7 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(
+                                 const SizedBox(
                                   height: 10,
                                 ),
                                 CustomerCardNewOrder(
@@ -242,7 +240,7 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                   isOrderDetails: true,
                                   empty: false,
                                 ),
-                                const SizedBox(
+                                 const SizedBox(
                                   height: 10,
                                 ),
                                 Container(
@@ -251,8 +249,8 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                          color: const Color(0xffDCDCDC))),
-                                  padding: const EdgeInsets.all(12),
+                                          color:  const Color(0xffDCDCDC))),
+                                  padding:  const EdgeInsets.all(12),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
@@ -262,18 +260,18 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                         crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                         children: [
-                                          const AutoSizeText(
-                                            'Order phone',
-                                            style: TextStyle(
+                                          AutoSizeText(
+                                            'order_phone'.tr(),
+                                            style:  TextStyle(
                                               fontSize: 11,
-                                              color: Color(0xFF555B6A),
+                                              color: Theme.of(context).primaryColor,
                                               fontWeight: FontWeight.w400,
                                             ),
                                           ),
                                           AutoSizeText(
                                             '${orderModel.orderPhoneNumber}',
-                                            style: const TextStyle(
-                                              color: Color(0xFF555B6A),
+                                            style:  TextStyle(
+                                              color: Theme.of(context).primaryColor,
                                               fontSize: 15,
                                               fontWeight: FontWeight.w600,
                                             ),
@@ -290,14 +288,14 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                           child: IconButton(
                                             onPressed: () {},
                                             color: Theme.of(context).primaryColor,
-                                            icon: Icon(Icons.call_rounded),
+                                            icon:  const Icon(Icons.call_rounded),
                                           ),
                                         ),
                                       )
                                     ],
                                   ),
                                 ),
-                                const SizedBox(
+                                 const SizedBox(
                                   height: 10,
                                 ),
                                 Container(
@@ -306,44 +304,44 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                          color: const Color(0xffDCDCDC))),
-                                  padding: const EdgeInsets.all(12),
+                                          color:  const Color(0xffDCDCDC))),
+                                  padding:  const EdgeInsets.all(12),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const AutoSizeText(
-                                        'Uploaded files',
-                                        style: TextStyle(
+                                      AutoSizeText(
+                                        'uploaded_files'.tr(),
+                                        style:  TextStyle(
                                           fontSize: 11,
-                                          color: Color(0xFF555B6A),
+                                          color: Theme.of(context).primaryColor,
                                           fontWeight: FontWeight.w400,
                                         ),
                                       ),
                                       orderModel.files?.isEmpty ?? true
                                 ? Center(child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding:  const EdgeInsets.all(8.0),
                                   child: EmptyWidget(text: 'no_files'.tr() , height: 20,textSize: 14,),
                                 ))
                               :  ListView.builder(
-                                        itemCount: 3,
+                                        itemCount: orderModel.files?.length,
                                         shrinkWrap: true,
-                                        physics: const NeverScrollableScrollPhysics(),
+                                        physics:  const NeverScrollableScrollPhysics(),
                                         itemBuilder: (context , index){
                                           return Container(
                                               height: 40,
-                                              margin: const EdgeInsets.all(1),
+                                              margin:  const EdgeInsets.all(1),
                                               decoration: BoxDecoration(
                                                 border: Border(
                                                   bottom: BorderSide(color: Colors.grey.shade400)
                                                 )
                                               ),
                                               child: Padding(
-                                                padding: const EdgeInsets.symmetric(horizontal: 5),
+                                                padding:  const EdgeInsets.symmetric(horizontal: 5),
                                                 child: Row(
                                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                   children: [
                                                     AutoSizeText(
-                                                      'File Name',
+                                                      orderModel.files?[index].fileName ?? 'file_name'.tr(),
                                                       style: TextStyle(
                                                           color: Theme.of(context).primaryColor,
                                                           fontSize: 14,
@@ -360,7 +358,7 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(
+                                 const SizedBox(
                                   height: 10,
                                 ),
                                 Container(
@@ -369,26 +367,26 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                          color: const Color(0xffDCDCDC))),
-                                  padding: const EdgeInsets.all(12),
-                                  child: const Column(
+                                          color:  const Color(0xffDCDCDC))),
+                                  padding:  const EdgeInsets.all(12),
+                                  child: Column(
                                     mainAxisAlignment:
                                     MainAxisAlignment.start,
                                     crossAxisAlignment:
                                     CrossAxisAlignment.start,
                                     children: [
                                       AutoSizeText(
-                                        'Order report',
+                                        'order_report'.tr(),
                                         style: TextStyle(
                                           fontSize: 11,
-                                          color: Color(0xFF555B6A),
+                                          color: Theme.of(context).primaryColor,
                                           fontWeight: FontWeight.w400,
                                         ),
                                       ),
-                                      AutoSizeText(
-                                        'Order report should be here',
+                                       AutoSizeText(
+                                        '${orderModel.report}',
                                         style: TextStyle(
-                                          color: Color(0xFF555B6A),
+                                          color: Theme.of(context).primaryColor,
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -396,7 +394,7 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 20,),
+                                 const SizedBox(height: 20,),
                               ],
                             ),
                           ),

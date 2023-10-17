@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/models/order.dart';
 
-final selectedOrdersToNewOrder = StateNotifierProvider<SelectedOrdersState , List<OrderModel?>>((ref) => SelectedOrdersState());
+final selectedOrdersToNewOrder = StateNotifierProvider.autoDispose<SelectedOrdersState , List<OrderModel?>>((ref) => SelectedOrdersState());
 
 class SelectedOrdersState extends StateNotifier<List<OrderModel>> {
   SelectedOrdersState() : super([]);

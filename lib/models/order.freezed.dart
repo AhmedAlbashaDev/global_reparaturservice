@@ -36,8 +36,9 @@ mixin _$OrderModel {
   @JsonKey(name: 'is_paid')
   bool get isPaid => throw _privateConstructorUsedError;
   String? get amount => throw _privateConstructorUsedError;
+  String? get report => throw _privateConstructorUsedError;
   @JsonKey(name: 'payment_id')
-  int? get paymentId => throw _privateConstructorUsedError;
+  String? get paymentId => throw _privateConstructorUsedError;
   @JsonKey(name: 'payment_way')
   dynamic get paymentWay => throw _privateConstructorUsedError;
   @JsonKey(name: 'customer_id')
@@ -94,7 +95,8 @@ abstract class $OrderModelCopyWith<$Res> {
       @JsonKey(name: 'block_no') String? blockNo,
       @JsonKey(name: 'is_paid') bool isPaid,
       String? amount,
-      @JsonKey(name: 'payment_id') int? paymentId,
+      String? report,
+      @JsonKey(name: 'payment_id') String? paymentId,
       @JsonKey(name: 'payment_way') dynamic paymentWay,
       @JsonKey(name: 'customer_id') int customerId,
       @JsonKey(name: 'order_phone_number') String? orderPhoneNumber,
@@ -140,6 +142,7 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
     Object? blockNo = freezed,
     Object? isPaid = null,
     Object? amount = freezed,
+    Object? report = freezed,
     Object? paymentId = freezed,
     Object? paymentWay = freezed,
     Object? customerId = null,
@@ -207,10 +210,14 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
               as String?,
+      report: freezed == report
+          ? _value.report
+          : report // ignore: cast_nullable_to_non_nullable
+              as String?,
       paymentId: freezed == paymentId
           ? _value.paymentId
           : paymentId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as String?,
       paymentWay: freezed == paymentWay
           ? _value.paymentWay
           : paymentWay // ignore: cast_nullable_to_non_nullable
@@ -312,7 +319,8 @@ abstract class _$$OrderModelImplCopyWith<$Res>
       @JsonKey(name: 'block_no') String? blockNo,
       @JsonKey(name: 'is_paid') bool isPaid,
       String? amount,
-      @JsonKey(name: 'payment_id') int? paymentId,
+      String? report,
+      @JsonKey(name: 'payment_id') String? paymentId,
       @JsonKey(name: 'payment_way') dynamic paymentWay,
       @JsonKey(name: 'customer_id') int customerId,
       @JsonKey(name: 'order_phone_number') String? orderPhoneNumber,
@@ -357,6 +365,7 @@ class __$$OrderModelImplCopyWithImpl<$Res>
     Object? blockNo = freezed,
     Object? isPaid = null,
     Object? amount = freezed,
+    Object? report = freezed,
     Object? paymentId = freezed,
     Object? paymentWay = freezed,
     Object? customerId = null,
@@ -424,10 +433,14 @@ class __$$OrderModelImplCopyWithImpl<$Res>
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
               as String?,
+      report: freezed == report
+          ? _value.report
+          : report // ignore: cast_nullable_to_non_nullable
+              as String?,
       paymentId: freezed == paymentId
           ? _value.paymentId
           : paymentId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as String?,
       paymentWay: freezed == paymentWay
           ? _value.paymentWay
           : paymentWay // ignore: cast_nullable_to_non_nullable
@@ -512,6 +525,7 @@ class _$OrderModelImpl implements _OrderModel {
       @JsonKey(name: 'block_no') required this.blockNo,
       @JsonKey(name: 'is_paid') required this.isPaid,
       required this.amount,
+      required this.report,
       @JsonKey(name: 'payment_id') required this.paymentId,
       @JsonKey(name: 'payment_way') required this.paymentWay,
       @JsonKey(name: 'customer_id') required this.customerId,
@@ -563,8 +577,10 @@ class _$OrderModelImpl implements _OrderModel {
   @override
   final String? amount;
   @override
+  final String? report;
+  @override
   @JsonKey(name: 'payment_id')
-  final int? paymentId;
+  final String? paymentId;
   @override
   @JsonKey(name: 'payment_way')
   final dynamic paymentWay;
@@ -622,7 +638,7 @@ class _$OrderModelImpl implements _OrderModel {
 
   @override
   String toString() {
-    return 'OrderModel(id: $id, referenceNo: $referenceNo, address: $address, description: $description, lat: $lat, lng: $lng, status: $status, maintenanceDevice: $maintenanceDevice, brand: $brand, blockNo: $blockNo, isPaid: $isPaid, amount: $amount, paymentId: $paymentId, paymentWay: $paymentWay, customerId: $customerId, orderPhoneNumber: $orderPhoneNumber, floorNumber: $floorNumber, apartmentNumber: $apartmentNumber, additionalInfo: $additionalInfo, customer: $customer, files: $files, roadId: $roadId, isVisit: $isVisit, orderId: $orderId, createBy: $createBy, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, statusName: $statusName)';
+    return 'OrderModel(id: $id, referenceNo: $referenceNo, address: $address, description: $description, lat: $lat, lng: $lng, status: $status, maintenanceDevice: $maintenanceDevice, brand: $brand, blockNo: $blockNo, isPaid: $isPaid, amount: $amount, report: $report, paymentId: $paymentId, paymentWay: $paymentWay, customerId: $customerId, orderPhoneNumber: $orderPhoneNumber, floorNumber: $floorNumber, apartmentNumber: $apartmentNumber, additionalInfo: $additionalInfo, customer: $customer, files: $files, roadId: $roadId, isVisit: $isVisit, orderId: $orderId, createBy: $createBy, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, statusName: $statusName)';
   }
 
   @override
@@ -645,6 +661,7 @@ class _$OrderModelImpl implements _OrderModel {
             (identical(other.blockNo, blockNo) || other.blockNo == blockNo) &&
             (identical(other.isPaid, isPaid) || other.isPaid == isPaid) &&
             (identical(other.amount, amount) || other.amount == amount) &&
+            (identical(other.report, report) || other.report == report) &&
             (identical(other.paymentId, paymentId) ||
                 other.paymentId == paymentId) &&
             const DeepCollectionEquality()
@@ -693,6 +710,7 @@ class _$OrderModelImpl implements _OrderModel {
         blockNo,
         isPaid,
         amount,
+        report,
         paymentId,
         const DeepCollectionEquality().hash(paymentWay),
         customerId,
@@ -741,7 +759,8 @@ abstract class _OrderModel implements OrderModel {
       @JsonKey(name: 'block_no') required final String? blockNo,
       @JsonKey(name: 'is_paid') required final bool isPaid,
       required final String? amount,
-      @JsonKey(name: 'payment_id') required final int? paymentId,
+      required final String? report,
+      @JsonKey(name: 'payment_id') required final String? paymentId,
       @JsonKey(name: 'payment_way') required final dynamic paymentWay,
       @JsonKey(name: 'customer_id') required final int customerId,
       @JsonKey(name: 'order_phone_number')
@@ -793,8 +812,10 @@ abstract class _OrderModel implements OrderModel {
   @override
   String? get amount;
   @override
+  String? get report;
+  @override
   @JsonKey(name: 'payment_id')
-  int? get paymentId;
+  String? get paymentId;
   @override
   @JsonKey(name: 'payment_way')
   dynamic get paymentWay;

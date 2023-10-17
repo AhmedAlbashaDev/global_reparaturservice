@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../core/globals.dart';
 import '../widgets/custom_button.dart';
@@ -12,17 +13,19 @@ class OnBoarding extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Theme.of(context).primaryColor,
         body: SafeArea(
           child: SizedBox(
             width: screenWidth * 100,
             child: Stack(
               children: [
-                Image.asset(
-                  'assets/images/on_boarding_image.png',
-                  height: screenHeight * 48,
+                SizedBox(
                   width: screenWidth * 100,
-                  fit: BoxFit.contain,
+                  child: Lottie.asset(
+                    'assets/images/technician_animation.json',
+                    fit: BoxFit.cover
+                  ),
                 ),
                 Column(
                   children: [
@@ -94,7 +97,7 @@ class OnBoarding extends StatelessWidget {
                             width: screenWidth * 90,
                             child: CustomButton(
                                 onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => SignIn()));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const SignIn()));
                                 },
                                 text: 'sign_in'.tr(),
                                 bgColor: Colors.white,

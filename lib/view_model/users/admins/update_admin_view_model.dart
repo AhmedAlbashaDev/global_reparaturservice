@@ -1,12 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/providers/dio_network_provider.dart';
-import '../../models/response_state.dart';
-import '../../models/user.dart';
-import '../../repositories/users_repository.dart';
+import '../../../core/providers/dio_network_provider.dart';
+import '../../../models/response_state.dart';
+import '../../../models/user.dart';
+import '../../../repositories/users_repository.dart';
 
-final usersUpdateAdminViewModelProvider = StateNotifierProvider<UpdateAdminViewModel,ResponseState<UserModel>>((ref) {
+final usersUpdateAdminViewModelProvider = StateNotifierProvider.autoDispose<UpdateAdminViewModel,ResponseState<UserModel>>((ref) {
+  final cancelToken = CancelToken();
+  ref.onDispose(cancelToken.cancel);
   return UpdateAdminViewModel(UsersRepository(dioClient: ref.read(dioClientNetworkProvider) , ref: ref));
 });
 
@@ -17,7 +19,7 @@ class UpdateAdminViewModel extends StateNotifier<ResponseState<UserModel>>{
 
   Future<void> update({required String endPoint , required String name , required String email, required String password, required String additional,}) async{
 
-    state = const ResponseState<UserModel>.loading();
+    setState(const ResponseState<UserModel>.loading());
 
     await Future.delayed(const Duration(seconds: 1));
 
@@ -29,10 +31,16 @@ class UpdateAdminViewModel extends StateNotifier<ResponseState<UserModel>>{
     });
 
     response.whenOrNull(data: (data) {
-      state = ResponseState.data(data: data);
+      setState(ResponseState<UserModel>.data(data: data));
     }, error: (error) {
-      state = ResponseState.error(error: error);
+      setState(ResponseState<UserModel>.error(error: error));
     });
+  }
+
+  setState(ResponseState<UserModel> newState){
+    if(mounted) {
+      state = newState;
+    }
   }
 
 }

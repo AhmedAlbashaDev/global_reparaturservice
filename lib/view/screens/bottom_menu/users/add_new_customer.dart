@@ -2,14 +2,14 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:global_reparaturservice/view_model/users/add_new_cutomer_view_model.dart';
-import 'package:global_reparaturservice/view_model/users/get_users_view_model.dart';
-import 'package:global_reparaturservice/view_model/users/update_customer_view_model.dart';
+import 'package:global_reparaturservice/view_model/users/customers/add_new_cutomer_view_model.dart';
+import 'package:global_reparaturservice/view_model/users/customers/update_customer_view_model.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../../../core/globals.dart';
 import '../../../../models/response_state.dart';
 import '../../../../models/user.dart';
-import '../../../../view_model/users/delete_customer_view_model.dart';
+import '../../../../view_model/users/customers/delete_customer_view_model.dart';
 import '../../../widgets/custom_app_bar.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_snakbar.dart';
@@ -46,7 +46,6 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     name = TextEditingController();
@@ -69,7 +68,6 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     name.dispose();
     email.dispose();
@@ -85,32 +83,33 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
     ref.listen<ResponseState<UserModel>>(usersAddNewCustomerViewModelProvider,
         (previous, next) {
       next.whenOrNull(
-        loading: () {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => const LoadingDialog(),
-          );
-        },
         data: (user) {
-          if (ModalRoute.of(context)?.isCurrent != true) {
-            Navigator.pop(context);
-          }
 
-          ref
-              .read(usersCustomersViewModelProvider.notifier)
-              .loadAll(endPoint: 'customers');
+          // final snackBar = SnackBar(
+          //   backgroundColor: Colors.transparent,
+          //   behavior: SnackBarBehavior.floating,
+          //   padding: EdgeInsets.zero,
+          //   content: CustomSnakeBarContent(
+          //     icon: Icon(
+          //       Icons.info,
+          //       color: Theme.of(context).primaryColor,
+          //       size: 25,
+          //     ),
+          //     message: 'Successfully created'.tr(),
+          //     bgColor: Colors.grey.shade400,
+          //     borderColor: Colors.green,
+          //   ),
+          // );
+          // ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-          Navigator.pop(context);
+          Navigator.pop(context , 'update');
         },
         error: (error) {
-          if (ModalRoute.of(context)?.isCurrent != true) {
-            Navigator.pop(context);
-          }
 
           final snackBar = SnackBar(
             backgroundColor: Colors.transparent,
             behavior: SnackBarBehavior.floating,
+            padding: EdgeInsets.zero,
             content: CustomSnakeBarContent(
               icon: const Icon(
                 Icons.error,
@@ -130,32 +129,33 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
     ref.listen<ResponseState<UserModel>>(usersUpdateCustomerViewModelProvider,
             (previous, next) {
           next.whenOrNull(
-            loading: () {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (_) => const LoadingDialog(),
-              );
-            },
             data: (user) {
-              if (ModalRoute.of(context)?.isCurrent != true) {
-                Navigator.pop(context);
-              }
 
-              ref
-                  .read(usersCustomersViewModelProvider.notifier)
-                  .loadAll(endPoint: 'customers');
+              // final snackBar = SnackBar(
+              //   backgroundColor: Colors.transparent,
+              //   behavior: SnackBarBehavior.floating,
+              //   padding: EdgeInsets.zero,
+              //   content: CustomSnakeBarContent(
+              //     icon: Icon(
+              //       Icons.info,
+              //       color: Theme.of(context).primaryColor,
+              //       size: 25,
+              //     ),
+              //     message: 'Successfully update'.tr(),
+              //     bgColor: Colors.grey.shade400,
+              //     borderColor: Colors.green,
+              //   ),
+              // );
+              // ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-              Navigator.pop(context);
+              Navigator.pop(context , 'update');
             },
             error: (error) {
-              if (ModalRoute.of(context)?.isCurrent != true) {
-                Navigator.pop(context);
-              }
 
               final snackBar = SnackBar(
                 backgroundColor: Colors.transparent,
                 behavior: SnackBarBehavior.floating,
+                padding: EdgeInsets.zero,
                 content: CustomSnakeBarContent(
                   icon: const Icon(
                     Icons.error,
@@ -175,32 +175,32 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
     ref.listen<ResponseState<UserModel>>(usersDeleteCustomerViewModelProvider,
             (previous, next) {
           next.whenOrNull(
-            loading: () {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (_) => const LoadingDialog(),
-              );
-            },
             data: (user) {
-              if (ModalRoute.of(context)?.isCurrent != true) {
-                Navigator.pop(context);
-              }
 
-              ref
-                  .read(usersCustomersViewModelProvider.notifier)
-                  .loadAll(endPoint: 'customers');
+              // final snackBar = SnackBar(
+              //   backgroundColor: Colors.transparent,
+              //   behavior: SnackBarBehavior.floating,
+              //   padding: EdgeInsets.zero,
+              //   content: CustomSnakeBarContent(
+              //     icon: Icon(
+              //       Icons.info,
+              //       color: Theme.of(context).primaryColor,
+              //       size: 25,
+              //     ),
+              //     message: 'Successfully deleted'.tr(),
+              //     bgColor: Colors.grey.shade400,
+              //     borderColor: Colors.green,
+              //   ),
+              // );
+              // ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-              Navigator.pop(context);
+              Navigator.pop(context , 'update');
             },
             error: (error) {
-              if (ModalRoute.of(context)?.isCurrent != true) {
-                Navigator.pop(context);
-              }
-
               final snackBar = SnackBar(
                 backgroundColor: Colors.transparent,
                 behavior: SnackBarBehavior.floating,
+                padding: EdgeInsets.zero,
                 content: CustomSnakeBarContent(
                   icon: const Icon(
                     Icons.error,
@@ -321,116 +321,146 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                           if(isUpdate)
                             Column(
                               children: [
-                                CustomButton(
-                                    onPressed: () {
-                                      if (_addCustomerFormKey.currentState
-                                          ?.validate() ??
-                                          false) {
-                                        ref
-                                            .read(usersUpdateCustomerViewModelProvider
-                                            .notifier)
-                                            .update(
-                                            endPoint: 'customers/${userModel?.id}',
-                                            name: name.text,
-                                            email: email.text,
-                                            phone: phone.text,
-                                            address: address.text,
-                                            zoneArea: zone.text,
-                                            additional: additional.text);
-                                      }
-                                    },
-                                    text: 'update_customer'.tr(),
-                                    textColor: Colors.white,
-                                    bgColor: Theme.of(context).primaryColor),
+                                ref.watch(usersUpdateCustomerViewModelProvider).maybeWhen(
+                                    loading: () => Center(
+                                      child: Lottie.asset(
+                                          'assets/images/global_loader.json',
+                                          height: 50
+                                      ),
+                                    ),
+                                    orElse: (){
+                                      return CustomButton(
+                                          onPressed: () {
+                                            if (_addCustomerFormKey.currentState
+                                                ?.validate() ??
+                                                false) {
+                                              ref
+                                                  .read(usersUpdateCustomerViewModelProvider
+                                                  .notifier)
+                                                  .update(
+                                                  endPoint: 'customers/${userModel?.id}',
+                                                  name: name.text,
+                                                  email: email.text,
+                                                  phone: phone.text,
+                                                  address: address.text,
+                                                  zoneArea: zone.text,
+                                                  additional: additional.text);
+                                            }
+                                          },
+                                          text: 'update_customer'.tr(),
+                                          textColor: Colors.white,
+                                          bgColor: Theme.of(context).primaryColor);
+                                    }
+                                ),
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                CustomButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (_) => Center(
-                                          child: Container(
-                                            height: screenHeight * 20,
-                                            width: screenWidth * 90,
-                                            margin: const EdgeInsets.all(24),
-                                            decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius: BorderRadius.circular(12)
-                                            ),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                Material(
-                                                  child: AutoSizeText(
-                                                    'are_you_sure_you_want_to_delete'.tr(),
-                                                    style: TextStyle(
-                                                        color: Theme.of(context).primaryColor,
-                                                        fontSize: 17,
-                                                        fontWeight: FontWeight.bold),
+                                ref.watch(usersDeleteCustomerViewModelProvider).maybeWhen(
+                                    loading: () => Center(
+                                      child: Lottie.asset(
+                                          'assets/images/global_loader.json',
+                                          height: 50
+                                      ),
+                                    ),
+                                    orElse: (){
+                                      return CustomButton(
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              barrierDismissible: false,
+                                              builder: (_) => Center(
+                                                child: Container(
+                                                  height: screenHeight * 20,
+                                                  width: screenWidth * 90,
+                                                  margin: const EdgeInsets.all(24),
+                                                  decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius: BorderRadius.circular(12)
+                                                  ),
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                    children: [
+                                                      Material(
+                                                        child: AutoSizeText(
+                                                          'are_you_sure_you_want_to_delete'.tr(),
+                                                          style: TextStyle(
+                                                              color: Theme.of(context).primaryColor,
+                                                              fontSize: 17,
+                                                              fontWeight: FontWeight.bold),
+                                                        ),
+                                                      ),
+                                                      Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                        children: [
+                                                          CustomButton(
+                                                            onPressed: (){
+                                                              Navigator.pop(context);
+                                                            },
+                                                            text: 'no'.tr(),
+                                                            textColor: Theme.of(context).primaryColor,
+                                                            bgColor: Colors.white,
+                                                          ),
+                                                          CustomButton(
+                                                            onPressed: (){
+                                                              Navigator.pop(context);
+                                                              ref
+                                                                  .read(usersDeleteCustomerViewModelProvider
+                                                                  .notifier)
+                                                                  .delete(endPoint: 'customers/${userModel?.id}',);
+                                                            },
+                                                            text: 'yes'.tr(),
+                                                            textColor: Colors.white,
+                                                            bgColor: Colors.red,
+                                                          )
+                                                        ],
+                                                      )
+                                                    ],
                                                   ),
                                                 ),
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                  children: [
-                                                    CustomButton(
-                                                      onPressed: (){
-                                                        Navigator.pop(context);
-                                                      },
-                                                      text: 'no'.tr(),
-                                                      textColor: Theme.of(context).primaryColor,
-                                                      bgColor: Colors.white,
-                                                    ),
-                                                    CustomButton(
-                                                      onPressed: (){
-                                                        Navigator.pop(context);
-                                                        ref
-                                                            .read(usersDeleteCustomerViewModelProvider
-                                                            .notifier)
-                                                            .delete(endPoint: 'customers/${userModel?.id}',);
-                                                      },
-                                                      text: 'yes'.tr(),
-                                                      textColor: Colors.white,
-                                                      bgColor: Colors.red,
-                                                    )
-                                                  ],
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      );
+                                              ),
+                                            );
 
-                                    },
-                                    text: 'delete_customer'.tr(),
-                                    textColor: Colors.white,
-                                    bgColor: Colors.red),
+                                          },
+                                          text: 'delete_customer'.tr(),
+                                          textColor: Colors.white,
+                                          bgColor: Colors.red);
+                                    }
+                                ),
                               ],
                             )
                           else
-                            CustomButton(
-                                onPressed: () {
-                                  if (_addCustomerFormKey.currentState
-                                      ?.validate() ??
-                                      false) {
-                                    ref
-                                        .read(usersAddNewCustomerViewModelProvider
-                                        .notifier)
-                                        .create(
-                                        endPoint: 'customers',
-                                        name: name.text,
-                                        email: email.text,
-                                        phoneNo: phone.text,
-                                        address: address.text,
-                                        zoneArea: zone.text,
-                                        additional: additional.text);
-                                  }
-                                },
-                                text: 'add_new_customer'.tr(),
-                                textColor: Colors.white,
-                                bgColor: Theme.of(context).primaryColor),
+                            ref.watch(usersAddNewCustomerViewModelProvider).maybeWhen(
+                                loading: () => Center(
+                                  child: Lottie.asset(
+                                      'assets/images/global_loader.json',
+                                      height: 50
+                                  ),
+                                ),
+                                orElse: (){
+                                  return CustomButton(
+                                      onPressed: () {
+                                        if (_addCustomerFormKey.currentState
+                                            ?.validate() ??
+                                            false) {
+                                          ref
+                                              .read(usersAddNewCustomerViewModelProvider
+                                              .notifier)
+                                              .create(
+                                              endPoint: 'customers',
+                                              name: name.text,
+                                              email: email.text,
+                                              phoneNo: phone.text,
+                                              address: address.text,
+                                              zoneArea: zone.text,
+                                              additional: additional.text);
+                                        }
+                                      },
+                                      text: 'add_new_customer'.tr(),
+                                      textColor: Colors.white,
+                                      bgColor: Theme.of(context).primaryColor);
+                                }
+                            ),
                           const SizedBox(
                             height: 5,
                           ),

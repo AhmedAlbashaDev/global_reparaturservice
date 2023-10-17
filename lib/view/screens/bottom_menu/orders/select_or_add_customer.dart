@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:global_reparaturservice/models/user.dart';
-import 'package:lottie/lottie.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../../../core/globals.dart';
@@ -13,6 +13,8 @@ import '../../../widgets/custom_error.dart';
 import '../../../widgets/custom_shimmer.dart';
 import '../../../widgets/empty_widget.dart';
 import '../../../widgets/floating_add_button.dart';
+import '../../../widgets/pagination_footer.dart';
+import '../../search.dart';
 import '/../../core/providers/search_field_status.dart';
 import '../../../widgets/custom_app_bar.dart';
 import '../../../widgets/gradient_background.dart';
@@ -29,10 +31,7 @@ class SelectOrAddCustomerScreen extends ConsumerStatefulWidget {
   ConsumerState createState() => _SelectOrAddCustomerScreenState();
 }
 
-class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerScreen> with TickerProviderStateMixin {
-  late AnimationController animation;
-  late Animation<double> fadeInFadeOut;
-  late TextEditingController searchController;
+class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerScreen> {
 
   final RefreshController _refreshController =
   RefreshController(initialRefresh: false);
@@ -40,12 +39,6 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
   @override
   void initState() {
     super.initState();
-    searchController = TextEditingController();
-    animation = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
-    fadeInFadeOut = Tween<double>(begin: 0.0, end: 1.0).animate(animation);
 
     Future.microtask(() {
       ref.read(selectedUserToNewOrder.notifier).state = null;
@@ -56,10 +49,7 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
-    animation.dispose();
-    searchController.dispose();
   }
 
   @override
@@ -117,17 +107,6 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
                                       )
                                     ],
                                   ),
-                                  SearchWidget(
-                                    fadeInFadeOut: fadeInFadeOut,
-                                    searchController: searchController,
-                                    onChanged: (text) {},
-                                    onClose: () {
-                                      ref.read(searchFieldStatusProvider.notifier).state =
-                                      false;
-                                      animation.reverse();
-                                    },
-                                    enabled: ref.watch(searchFieldStatusProvider),
-                                  )
                                 ],
                               ),
                             ),
@@ -223,10 +202,12 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
                                               materialTapTargetSize:
                                               MaterialTapTargetSize.shrinkWrap,
                                               onPressed: () {
-                                                ref
-                                                    .read(searchFieldStatusProvider.notifier)
-                                                    .state = true;
-                                                animation.forward();
+                                                Navigator.push(
+                                                    context,
+                                                    PageTransition(
+                                                        type: PageTransitionType.rightToLeft,
+                                                        duration: const Duration(milliseconds: 500),
+                                                        child:  SearchScreen(endPoint: 'customers', title: 'customers'.tr())));
                                               },
                                               child: Image.asset(
                                                 'assets/images/search.png',
@@ -237,17 +218,6 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
                                         )
                                       ],
                                     ),
-                                    SearchWidget(
-                                      fadeInFadeOut: fadeInFadeOut,
-                                      searchController: searchController,
-                                      onChanged: (text) {},
-                                      onClose: () {
-                                        ref.read(searchFieldStatusProvider.notifier).state =
-                                        false;
-                                        animation.reverse();
-                                      },
-                                      enabled: ref.watch(searchFieldStatusProvider),
-                                    )
                                   ],
                                 ),
                               ),
@@ -272,30 +242,7 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
                                     }
                                   },
                                   header: const WaterDropHeader(),
-                                  footer: CustomFooter(
-                                    builder: (context, mode) {
-                                      Widget body;
-
-                                      if (mode == LoadStatus.idle) {
-                                        body = Text("pull_up_to_load".tr());
-                                      } else if (mode == LoadStatus.loading) {
-                                        body = Lottie.asset(
-                                            'assets/images/global_loader.json',
-                                            height: 50);
-                                      } else if (mode == LoadStatus.failed) {
-                                        body = Text("load_failed".tr());
-                                      } else if (mode == LoadStatus.canLoading) {
-                                        body = Text("release_to_load_more".tr());
-                                      } else {
-                                        body = Text("no_more_data".tr());
-                                      }
-
-                                      return SizedBox(
-                                        height: 60.0,
-                                        child: Center(child: body),
-                                      );
-                                    },
-                                  ),
+                                  footer: const PaginationFooter(),
                                   child: SingleChildScrollView(
                                     child: AnimationLimiter(
                                       child: ListView.builder(
@@ -377,7 +324,7 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
                                                                           ],
                                                                         ),
                                                                         AutoSizeText(
-                                                                          usersCustomers.data[index].address ?? 'Unknown Address',
+                                                                          usersCustomers.data[index].address ?? 'unknown_address'.tr(),
                                                                           style: TextStyle(
                                                                               color: Theme.of(context).primaryColor,
                                                                               fontSize: 10,
@@ -427,7 +374,7 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
       ),
       floatingActionButton: FloatingAddButton(
         onPresses: (){
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AddNewCustomerScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const AddNewCustomerScreen()));
         },
       )
     );

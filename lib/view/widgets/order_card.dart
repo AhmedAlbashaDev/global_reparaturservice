@@ -3,7 +3,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/models/order.dart';
-import 'package:global_reparaturservice/view/screens/bottom_menu/routes/new_route.dart';
 import 'package:jiffy/jiffy.dart';
 
 class OrderCard extends ConsumerWidget {
@@ -34,7 +33,7 @@ class OrderCard extends ConsumerWidget {
             borderRadius: BorderRadius.circular(10),
             color: Colors.white,
           ),
-          padding: EdgeInsets.symmetric(horizontal: 16 , vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16 , vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -68,10 +67,10 @@ class OrderCard extends ConsumerWidget {
                           color: const Color(0xff21AE38)
                               .withOpacity(.3)),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12 , vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 12 , vertical: 6),
                         child: AutoSizeText(
                           'paid'.tr(),
-                          style: TextStyle(
+                          style: const TextStyle(
                               color: Color(0xff21AE38),
                               fontSize: 13,
                               fontWeight: FontWeight.bold),
@@ -84,10 +83,10 @@ class OrderCard extends ConsumerWidget {
                           color: const Color(0xffE2BD38)
                               .withOpacity(.3)),
                       child:  Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12 , vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 12 , vertical: 6),
                         child: AutoSizeText(
                           'not_paid'.tr(),
-                          style: TextStyle(
+                          style: const TextStyle(
                               color: Color(0xffE2BD38),
                               fontSize: 13,
                               fontWeight: FontWeight.bold),
@@ -99,15 +98,21 @@ class OrderCard extends ConsumerWidget {
               ),
               if(showOrderStatus)
                 orderModel?.status == 3 ? AutoSizeText(
-                  'completed'.tr(),
-                  style: TextStyle(
+                  '${orderModel?.statusName}'.tr(),
+                  style: const TextStyle(
                       color: Color(0xff23A26D),
                       fontSize: 13,
                       fontWeight: FontWeight.bold),
-                ) : AutoSizeText(
-                  'not_completed'.tr(),
-                  style: TextStyle(
+                ) : orderModel?.status == 4 ? AutoSizeText(
+                  '${orderModel?.statusName}'.tr(),
+                  style: const TextStyle(
                       color: Color(0xffD51E1E),
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold),
+                ) : AutoSizeText(
+                  '${orderModel?.statusName}'.tr(),
+                  style: const TextStyle(
+                      color: Color(0xffE2BD38),
                       fontSize: 13,
                       fontWeight: FontWeight.bold),
                 ),

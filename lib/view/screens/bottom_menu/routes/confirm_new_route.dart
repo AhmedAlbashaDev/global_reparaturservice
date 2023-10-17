@@ -7,6 +7,7 @@ import 'package:global_reparaturservice/models/routes.dart';
 import 'package:global_reparaturservice/view/screens/bottom_menu/routes/new_route.dart';
 import 'package:global_reparaturservice/view_model/route_view_model.dart';
 import 'package:global_reparaturservice/view_model/routes_view_model.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../../../models/response_state.dart';
 import '../../../widgets/custom_app_bar.dart';
@@ -24,19 +25,13 @@ class ConfirmNewRoute extends ConsumerWidget {
 
     ref.listen<ResponseState<RoutesModel>>(routeViewModelProvider, (previous, next) {
       next.whenOrNull(
-        loading: (){
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => const LoadingDialog(),
-          );
-        },
         success: (order) {
 
           if(ModalRoute.of(context)?.isCurrent != true){
             Navigator.pop(context);
           }
 
+          Navigator.pop(context);
           Navigator.pop(context);
 
           ref.read(routesViewModelProvider.notifier).loadAll();
@@ -179,18 +174,28 @@ class ConfirmNewRoute extends ConsumerWidget {
 
                         const SizedBox(height: 20,),
 
-                        CustomButton(
-                          onPressed: (){
-                            ref.read(routeViewModelProvider.notifier).create(
-                                description: 'This is just description',
-                                driverId: ref.read(selectedTechnician)?.id,
-                                orders: ref.read(selectedOrdersToNewOrder),
-                            );
-                          },
-                          text: 'place_route'.tr(),
-                          textColor: Colors.white,
-                          bgColor: Theme.of(context).primaryColor,
-                        )
+                        ref.watch(routeViewModelProvider).maybeWhen(
+                            loading: () => Center(
+                              child: Lottie.asset(
+                                  'assets/images/global_loader.json',
+                                  height: 50
+                              ),
+                            ),
+                            orElse: (){
+                              return CustomButton(
+                                onPressed: (){
+                                  ref.read(routeViewModelProvider.notifier).create(
+                                    description: 'This is just description',
+                                    driverId: ref.read(selectedTechnician)?.id,
+                                    orders: ref.read(selectedOrdersToNewOrder),
+                                  );
+                                },
+                                text: 'place_route'.tr(),
+                                textColor: Colors.white,
+                                bgColor: Theme.of(context).primaryColor,
+                              );
+                            }
+                        ),
                       ],
                     ),
                   )

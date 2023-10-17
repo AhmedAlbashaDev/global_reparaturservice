@@ -4,8 +4,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 import 'core/globals.dart';
 import 'firebase_options.dart';
@@ -18,7 +20,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   showFlutterNotification(message);
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
-  print('Handling a background message ${message.messageId}');
 }
 
 /// Create a [AndroidNotificationChannel] for heads up notifications
@@ -64,10 +65,13 @@ void showFlutterNotification(RemoteMessage message) {
   RemoteNotification? notification = message.notification;
   AndroidNotification? android = message.notification?.android;
   if (notification != null && android != null && !kIsWeb) {
+
+    var body = notification.body as Map<String , dynamic>;
+
     flutterLocalNotificationsPlugin.show(
       notification.hashCode,
       notification.title,
-      notification.body,
+      'Route id #${body['id']}',
       NotificationDetails(
         android: AndroidNotificationDetails(
           channel.id,
@@ -96,12 +100,22 @@ Future<void> main() async {
 
   await setupFlutterNotifications();
 
+  //Load our .env file that contains our Stripe Secret key
+  await dotenv.load(fileName: "assets/.env");
+
+  Stripe.publishableKey = dotenv.env['STRIPE_PUBLISH'] ?? '';
+
+
+  //dotenv.env['STRIPE_SECRET']
+
+
   runApp(
       ProviderScope(
         child: EasyLocalization(
             supportedLocales: const [Locale('en'), Locale('de')],
             path: 'assets/translations',
-            fallbackLocale: const Locale('en', 'US'),
+            fallbackLocale: const Locale('en'),
+            startLocale: const Locale('en'),
             child: const MyApp()),
       )
     );
@@ -132,11 +146,11 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
+
     FirebaseMessaging.onMessage.listen(showFlutterNotification);
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('A new onMessageOpenedApp event was published!');
-      print('show notification onMessageOpenedApp');
+      // showFlutterNotification(message);
       // Navigator.pushNamed(
       //   context,
       //   '/message',
@@ -170,7 +184,7 @@ class _MyAppState extends State<MyApp> {
                 ),
                 focusedErrorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(9),
-                    borderSide: BorderSide(color: Theme.of(context).cardColor , width: 1.5)
+                    borderSide: BorderSide(color: Colors.red , width: 1.5)
                 ),
                 errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(9),

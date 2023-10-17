@@ -2,7 +2,12 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '/../../core/providers/bottom_navigation_menu.dart';
+import '../../../../core/providers/bottom_navigation_menu.dart';
+import '../../../../models/response_state.dart';
+import '../../../../models/user.dart';
+import '../../../../view_model/logout_view_model.dart';
+import '../../../widgets/custom_snakbar.dart';
+import '../../../widgets/loading_dialog.dart';
 
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_menu_screens_app_bar.dart';
@@ -15,6 +20,48 @@ class MoreScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context , WidgetRef ref) {
+
+    ref.listen<ResponseState<UserModel>>(logoutViewModelProvider, (previous, next) {
+      next.whenOrNull(
+        loading: (){
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const LoadingDialog(),
+          );
+        },
+        success: (user) {
+
+          if(ModalRoute.of(context)?.isCurrent != true){
+            Navigator.pop(context);
+          }
+
+          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
+              const SignIn()), (Route<dynamic> route) => false);
+
+        },
+        error: (error) {
+
+          if(ModalRoute.of(context)?.isCurrent != true){
+            Navigator.pop(context);
+          }
+
+          final snackBar = SnackBar(
+            backgroundColor: Colors.transparent,
+            behavior: SnackBarBehavior.floating,
+            padding: EdgeInsets.zero,
+            content: CustomSnakeBarContent(
+              icon: const Icon(Icons.error, color: Colors.red , size: 25,),
+              message: error.errorMessage ?? '',
+              bgColor: Colors.grey.shade600,
+              borderColor: Colors.redAccent.shade200,
+            ),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        },
+      );
+    });
+
     return Scaffold(
       body: Stack(
         children: [
@@ -31,12 +78,12 @@ class MoreScreen extends ConsumerWidget {
                       Expanded(
                         child: Column(
                           children: [
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                             MaterialButton(
                               onPressed: () {
-                                ref.context.setLocale(context.locale.languageCode == 'en' ? Locale('de') : Locale('en'));
+                                ref.context.setLocale(context.locale.languageCode == 'en' ? const Locale('de') : const Locale('en'));
                               },
                               padding: EdgeInsets.zero,
                               shape: RoundedRectangleBorder(
@@ -69,7 +116,7 @@ class MoreScreen extends ConsumerWidget {
                                 ),
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 15,
                             ),
                             MaterialButton(
@@ -112,14 +159,13 @@ class MoreScreen extends ConsumerWidget {
                         children: [
                           CustomButton(
                             onPressed: () {
-                              ref.read(bottomNavigationMenuProvider.notifier).state = 0;
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SignIn()));
+                              ref.read(logoutViewModelProvider.notifier).logout();
                             },
                             text: 'logout'.tr(),
                             textColor: Colors.white,
                             bgColor: Theme.of(context).primaryColor,
                           ),
-                          VersionWidget()
+                          const VersionWidget()
                         ],
                       ),
                     ],

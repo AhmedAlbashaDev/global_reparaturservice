@@ -39,7 +39,7 @@ class RoutesRepository {
       return ResponseState<PaginationModel<RoutesModel>>.data(data: paginationModel.copyWith(data: list));
 
     } on DioException catch (e) {
-      if(e.type == DioExceptionType.badResponse){
+      if(e.type == DioExceptionType.badResponse && e.response?.data == null){
         return ResponseState<PaginationModel<RoutesModel>>.error(
           error: CustomException(
             errorStatusCode:  500,
@@ -76,7 +76,7 @@ class RoutesRepository {
       return ResponseState<RoutesModel>.data(data: RoutesModel.fromJson(response.data['data']));
 
     } on DioException catch (e) {
-      if(e.type == DioExceptionType.badResponse){
+      if(e.type == DioExceptionType.badResponse && e.response?.data == null){
         return ResponseState<RoutesModel>.error(
           error: CustomException(
             errorStatusCode:  500,
@@ -104,7 +104,6 @@ class RoutesRepository {
         'orders_ids[]' : ordersIDs,
       });
 
-      print('Data is ${data.fields}');
 
       final response = await dioClient.post('roads' , data: data);
 
@@ -121,12 +120,81 @@ class RoutesRepository {
       return const ResponseState<RoutesModel>.success(data: {});
 
     } on DioException catch (e) {
-      print('request data ${e.requestOptions.data}');
-      if(e.type == DioExceptionType.badResponse){
+      if(e.type == DioExceptionType.badResponse && e.response?.data == null){
         return ResponseState<RoutesModel>.error(
           error: CustomException(
             errorStatusCode:  500,
             errorMessage:     'unknown_error_please_try_again'.tr(),
+            errorType:        e.type.name,
+          ),
+        );
+      }
+      else if (e.response?.statusCode == 422){
+
+        String message = '';
+
+        for(final key in (e.response?.data['data'] as Map<String , dynamic>).entries){
+          message += '${key.value[0]} , ';
+        }
+
+        return ResponseState<RoutesModel>.error(
+          error: CustomException(
+            errorStatusCode:  e.response?.data['code'],
+            errorMessage:     message.isEmpty ? e.response?.data['message'] : message,
+            errorType:        e.type.name,
+          ),
+        );
+      }
+      return ResponseState<RoutesModel>.error(
+        error: CustomException(
+          errorStatusCode:  e.response?.data['code'],
+          errorMessage:     e.response?.data['message'] ?? 'unknown_error_please_try_again'.tr(),
+          errorType:        e.type.name,
+        ),
+      );
+    }
+  }
+
+  Future<ResponseState<RoutesModel>> update({required int? routeId, required Map data}) async {
+    try {
+
+
+      final response = await dioClient.put('roads/$routeId' , data: data);
+
+      if(response.data['success'] == false){
+        return ResponseState<RoutesModel>.error(
+          error: CustomException(
+            errorStatusCode: response.data['code'],
+            errorMessage:    response.data['message'] ?? 'unknown_error_please_try_again'.tr(),
+            errorType: DioExceptionType.unknown.name,
+          ),
+        );
+      }
+
+      return const ResponseState<RoutesModel>.success(data: {});
+
+    } on DioException catch (e) {
+      if(e.type == DioExceptionType.badResponse && e.response?.data == null){
+        return ResponseState<RoutesModel>.error(
+          error: CustomException(
+            errorStatusCode:  500,
+            errorMessage:     'unknown_error_please_try_again'.tr(),
+            errorType:        e.type.name,
+          ),
+        );
+      }
+      else if (e.response?.statusCode == 422){
+
+        String message = '';
+
+        for(final key in (e.response?.data['data'] as Map<String , dynamic>).entries){
+          message += '${key.value[0]} , ';
+        }
+
+        return ResponseState<RoutesModel>.error(
+          error: CustomException(
+            errorStatusCode:  e.response?.data['code'],
+            errorMessage:     message.isEmpty ? e.response?.data['message'] : message,
             errorType:        e.type.name,
           ),
         );

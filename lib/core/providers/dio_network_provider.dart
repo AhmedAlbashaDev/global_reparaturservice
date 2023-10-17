@@ -7,18 +7,21 @@ import 'token_provider.dart';
 
 /// DIO NETWORK PROVIDER
 
-final dioClientNetworkProvider = Provider<Dio>((ref) {
+final dioClientNetworkProvider = Provider.autoDispose<Dio>((ref) {
 
   final token = ref.watch(tokenProvider);
 
   final Dio dio = Dio(BaseOptions(
       baseUrl: 'https://workshop.anothercars.com/api/',
       headers: {
-        HttpHeaders.authorizationHeader : token != null ? 'Bearer $token' : null
+        HttpHeaders.authorizationHeader : token != null ? 'Bearer $token' : null,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       }
   ));
 
   ref.onDispose(() => dio.close);
 
-  return dio..interceptors.addAll([LogInterceptor(responseBody: true, requestBody: true)]);
+  return dio..interceptors.addAll([
+    LogInterceptor(responseBody: true, requestBody: true)]);
 }, name: 'Dio');

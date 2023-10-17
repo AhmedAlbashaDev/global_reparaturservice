@@ -6,7 +6,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:global_reparaturservice/core/globals.dart';
 import 'package:global_reparaturservice/view/screens/bottom_menu/users/add_new_admin.dart';
 import 'package:global_reparaturservice/view_model/users/get_users_view_model.dart';
-import 'package:lottie/lottie.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../../../core/providers/search_field_status.dart';
@@ -14,21 +14,13 @@ import '../../../widgets/custom_error.dart';
 import '../../../widgets/custom_shimmer.dart';
 import '../../../widgets/empty_widget.dart';
 import '../../../widgets/search.dart';
+import '../../../widgets/pagination_footer.dart';
+import '../../search.dart';
 
 class UsersAdminsTab extends ConsumerWidget {
   UsersAdminsTab(
-      {super.key,
-      required this.animation,
-      required this.fadeInFadeOut,
-      required this.searchController,
-      required this.onClose,
-      this.onChanged});
+      {super.key,});
 
-  final AnimationController animation;
-  final Animation<double> fadeInFadeOut;
-  final TextEditingController searchController;
-  final VoidCallback onClose;
-  final dynamic onChanged;
 
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -80,17 +72,6 @@ class UsersAdminsTab extends ConsumerWidget {
                         )
                       ],
                     ),
-                    SearchWidget(
-                      fadeInFadeOut: fadeInFadeOut,
-                      searchController: searchController,
-                      onChanged: (text) {},
-                      onClose: () {
-                        ref.read(searchFieldStatusProvider.notifier).state =
-                        false;
-                        animation.reverse();
-                      },
-                      enabled: ref.watch(searchFieldStatusProvider),
-                    )
                   ],
                 ),
               ),
@@ -181,10 +162,12 @@ class UsersAdminsTab extends ConsumerWidget {
                                 materialTapTargetSize:
                                     MaterialTapTargetSize.shrinkWrap,
                                 onPressed: () {
-                                  ref
-                                      .read(searchFieldStatusProvider.notifier)
-                                      .state = true;
-                                  animation.forward();
+                                  Navigator.push(
+                                      context,
+                                      PageTransition(
+                                          type: PageTransitionType.rightToLeft,
+                                          duration: const Duration(milliseconds: 500),
+                                          child:  SearchScreen(endPoint: 'admins', title: 'admins'.tr())));
                                 },
                                 child: Image.asset(
                                   'assets/images/search.png',
@@ -194,19 +177,7 @@ class UsersAdminsTab extends ConsumerWidget {
                             ),
                           )
                         ],
-                      ),
-                      SearchWidget(
-                        fadeInFadeOut: fadeInFadeOut,
-                        searchController: searchController,
-                        onChanged: (text) {},
-                        onClose: () {
-                          ref.read(searchFieldStatusProvider.notifier).state =
-                              false;
-                          animation.reverse();
-                        },
-                        enabled: ref.watch(searchFieldStatusProvider),
-                      )
-                    ],
+                      ),],
                   ),
                 ),
                 Expanded(
@@ -230,30 +201,7 @@ class UsersAdminsTab extends ConsumerWidget {
                       }
                     },
                     header: const WaterDropHeader(),
-                    footer: CustomFooter(
-                      builder: (context, mode) {
-                        Widget body;
-
-                        if (mode == LoadStatus.idle) {
-                          body = Text("pull_up_to_load".tr());
-                        } else if (mode == LoadStatus.loading) {
-                          body = Lottie.asset(
-                              'assets/images/global_loader.json',
-                              height: 50);
-                        } else if (mode == LoadStatus.failed) {
-                          body = Text("load_failed".tr());
-                        } else if (mode == LoadStatus.canLoading) {
-                          body = Text("release_to_load_more".tr());
-                        } else {
-                          body = Text("no_more_data".tr());
-                        }
-
-                        return SizedBox(
-                          height: 60.0,
-                          child: Center(child: body),
-                        );
-                      },
-                    ),
+                    footer: const PaginationFooter(),
                     child: SingleChildScrollView(
                       child: AnimationLimiter(
                         child: ListView.builder(
@@ -333,7 +281,13 @@ class UsersAdminsTab extends ConsumerWidget {
                                                     Navigator.push(context, MaterialPageRoute(builder: (context) => AddNewAdminScreen(
                                                       isUpdate: true,
                                                       userModel: usersAdmins.data[index],
-                                                    )));
+                                                    ))).then((value) {
+                                                      if(value == 'update'){
+                                                        ref
+                                                            .read(usersAdminsViewModelProvider.notifier)
+                                                            .loadAll(endPoint: 'admins');
+                                                      }
+                                                    });
                                                   },
                                                   icon: Image.asset(
                                                     'assets/images/edit.png',

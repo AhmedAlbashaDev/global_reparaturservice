@@ -7,20 +7,21 @@ import 'package:global_reparaturservice/view/screens/bottom_menu/routes/route_de
 import 'package:global_reparaturservice/view/screens/bottom_menu/routes/route_details_technician.dart';
 import 'package:global_reparaturservice/view_model/routes_view_model.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:lottie/lottie.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../../../core/globals.dart';
 import '../../../../core/providers/app_mode.dart';
-import '../../../../core/providers/search_field_status.dart';
 import '../../../widgets/custom_error.dart';
 import '../../../widgets/custom_menu_screens_app_bar.dart';
 import '../../../widgets/custom_shimmer.dart';
 import '../../../widgets/empty_widget.dart';
 import '../../../widgets/floating_add_button.dart';
 import '../../../widgets/gradient_background.dart';
-import '../../../widgets/search.dart';
+import '../../search.dart';
 import 'new_route.dart';
+import '../../../widgets/pagination_footer.dart';
+
 
 class RoutesScreen extends ConsumerStatefulWidget {
   const RoutesScreen({super.key});
@@ -29,11 +30,7 @@ class RoutesScreen extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _RoutesScreenState();
 }
 
-class _RoutesScreenState extends ConsumerState<RoutesScreen> with TickerProviderStateMixin {
-
-  late AnimationController animation;
-  late Animation<double> _fadeInFadeOut;
-  late TextEditingController searchController;
+class _RoutesScreenState extends ConsumerState<RoutesScreen> {
 
   final RefreshController _refreshController =
   RefreshController(initialRefresh: false);
@@ -46,18 +43,11 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> with TickerProvider
       ref.read(routesViewModelProvider.notifier).loadAll();
     });
 
-    searchController = TextEditingController();
-    animation = AnimationController(vsync: this, duration: const Duration(milliseconds: 400),);
-    _fadeInFadeOut = Tween<double>(begin: 0.0, end: 1.0).animate(animation);
   }
-
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
-    animation.dispose();
-    searchController.dispose();
   }
 
 
@@ -105,29 +95,6 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> with TickerProvider
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
-                                        // DropdownButton<String>(
-                                        //   value: 'all'.tr(),
-                                        //   onTap: (){},
-                                        //   icon: Image.asset(
-                                        //     'assets/images/filter.png',
-                                        //     height: 18,
-                                        //   ),
-                                        //   items: <String>['all'.tr(), 'completed'.tr(), 'not_completed'.tr()]
-                                        //       .map<DropdownMenuItem<String>>((String value) {
-                                        //     return DropdownMenuItem(
-                                        //       value: value,
-                                        //       onTap: (){},
-                                        //       child: AutoSizeText(
-                                        //         value,
-                                        //         style: const TextStyle(fontSize: 15),
-                                        //       ),
-                                        //     );
-                                        //   }).toList(),
-                                        //   onChanged: (value) {
-                                        //     print('Value $value');
-                                        //   },
-                                        //
-                                        // ),
                                         const SizedBox(width: 5,),
                                         Center(
                                           child: SizedBox(
@@ -137,11 +104,12 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> with TickerProvider
                                               materialTapTargetSize:
                                               MaterialTapTargetSize.shrinkWrap,
                                               onPressed: () {
-                                                ref
-                                                    .read(searchFieldStatusProvider
-                                                    .notifier)
-                                                    .state = true;
-                                                animation.forward();
+                                                Navigator.push(
+                                                    context,
+                                                    PageTransition(
+                                                        type: PageTransitionType.rightToLeft,
+                                                        duration: const Duration(milliseconds: 500),
+                                                        child:  SearchScreen(endPoint: 'roads', title: 'routes'.tr())));
                                               },
                                               child: Image.asset(
                                                 'assets/images/search.png',
@@ -154,17 +122,6 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> with TickerProvider
                                     )
                                   ],
                                 ),
-                                SearchWidget(
-                                  fadeInFadeOut: _fadeInFadeOut,
-                                  searchController: searchController,
-                                  onChanged: (text) {},
-                                  onClose: () {
-                                    ref.read(searchFieldStatusProvider.notifier).state =
-                                    false;
-                                    animation.reverse();
-                                  },
-                                  enabled: ref.watch(searchFieldStatusProvider),
-                                )
                               ],
                             ),
                             Expanded(
@@ -187,30 +144,7 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> with TickerProvider
                                   }
                                 },
                                 header: const WaterDropHeader(),
-                                footer: CustomFooter(
-                                  builder: (context, mode) {
-                                    Widget body;
-
-                                    if (mode == LoadStatus.idle) {
-                                      body = Text("pull_up_to_load".tr());
-                                    } else if (mode == LoadStatus.loading) {
-                                      body = Lottie.asset(
-                                          'assets/images/global_loader.json',
-                                          height: 50);
-                                    } else if (mode == LoadStatus.failed) {
-                                      body = Text("load_failed".tr());
-                                    } else if (mode == LoadStatus.canLoading) {
-                                      body = Text("release_to_load_more".tr());
-                                    } else {
-                                      body = Text("no_more_data".tr());
-                                    }
-
-                                    return SizedBox(
-                                      height: 60.0,
-                                      child: Center(child: body),
-                                    );
-                                  },
-                                ),
+                                footer: const PaginationFooter(),
                                 child: SingleChildScrollView(
                                   child: AnimationLimiter(
                                     child: ListView.builder(
@@ -286,10 +220,10 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> with TickerProvider
                                                           ],
                                                         ),
                                                         AutoSizeText(
-                                                          routes.data[index].statusName,
-                                                          style: const TextStyle(
-                                                              color: Color(0xFFE2BC37),
-                                                              fontSize: 13,
+                                                          routes.data[index].statusName.tr(),
+                                                          style: TextStyle(
+                                                              color: routes.data[index].status == 3 ? Colors.green : Color(0xFFE2BC37),
+                                                              fontSize: 14,
                                                               fontWeight: FontWeight.bold),
                                                         ),
                                                       ],

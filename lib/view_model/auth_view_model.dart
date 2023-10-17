@@ -7,20 +7,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/providers/dio_network_provider.dart';
 import '../models/response_state.dart';
 import '../models/user.dart';
-import '../repositories/auth_reporitory.dart';
+import '../repositories/auth_repository.dart';
 
-final authViewModelProvider = StateNotifierProvider<AuthViewModel,ResponseState<UserModel>>((ref) {
+final authViewModelProvider = StateNotifierProvider.autoDispose<AuthViewModel,ResponseState<UserModel>>((ref) {
+  final cancelToken = CancelToken();
+  ref.onDispose(cancelToken.cancel);
   return AuthViewModel(AuthRepository(dioClient: ref.read(dioClientNetworkProvider) , ref: ref));
 });
 
 class AuthViewModel extends StateNotifier<ResponseState<UserModel>>{
   final AuthRepository authRepository;
 
-  AuthViewModel(this.authRepository) : super(const ResponseState.idle());
+  AuthViewModel(this.authRepository) : super(const ResponseState<UserModel>.idle());
 
   Future<void> login({required String email, required String password}) async{
 
-    state = const ResponseState.loading();
+    setState(const ResponseState<UserModel>.loading());
 
     await Future.delayed(const Duration(seconds: 1));
 
@@ -36,11 +38,34 @@ class AuthViewModel extends StateNotifier<ResponseState<UserModel>>{
     final response = await authRepository.login(data: data);
 
     response.whenOrNull(data: (data) {
-      state = ResponseState.data(data: data);
+      state = ResponseState<UserModel>.data(data: data);
     }, error: (error) {
-      state = ResponseState.error(error: error);
+      state = ResponseState<UserModel>.error(error: error);
     });
 
   }
+
+  Future<void> logout() async{
+
+    setState(const ResponseState<UserModel>.loading());
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    final response = await authRepository.logout();
+
+    response.whenOrNull(data: (data) {
+      setState(ResponseState<UserModel>.data(data: data));
+    }, error: (error) {
+      setState(ResponseState<UserModel>.error(error: error));
+    });
+  }
+
+  setState(ResponseState<UserModel> newState){
+    if(mounted) {
+      state = newState;
+    }
+  }
+
+
 }
 

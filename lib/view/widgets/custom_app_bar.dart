@@ -1,12 +1,18 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:global_reparaturservice/view/screens/bottom_menu/routes/route_details_technician.dart';
 
 import '../../core/globals.dart';
 
 class CustomAppBar extends StatelessWidget {
-  const CustomAppBar({super.key, required this.title});
+  const CustomAppBar({
+    super.key,
+    required this.title,
+    this.routeId,
+  });
 
   final String title;
+  final int? routeId;
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +29,14 @@ class CustomAppBar extends StatelessWidget {
                 children: [
                   IconButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      if(routeId != null) {
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RouteDetailsTechnician(routeId: routeId ?? 0,)));
+                      }
+                      else{
+                        Navigator.pop(context);
+                      }
                     },
-                    icon: Icon(Icons.arrow_back_ios_new_rounded , size: 30,),
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded , size: 30,),
                   ),
                   AutoSizeText(
                     title,

@@ -39,7 +39,7 @@ class UsersRepository {
       return ResponseState<PaginationModel<UserModel>>.data(data: paginationModel.copyWith(data: list));
 
     } on DioException catch (e) {
-      if(e.type == DioExceptionType.badResponse){
+      if(e.type == DioExceptionType.badResponse && e.response?.data == null){
         return ResponseState<PaginationModel<UserModel>>.error(
           error: CustomException(
             errorStatusCode:  500,
@@ -49,6 +49,43 @@ class UsersRepository {
         );
       }
       return ResponseState<PaginationModel<UserModel>>.error(
+        error: CustomException(
+          errorStatusCode:  e.response?.data['code'],
+          errorMessage:     e.response?.data['message'],
+          errorType:        e.type.name,
+        ),
+      );
+    }
+  }
+
+  Future<ResponseState<UserModel>> loadLocalUer({required String endPoint}) async {
+    try {
+
+      final response = await dioClient.get(endPoint);
+
+      if(response.data['success'] == false){
+        return ResponseState<UserModel>.error(
+          error: CustomException(
+            errorStatusCode: response.data['code'],
+            errorMessage: response.data['message'],
+            errorType: DioExceptionType.unknown.name,
+          ),
+        );
+      }
+
+      return ResponseState<UserModel>.data(data: UserModel.fromJson(response.data['data']));
+
+    } on DioException catch (e) {
+      if(e.type == DioExceptionType.badResponse && e.response?.data == null){
+        return ResponseState<UserModel>.error(
+          error: CustomException(
+            errorStatusCode:  500,
+            errorMessage:     'unknown_error_please_try_again'.tr(),
+            errorType:        e.type.name,
+          ),
+        );
+      }
+      return ResponseState<UserModel>.error(
         error: CustomException(
           errorStatusCode:  e.response?.data['code'],
           errorMessage:     e.response?.data['message'],
@@ -76,11 +113,27 @@ class UsersRepository {
       return ResponseState<UserModel>.data(data: UserModel.fromJson(response.data['data']));
 
     } on DioException catch (e) {
-      if(e.type == DioExceptionType.badResponse){
+      if(e.type == DioExceptionType.badResponse && e.response?.data == null){
         return ResponseState<UserModel>.error(
           error: CustomException(
             errorStatusCode:  500,
             errorMessage:     'unknown_error_please_try_again'.tr(),
+            errorType:        e.type.name,
+          ),
+        );
+      }
+      else if (e.response?.statusCode == 422){
+
+        String message = '';
+
+        for(final key in (e.response?.data['data'] as Map<String , dynamic>).entries){
+          message += '${key.value[0]} , ';
+        }
+
+        return ResponseState<UserModel>.error(
+          error: CustomException(
+            errorStatusCode:  e.response?.data['code'],
+            errorMessage:     message.isEmpty ? e.response?.data['message'] : message,
             errorType:        e.type.name,
           ),
         );
@@ -110,14 +163,31 @@ class UsersRepository {
         );
       }
 
+
       return ResponseState<UserModel>.data(data: UserModel.fromJson(response.data['data']));
 
     } on DioException catch (e) {
-      if(e.type == DioExceptionType.badResponse){
+      if(e.type == DioExceptionType.badResponse && e.response?.data == null){
         return ResponseState<UserModel>.error(
           error: CustomException(
             errorStatusCode:  500,
             errorMessage:     'unknown_error_please_try_again'.tr(),
+            errorType:        e.type.name,
+          ),
+        );
+      }
+      else if (e.response?.statusCode == 422){
+
+        String message = '';
+
+        for(final key in (e.response?.data['data'] as Map<String , dynamic>).entries){
+          message += '${key.value[0]} , ';
+        }
+
+        return ResponseState<UserModel>.error(
+          error: CustomException(
+            errorStatusCode:  e.response?.data['code'],
+            errorMessage:     message.isEmpty ? e.response?.data['message'] : message,
             errorType:        e.type.name,
           ),
         );
@@ -150,7 +220,7 @@ class UsersRepository {
       return ResponseState<UserModel>.data(data: UserModel.fromJson(response.data['data']));
 
     } on DioException catch (e) {
-      if(e.type == DioExceptionType.badResponse){
+      if(e.type == DioExceptionType.badResponse && e.response?.data == null){
         return ResponseState<UserModel>.error(
           error: CustomException(
             errorStatusCode:  500,

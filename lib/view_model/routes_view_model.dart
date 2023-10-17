@@ -1,13 +1,15 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/models/routes.dart';
-
 
 import '../../core/providers/dio_network_provider.dart';
 import '../../models/pagination_model.dart';
 import '../../models/response_state.dart';
 import '../repositories/routes_repository.dart';
 
-final routesViewModelProvider = StateNotifierProvider<RoutesViewModel,ResponseState<PaginationModel<RoutesModel>>>((ref) {
+final routesViewModelProvider = StateNotifierProvider.autoDispose<RoutesViewModel,ResponseState<PaginationModel<RoutesModel>>>((ref) {
+  final cancelToken = CancelToken();
+  ref.onDispose(cancelToken.cancel);
   return RoutesViewModel(RoutesRepository(dioClient: ref.read(dioClientNetworkProvider) , ref: ref));
 });
 
@@ -18,22 +20,22 @@ class RoutesViewModel extends StateNotifier<ResponseState<PaginationModel<Routes
 
   Future<void> loadAll() async{
 
-    state = const ResponseState<PaginationModel<RoutesModel>>.loading();
+    setState(const ResponseState<PaginationModel<RoutesModel>>.loading());
 
     await Future.delayed(const Duration(seconds: 1));
 
     final response = await routesRepository.loadAll(endPoint: 'roads');
 
     response.whenOrNull(data: (data) {
-      state = ResponseState.data(data: data);
+      setState(ResponseState<PaginationModel<RoutesModel>>.data(data: data));
     }, error: (error) {
-      state = ResponseState.error(error: error);
+      setState(ResponseState<PaginationModel<RoutesModel>>.error(error: error));
     });
   }
 
   Future<void> loadMore({required int pageNumber ,required List<RoutesModel> oldList}) async{
 
-    state = const ResponseState<PaginationModel<RoutesModel>>.loading();
+    setState(const ResponseState<PaginationModel<RoutesModel>>.loading());
 
     await Future.delayed(const Duration(seconds: 1));
 
@@ -42,12 +44,16 @@ class RoutesViewModel extends StateNotifier<ResponseState<PaginationModel<Routes
     response.whenOrNull(data: (data) {
       /// Add old list in the beginning of the new list
       oldList.addAll(data.data);
-
-      state = ResponseState<PaginationModel<RoutesModel>>.data(data: data.copyWith(data: oldList));
+      setState(ResponseState<PaginationModel<RoutesModel>>.data(data: data.copyWith(data: oldList)));
     }, error: (error) {
-      state = ResponseState.error(error: error);
+      setState((ResponseState<PaginationModel<RoutesModel>>.error(error: error)));
     });
+  }
 
+  setState(ResponseState<PaginationModel<RoutesModel>> newState){
+    if(mounted) {
+      state = newState;
+    }
   }
 
 }

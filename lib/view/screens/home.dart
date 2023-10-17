@@ -30,82 +30,90 @@ class Home extends ConsumerWidget {
 
     final currentAppMode = ref.watch(currentAppModeProvider);
 
-    return Scaffold(
-      body: SafeArea(
-        child: currentAppMode == AppMode.admins
-            ? adminScreens.elementAt(currentBottomMenuItemSelected)
-            : technicianScreens.elementAt(currentBottomMenuItemSelected),
-      ),
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-              height: 20,
-              child: Image.asset('assets/images/bottom_bar_curve.png')),
-          BottomNavigationBar(
-            // backgroundColor: Colors.red,
-            items: currentAppMode == AppMode.admins
-                ? <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                  icon: Image.asset(
-                    currentBottomMenuItemSelected == 0
-                        ? 'assets/images/active_routes.png'
-                        : 'assets/images/routes.png',
-                    height: 28,
-                  ),
-                  label: 'routes'.tr()),
-              BottomNavigationBarItem(
-                  icon: Image.asset(
-                    currentBottomMenuItemSelected == 1
-                        ? 'assets/images/active_orders.png'
-                        : 'assets/images/orders.png',
-                    height: 28,
-                  ),
-                  label: 'orders'.tr()),
-              BottomNavigationBarItem(
-                  icon: Image.asset(
-                    currentBottomMenuItemSelected == 2
-                        ? 'assets/images/active_users.png'
-                        : 'assets/images/users.png',
-                    height: 28,
-                  ),
-                  label: 'users'.tr()),
-              BottomNavigationBarItem(
-                  icon: Image.asset(
-                    currentBottomMenuItemSelected == 3
-                        ? 'assets/images/active_more.png'
-                        : 'assets/images/more.png',
-                    height: 28,
-                  ),
-                  label: 'more'.tr()),
-            ]
-                : <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                  icon: Image.asset(
-                    currentBottomMenuItemSelected == 0
-                        ? 'assets/images/active_routes.png'
-                        : 'assets/images/routes.png',
-                    height: 28,
-                  ),
-                  label: 'routes'.tr()),
-              BottomNavigationBarItem(
-                  icon: Image.asset(
-                    currentBottomMenuItemSelected == 1
-                        ? 'assets/images/active_more.png'
-                        : 'assets/images/more.png',
-                    height: 28,
-                  ),
-                  label: 'more'.tr()),
-            ],
-            currentIndex: currentBottomMenuItemSelected,
-            fixedColor: Theme.of(context).primaryColor,
-            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-            elevation: 0,
-            onTap: (index) {
-              ref.read(bottomNavigationMenuProvider.notifier).state = index;
-            },
-          ),
-        ],
+    return WillPopScope(
+      onWillPop: () async {
+        if(ref.read(bottomNavigationMenuProvider) != 0){
+          ref.read(bottomNavigationMenuProvider.notifier).state = 0;
+        }
+        return false;
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: currentAppMode == AppMode.admins
+              ? adminScreens.elementAt(currentBottomMenuItemSelected)
+              : technicianScreens.elementAt(currentBottomMenuItemSelected),
+        ),
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+                height: 20,
+                child: Image.asset('assets/images/bottom_bar_curve.png')),
+            BottomNavigationBar(
+              // backgroundColor: Colors.red,
+              items: currentAppMode == AppMode.admins
+                  ? <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                    icon: Image.asset(
+                      currentBottomMenuItemSelected == 0
+                          ? 'assets/images/active_routes.png'
+                          : 'assets/images/routes.png',
+                      height: 28,
+                    ),
+                    label: 'routes'.tr()),
+                BottomNavigationBarItem(
+                    icon: Image.asset(
+                      currentBottomMenuItemSelected == 1
+                          ? 'assets/images/active_orders.png'
+                          : 'assets/images/orders.png',
+                      height: 28,
+                    ),
+                    label: 'orders'.tr()),
+                BottomNavigationBarItem(
+                    icon: Image.asset(
+                      currentBottomMenuItemSelected == 2
+                          ? 'assets/images/active_users.png'
+                          : 'assets/images/users.png',
+                      height: 28,
+                    ),
+                    label: 'users'.tr()),
+                BottomNavigationBarItem(
+                    icon: Image.asset(
+                      currentBottomMenuItemSelected == 3
+                          ? 'assets/images/active_more.png'
+                          : 'assets/images/more.png',
+                      height: 28,
+                    ),
+                    label: 'more'.tr()),
+              ]
+                  : <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                    icon: Image.asset(
+                      currentBottomMenuItemSelected == 0
+                          ? 'assets/images/active_routes.png'
+                          : 'assets/images/routes.png',
+                      height: 28,
+                    ),
+                    label: 'routes'.tr()),
+                BottomNavigationBarItem(
+                    icon: Image.asset(
+                      currentBottomMenuItemSelected == 1
+                          ? 'assets/images/active_more.png'
+                          : 'assets/images/more.png',
+                      height: 28,
+                    ),
+                    label: 'more'.tr()),
+              ],
+              currentIndex: currentBottomMenuItemSelected,
+              fixedColor: Theme.of(context).primaryColor,
+              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+              elevation: 0,
+              onTap: (index) {
+                ref.read(bottomNavigationMenuProvider.notifier).state = index;
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

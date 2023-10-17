@@ -2,9 +2,12 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:global_reparaturservice/view/screens/forget_password.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../core/globals.dart';
 import '../../core/providers/app_mode.dart';
+import '../../core/providers/bottom_navigation_menu.dart';
 import '../../core/providers/user_provider.dart';
 import '../../models/response_state.dart';
 import '../../models/user.dart';
@@ -36,8 +39,10 @@ class _SignInState extends ConsumerState<SignIn> {
   @override
   void initState() {
     super.initState();
+
+    Future.microtask(() => ref.read(bottomNavigationMenuProvider.notifier).state = 0);
     // admin  (admin@admin.com    : 123admin )
-    // driver (user1@laravel.com : ahmed123 )
+    // driver (ahmedmohammedkhier@gmail.com : gDseinWe )
     email = TextEditingController(text: 'admin@admin.com');
     password = TextEditingController(text: '123admin');
 
@@ -57,18 +62,18 @@ class _SignInState extends ConsumerState<SignIn> {
 
     ref.listen<ResponseState<UserModel>>(authViewModelProvider, (previous, next) {
       next.whenOrNull(
-        loading: (){
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => const LoadingDialog(),
-          );
-        },
+        // loading: (){
+        //   showDialog(
+        //     context: context,
+        //     barrierDismissible: false,
+        //     builder: (_) => const LoadingDialog(),
+        //   );
+        // },
         data: (user) {
 
-          if(ModalRoute.of(context)?.isCurrent != true){
-            Navigator.pop(context);
-          }
+          // if(ModalRoute.of(context)?.isCurrent != true){
+          //   Navigator.pop(context);
+          // }
 
           if(user.role == 'admin'){
             ref.read(currentAppModeProvider.notifier).state = AppMode.admins;
@@ -91,6 +96,7 @@ class _SignInState extends ConsumerState<SignIn> {
           final snackBar = SnackBar(
             backgroundColor: Colors.transparent,
             behavior: SnackBarBehavior.floating,
+            padding: EdgeInsets.zero,
             content: CustomSnakeBarContent(
               icon: const Icon(Icons.error, color: Colors.red , size: 25,),
               message: error.errorMessage ?? '',
@@ -110,7 +116,7 @@ class _SignInState extends ConsumerState<SignIn> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
 
-              SignInTopView(),
+              const SignInTopView(),
 
               Padding(
                 padding: const EdgeInsets.all(20),
@@ -179,7 +185,9 @@ class _SignInState extends ConsumerState<SignIn> {
                           const SizedBox(height: 10,),
 
                           InkWell(
-                            onTap: (){},
+                            onTap: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const ForgetPasswordScreen()));
+                            },
                             child: Padding(
                               padding: const EdgeInsets.all(5.0),
                               child: AutoSizeText(
@@ -196,15 +204,26 @@ class _SignInState extends ConsumerState<SignIn> {
 
                           const SizedBox(height: 30,),
 
-                          CustomButton(
-                              onPressed: (){
-                                if(_loginFormKey.currentState?.validate() ?? false){
-                                  ref.read(authViewModelProvider.notifier).login(email: email.text, password: password.text);
-                                }
-                              },
-                              text: 'sign_in'.tr(),
-                              bgColor: Theme.of(context).primaryColor,
-                              textColor: Colors.white)
+
+                          ref.watch(authViewModelProvider).maybeWhen(
+                            loading: () => Center(
+                              child: Lottie.asset(
+                                  'assets/images/global_loader.json',
+                                  height: 50
+                              ),
+                            ),
+                            orElse: (){
+                              return  CustomButton(
+                                  onPressed: (){
+                                    if(_loginFormKey.currentState?.validate() ?? false){
+                                      ref.read(authViewModelProvider.notifier).login(email: email.text, password: password.text);
+                                    }
+                                  },
+                                  text: 'sign_in'.tr(),
+                                  bgColor: Theme.of(context).primaryColor,
+                                  textColor: Colors.white);
+                            }
+                          )
 
                         ],
                       ),

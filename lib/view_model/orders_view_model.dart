@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/providers/dio_network_provider.dart';
@@ -6,7 +7,9 @@ import '../../models/response_state.dart';
 import '../models/order.dart';
 import '../repositories/orders_respository.dart';
 
-final ordersViewModelProvider = StateNotifierProvider<OrdersViewModel,ResponseState<PaginationModel<OrderModel>>>((ref) {
+final ordersViewModelProvider = StateNotifierProvider.autoDispose<OrdersViewModel,ResponseState<PaginationModel<OrderModel>>>((ref) {
+  final cancelToken = CancelToken();
+  ref.onDispose(cancelToken.cancel);
   return OrdersViewModel(OrdersRepository(dioClient: ref.read(dioClientNetworkProvider) , ref: ref));
 });
 
@@ -17,22 +20,22 @@ class OrdersViewModel extends StateNotifier<ResponseState<PaginationModel<OrderM
 
   Future<void> loadAll({bool? pendingOrdersOnly}) async{
 
-    state = const ResponseState<PaginationModel<OrderModel>>.loading();
+    setState(const ResponseState<PaginationModel<OrderModel>>.loading());
 
     await Future.delayed(const Duration(seconds: 1));
 
     final response = await usersRepository.loadAll(endPoint: pendingOrdersOnly ?? false ? 'orders?without_route=true' : 'orders');
 
     response.whenOrNull(data: (data) {
-      state = ResponseState.data(data: data);
+      setState(ResponseState<PaginationModel<OrderModel>>.data(data: data));
     }, error: (error) {
-      state = ResponseState.error(error: error);
+      setState(ResponseState<PaginationModel<OrderModel>>.error(error: error));
     });
   }
 
   Future<void> loadMore({required int pageNumber ,required List<OrderModel> oldList}) async{
 
-    state = const ResponseState<PaginationModel<OrderModel>>.loading();
+    setState(const ResponseState<PaginationModel<OrderModel>>.loading());
 
     await Future.delayed(const Duration(seconds: 1));
 
@@ -42,11 +45,17 @@ class OrdersViewModel extends StateNotifier<ResponseState<PaginationModel<OrderM
       /// Add old list in the beginning of the new list
       oldList.addAll(data.data);
 
-      state = ResponseState<PaginationModel<OrderModel>>.data(data: data.copyWith(data: oldList));
+      setState(ResponseState<PaginationModel<OrderModel>>.data(data: data.copyWith(data: oldList)));
     }, error: (error) {
-      state = ResponseState.error(error: error);
+      setState(ResponseState<PaginationModel<OrderModel>>.error(error: error));
     });
 
+  }
+
+  setState(ResponseState<PaginationModel<OrderModel>> newState){
+    if(mounted) {
+      state = newState;
+    }
   }
 
 }

@@ -17,17 +17,13 @@ import 'users_customers_tab.dart';
 import 'users_technicians_tab.dart';
 
 class UsersScreen extends ConsumerStatefulWidget {
-  const UsersScreen({super.key});
+   const UsersScreen({super.key});
 
   @override
   ConsumerState createState() => _UsersScreenState();
 }
 
 class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderStateMixin {
-
-  late AnimationController animation;
-  late Animation<double> _fadeInFadeOut;
-  late TextEditingController searchController;
 
   TabController? tabController;
 
@@ -44,20 +40,14 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
 
     });
 
-    searchController = TextEditingController();
     tabController = TabController(length: 3, vsync: this);
-    animation = AnimationController(vsync: this, duration: const Duration(milliseconds: 400),);
-    _fadeInFadeOut = Tween<double>(begin: 0.0, end: 1.0).animate(animation);
 
   }
 
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
-    animation.dispose();
-    searchController.dispose();
   }
 
 
@@ -66,11 +56,11 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
     return Scaffold(
       body: Stack(
         children: [
-          const GradientBackgroundWidget(),
+           const GradientBackgroundWidget(),
           Column(
             children: [
-              const CustomMenuScreenAppBar(),
-              const SizedBox(height: 5,),
+               const CustomMenuScreenAppBar(),
+               const SizedBox(height: 5,),
               Expanded(
                   child: DefaultTabController(
                     length: 3,
@@ -79,7 +69,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
                         Container(
                           height: 45,
                           width: screenWidth * 90,
-                          padding: const EdgeInsets.symmetric(
+                          padding:  const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 4,
                           ),
@@ -104,11 +94,11 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
                                     child: Center(
                                       child: AutoSizeText(
                                         'admins'.tr(),
-                                        style: ref.watch(userTabsSelectedProvider) == 0 ? const TextStyle(
+                                        style: ref.watch(userTabsSelectedProvider) == 0 ?  const TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w600,
-                                        ) : const TextStyle(
-                                          color: Color(0xFF555B6A),
+                                        ) :  TextStyle(
+                                          color: Theme.of(context).primaryColor,
                                           fontWeight: FontWeight.w500
                                         ),
                                       ),
@@ -130,11 +120,11 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
                                     child: Center(
                                       child: AutoSizeText(
                                         'technicians'.tr(),
-                                        style:  ref.watch(userTabsSelectedProvider) == 1 ?  const TextStyle(
+                                        style:  ref.watch(userTabsSelectedProvider) == 1 ?   const TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w600,
-                                        ) : const TextStyle(
-                                            color: Color(0xFF555B6A),
+                                        ) :  TextStyle(
+                                            color: Theme.of(context).primaryColor,
                                             fontWeight: FontWeight.w500
                                         ),
                                       ),
@@ -156,11 +146,11 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
                                     child: Center(
                                       child: AutoSizeText(
                                         'customers'.tr(),
-                                        style:  ref.watch(userTabsSelectedProvider) == 2 ?  const TextStyle(
+                                        style:  ref.watch(userTabsSelectedProvider) == 2 ?   const TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w600,
-                                        ) : const TextStyle(
-                                            color: Color(0xFF555B6A),
+                                        ) :  TextStyle(
+                                            color: Theme.of(context).primaryColor,
                                             fontWeight: FontWeight.w500
                                         ),
                                       ),
@@ -173,12 +163,12 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
                         ),
                         Expanded(
                           child: TabBarView(
-                            physics: const NeverScrollableScrollPhysics(),
+                            physics:  const NeverScrollableScrollPhysics(),
                             controller: tabController,
                             children: [
-                              UsersAdminsTab(fadeInFadeOut: _fadeInFadeOut, searchController: searchController, onClose: (){}, animation: animation),
-                              UsersTechniciansTab(fadeInFadeOut: _fadeInFadeOut, searchController: searchController, onClose: (){}, animation: animation),
-                              UsersCustomersTab(fadeInFadeOut: _fadeInFadeOut, searchController: searchController, onClose: (){}, animation: animation),
+                              UsersAdminsTab(),
+                              UsersTechniciansTab(),
+                              UsersCustomersTab(),
                             ],
                           ),
                         ),
@@ -193,13 +183,13 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
       floatingActionButton: FloatingAddButton(
         onPresses: (){
           if(tabController?.index == 0){
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const AddNewAdminScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewAdminScreen()));
           }
           else if(tabController?.index == 1){
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const AddNewTechnicianScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewTechnicianScreen()));
           }
           else {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const AddNewCustomerScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewCustomerScreen()));
 
           }
         },
