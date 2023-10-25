@@ -1,5 +1,10 @@
+import 'dart:typed_data';
+import 'dart:ui';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:global_reparaturservice/models/order.dart';
 
 import '../core/providers/dio_network_provider.dart';
@@ -16,7 +21,7 @@ final routeViewModelProvider = StateNotifierProvider.autoDispose<RouteViewModel,
 class RouteViewModel extends StateNotifier<ResponseState<RoutesModel>> {
   final RoutesRepository routesRepository;
 
-  RouteViewModel(this.routesRepository) : super(const ResponseState<RoutesModel>.loading());
+  RouteViewModel(this.routesRepository) : super(const ResponseState<RoutesModel>.idle());
 
   Future<void> loadOne({required int routeId}) async{
 
@@ -90,10 +95,29 @@ class RouteViewModel extends StateNotifier<ResponseState<RoutesModel>> {
     });
   }
 
+  Future<Position> getLocation() async {
+    await Geolocator.requestPermission();
+
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+
+    return position;
+  }
+
+  Future<Uint8List> getBytesFromAsset(String path, int size) async {
+    ByteData data = await rootBundle.load(path);
+    Codec codec = await instantiateImageCodec(data.buffer.asUint8List(), targetWidth: size , targetHeight: size);
+    FrameInfo fi = await codec.getNextFrame();
+    Uint8List value =  (await fi.image.toByteData(format: ImageByteFormat.png))!.buffer.asUint8List();
+    print('Uint*List value is : $value');
+    return value;
+
+  }
+
   setState(ResponseState<RoutesModel> newState){
-    if(mounted) {
+    // if(mounted) {
       state = newState;
-    }
+    // }
   }
 
 }

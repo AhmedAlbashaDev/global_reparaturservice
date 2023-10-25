@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:global_reparaturservice/view/screens/bottom_menu/routes/route_details_admin.dart';
-import 'package:global_reparaturservice/view/screens/bottom_menu/routes/route_details_technician.dart';
+import 'package:global_reparaturservice/view/screens/bottom_menu/routes/route_details_technician_map.dart';
 import 'package:global_reparaturservice/view_model/routes_view_model.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:page_transition/page_transition.dart';
@@ -15,6 +15,7 @@ import '../../../../core/providers/app_mode.dart';
 import '../../../widgets/custom_error.dart';
 import '../../../widgets/custom_menu_screens_app_bar.dart';
 import '../../../widgets/custom_shimmer.dart';
+import '../../../widgets/custom_snakbar.dart';
 import '../../../widgets/empty_widget.dart';
 import '../../../widgets/floating_add_button.dart';
 import '../../../widgets/gradient_background.dart';
@@ -43,11 +44,6 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> {
       ref.read(routesViewModelProvider.notifier).loadAll();
     });
 
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
 
@@ -109,7 +105,25 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> {
                                                     PageTransition(
                                                         type: PageTransitionType.rightToLeft,
                                                         duration: const Duration(milliseconds: 500),
-                                                        child:  SearchScreen(endPoint: 'roads', title: 'routes'.tr())));
+                                                        child:  SearchScreen(endPoint: 'roads', title: 'routes'.tr()))).then((value) {
+                                                  final snackBar = SnackBar(
+                                                    backgroundColor: Theme.of(context).primaryColor,
+                                                    showCloseIcon: true,
+                                                    behavior: SnackBarBehavior.floating,
+                                                    padding: EdgeInsets.zero,
+                                                    content: CustomSnakeBarContent(
+                                                      icon: const Icon(
+                                                        Icons.info,
+                                                        color: Colors.green,
+                                                        size: 25,
+                                                      ),
+                                                      message: 'Pull-Down to refresh data if you make any update'.tr(),
+                                                      bgColor: Colors.grey.shade600,
+                                                      borderColor: Colors.green.shade200,
+                                                    ),
+                                                  );
+                                                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                                });
                                               },
                                               child: Image.asset(
                                                 'assets/images/search.png',
@@ -167,7 +181,9 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> {
                                                     }
                                                     else{
                                                       Navigator.push(context, MaterialPageRoute(builder: (context) => RouteDetailsTechnician(routeId: routes.data[index].id)
-                                                      ));
+                                                      )).then((value) {
+                                                        ref.read(routesViewModelProvider.notifier).loadAll();
+                                                      });
                                                     }
                                                   },
                                                   padding: EdgeInsets.zero,
@@ -269,7 +285,14 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> {
         visible: ref.watch(currentAppModeProvider) == AppMode.admins,
         child: FloatingAddButton(
           onPresses: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const NewRouteScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const NewRouteScreen())).then((value) {
+              print('Added new routes update');
+              if(value == 'update'){
+                ref
+                    .read(routesViewModelProvider.notifier)
+                    .loadAll();
+              }
+            });
           },
         ),
       ),

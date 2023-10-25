@@ -69,13 +69,14 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
 
   @override
   void dispose() {
-    super.dispose();
+
     name.dispose();
     email.dispose();
     phone.dispose();
     address.dispose();
     zone.dispose();
     additional.dispose();
+    super.dispose();
   }
 
   @override
@@ -108,7 +109,8 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
             error: (error) {
 
               final snackBar = SnackBar(
-                backgroundColor: Colors.transparent,
+                backgroundColor: Theme.of(context).primaryColor,
+                showCloseIcon: true,
                 behavior: SnackBarBehavior.floating,
                 padding: EdgeInsets.zero,
                 content: CustomSnakeBarContent(
@@ -154,7 +156,8 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
             error: (error) {
 
               final snackBar = SnackBar(
-                backgroundColor: Colors.transparent,
+                backgroundColor: Theme.of(context).primaryColor,
+                showCloseIcon: true,
                 behavior: SnackBarBehavior.floating,
                 padding: EdgeInsets.zero,
                 content: CustomSnakeBarContent(
@@ -200,7 +203,8 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
             error: (error) {
 
               final snackBar = SnackBar(
-                backgroundColor: Colors.transparent,
+                backgroundColor: Theme.of(context).primaryColor,
+                showCloseIcon: true,
                 behavior: SnackBarBehavior.floating,
                 padding: EdgeInsets.zero,
                 content: CustomSnakeBarContent(
@@ -228,13 +232,14 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
               child: Column(
                 children: [
                   CustomAppBar(
-                    title: 'add_new_technician'.tr(),
+                    title: isUpdate == false ? 'add_new_technician'.tr() : 'update_technician',
                   ),
                   Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 22, vertical: 4),
                     child: Form(
                       key: _addTechnicianFormKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         children: [
                           const SizedBox(
@@ -274,12 +279,14 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
                             controller: phone,
                             textInputType: TextInputType.phone,
                             readOnly: isUpdate,
+                            maxLength: 12,
+                            height: 60,
                             validator: (String? text) {
                               if (text?.isEmpty ?? true) {
                                 return 'this_filed_required'.tr();
                               }
-                              else if ((text?.length ?? 0) < 9) {
-                                return 'phone_number_length_required'.tr();
+                              else if (text != null && text.length < 12) {
+                                return 'Phone must be 12 number minimum'.tr();
                               }
                               return null;
                             },
@@ -311,14 +318,14 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
                             },
                             label: 'zone_area'.tr(),
                           ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          CustomTextFormField(
-                            controller: additional,
-                            validator: (text) {},
-                            label: 'additional_info'.tr(),
-                          ),
+                          // const SizedBox(
+                          //   height: 10,
+                          // ),
+                          // CustomTextFormField(
+                          //   controller: additional,
+                          //   validator: (text) {},
+                          //   label: 'additional_info'.tr(),
+                          // ),
                           const SizedBox(
                             height: 20,
                           ),

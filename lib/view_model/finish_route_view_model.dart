@@ -5,7 +5,7 @@ import '../core/providers/dio_network_provider.dart';
 import '../models/response_state.dart';
 import '../models/routes.dart';
 import '../repositories/routes_repository.dart';
-import '../view/screens/bottom_menu/routes/route_details_technician.dart';
+import '../view/screens/bottom_menu/routes/route_details_technician_map.dart';
 
 final finishRouteViewModelProvider =
     StateNotifierProvider.autoDispose<FinishRouteViewModel, ResponseState<RoutesModel>>(

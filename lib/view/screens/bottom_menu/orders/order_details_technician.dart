@@ -21,6 +21,7 @@ import '../../../widgets/custom_error.dart';
 import '../../../widgets/custom_snakbar.dart';
 import '../../../widgets/custsomer_card_new_order.dart';
 import '../../../widgets/gradient_background.dart';
+import '../routes/route_details_technician_map.dart';
 
 final selectPayCash = StateProvider.autoDispose<bool?>((ref) => null);
 final addedImages = StateProvider<int>((ref) => 0);
@@ -31,7 +32,6 @@ class OrderDetailsTechnician extends ConsumerStatefulWidget {
 
   final int orderId;
   final int routeId;
-
 
   @override
   ConsumerState createState() => _OrderDetailsTechnicianState(orderId: orderId , routeId: routeId);
@@ -45,6 +45,7 @@ class _OrderDetailsTechnicianState
   final int routeId;
 
   late TextEditingController report;
+  late TextEditingController amount;
 
   static final GlobalKey<FormState> _reportFormKey = GlobalKey<FormState>();
 
@@ -59,12 +60,14 @@ class _OrderDetailsTechnicianState
     });
 
     report = TextEditingController();
+    amount = TextEditingController();
   }
 
   @override
   void dispose() {
-    super.dispose();
     report.dispose();
+    amount.dispose();
+    super.dispose();
   }
 
   @override
@@ -74,9 +77,8 @@ class _OrderDetailsTechnicianState
       next.whenOrNull(
         success: (order) {
           ref.read(selectedFilesToUpload).clear();
+          amount.clear();
           ref.read(orderViewModelProvider.notifier).loadOne(orderId: orderId);
-          ref.read(routeViewModelProvider.notifier).loadOne(routeId: routeId);
-
         },
         error: (error) {
 
@@ -85,7 +87,8 @@ class _OrderDetailsTechnicianState
           }
 
           final snackBar = SnackBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: Theme.of(context).primaryColor,
+            showCloseIcon: true,
             behavior: SnackBarBehavior.floating,
             padding: EdgeInsets.zero,
             content: CustomSnakeBarContent(
@@ -109,7 +112,10 @@ class _OrderDetailsTechnicianState
               children: [
                 CustomAppBar(
                   title: 'order_details'.tr(),
-                  routeId: routeId,
+                  onPop: (){
+                    ref.read(routeViewModelProvider.notifier).loadOne(routeId: routeId);
+                    Navigator.pop(context);
+                  },
                 ),
                 ref.watch(orderViewModelProvider).maybeWhen(
                       loading: () => Expanded(
@@ -280,7 +286,8 @@ class _OrderDetailsTechnicianState
                                               if(result != null){
                                                 if((ext == 'png' || ext == 'jpg' || ext == 'jpeg') && result.files.single.size > ((1e+6 * 3))){
                                                   final snackBar = SnackBar(
-                                                    backgroundColor: Colors.transparent,
+                                                    backgroundColor: Theme.of(context).primaryColor,
+                                                    showCloseIcon: true,
                                                     behavior: SnackBarBehavior.floating,
                                                     padding: EdgeInsets.zero,
                                                     content: CustomSnakeBarContent(
@@ -294,7 +301,8 @@ class _OrderDetailsTechnicianState
                                                 }
                                                 else if(result.files.single.size > ((1e+6 * 10))){
                                                   final snackBar = SnackBar(
-                                                    backgroundColor: Colors.transparent,
+                                                    backgroundColor: Theme.of(context).primaryColor,
+                                                    showCloseIcon: true,
                                                     behavior: SnackBarBehavior.floating,
                                                     padding: EdgeInsets.zero,
                                                     content: CustomSnakeBarContent(
@@ -314,7 +322,8 @@ class _OrderDetailsTechnicianState
                                                     }
                                                     else{
                                                       final snackBar = SnackBar(
-                                                        backgroundColor: Colors.transparent,
+                                                        backgroundColor: Theme.of(context).primaryColor,
+                                                        showCloseIcon: true,
                                                         behavior: SnackBarBehavior.floating,
                                                         padding: EdgeInsets.zero,
                                                         content: CustomSnakeBarContent(
@@ -334,7 +343,8 @@ class _OrderDetailsTechnicianState
                                                     }
                                                     else{
                                                       final snackBar = SnackBar(
-                                                        backgroundColor: Colors.transparent,
+                                                        backgroundColor: Theme.of(context).primaryColor,
+                                                        showCloseIcon: true,
                                                         behavior: SnackBarBehavior.floating,
                                                         padding: EdgeInsets.zero,
                                                         content: CustomSnakeBarContent(
@@ -562,38 +572,97 @@ class _OrderDetailsTechnicianState
                                       ),
                                     ),
                                     const SizedBox(height: 10,),
-                                    Container(
-                                      width: double.infinity,
-                                      decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(
-                                              color:  const Color(0xffDCDCDC))),
-                                      padding:  const EdgeInsets.all(12),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                        children: [
-                                          AutoSizeText(
-                                            'order_amount'.tr(),
-                                            style:  TextStyle(
-                                              fontSize: 11,
-                                              color: Theme.of(context).primaryColor,
-                                              fontWeight: FontWeight.w400,
+                                    if (orderModel.amount == null) CustomTextFormField(
+                                        label: 'Set amount'.tr(),
+                                        validator: (text){},
+                                        controller: amount,
+                                        searchSuffix: Container(
+                                        margin: const EdgeInsets.all(10),
+                                        child: MaterialButton(
+                                          onPressed: (){
+                                            if(amount.text.isNotEmpty) {
+                                              ref.read(orderViewModelProvider.notifier).updateAmount(orderId: orderId, amount: amount.text);
+                                            }
+                                          },
+                                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          padding: EdgeInsets.zero,
+                                          color: Colors.grey[100],
+                                          child: AutoSizeText(
+                                            'Update'.tr(),
+                                            style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
+                                                color: Theme.of(context).primaryColor
                                             ),
                                           ),
-                                          AutoSizeText(
-                                            orderModel.amount ?? '100 USD',
-                                            style:  TextStyle(
-                                              color: Theme.of(context).primaryColor,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          )
-                                        ],
+                                        ),
                                       ),
+                                        textInputType: TextInputType.number,
+
+                                    ) else Column(
+                                      children: [
+                                        Container(
+                                          width: double.infinity,
+                                          decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(8),
+                                              border: Border.all(
+                                                  color:  const Color(0xffDCDCDC))),
+                                          padding:  const EdgeInsets.all(12),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children: [
+                                              AutoSizeText(
+                                                'last_updated_amount'.tr(),
+                                                style:  TextStyle(
+                                                  fontSize: 11,
+                                                  color: Theme.of(context).primaryColor,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                              AutoSizeText(
+                                                orderModel.amount ?? '100 USD',
+                                                style:  TextStyle(
+                                                  color: Theme.of(context).primaryColor,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5,),
+                                        if(orderModel.isPaid == false)
+                                        CustomTextFormField(
+                                            label: 'Update amount'.tr(),
+                                            validator: (text){},
+                                            controller: amount,
+                                            searchSuffix: Container(
+                                              margin: const EdgeInsets.all(10),
+                                              child: MaterialButton(
+                                                onPressed: (){
+                                                  if(amount.text.isNotEmpty) {
+                                                    ref.read(orderViewModelProvider.notifier).updateAmount(orderId: orderId, amount: amount.text);
+                                                  }
+                                                },
+                                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                padding: EdgeInsets.zero,
+                                                color: Colors.grey[100],
+                                                child: AutoSizeText(
+                                                  'Update'.tr(),
+                                                  style: TextStyle(
+                                                      fontSize: 15,
+                                                      fontWeight: FontWeight.w600,
+                                                      color: Theme.of(context).primaryColor
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                        )
+                                      ],
                                     ),
                                     SizedBox(height: orderModel.isPaid ? 10 : 5,),
                                     orderModel.isPaid

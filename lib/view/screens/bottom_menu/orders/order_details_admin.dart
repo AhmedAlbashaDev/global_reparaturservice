@@ -6,9 +6,13 @@ import 'package:global_reparaturservice/core/globals.dart';
 
 import 'package:lottie/lottie.dart';
 
+import '../../../../models/order.dart';
+import '../../../../models/response_state.dart';
 import '../../../../view_model/order_view_model.dart';
 import '../../../widgets/custom_app_bar.dart';
 import '../../../widgets/custom_error.dart';
+import '../../../widgets/custom_snakbar.dart';
+import '../../../widgets/custom_text_form_field.dart';
 import '../../../widgets/custsomer_card_new_order.dart';
 import '../../../widgets/empty_widget.dart';
 import '../../../widgets/gradient_background.dart';
@@ -27,16 +31,57 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
 
   final int orderId;
 
+  late TextEditingController amount;
   @override
   void initState() {
-    super.initState();
 
     Future.microtask(() =>
         ref.read(orderViewModelProvider.notifier).loadOne(orderId: orderId));
+
+    amount = TextEditingController();
+
+    super.initState();
   }
 
   @override
+  void dispose() {
+    amount.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
+
+    ref.listen<ResponseState<OrderModel>>(orderViewModelProvider, (previous, next) {
+      next.whenOrNull(
+        success: (order) {
+          amount.clear();
+          ref.read(orderViewModelProvider.notifier).loadOne(orderId: orderId);
+        },
+        error: (error) {
+
+          if(ModalRoute.of(context)?.isCurrent != true){
+            Navigator.pop(context);
+          }
+
+          final snackBar = SnackBar(
+            backgroundColor: Theme.of(context).primaryColor,
+            showCloseIcon: true,
+            behavior: SnackBarBehavior.floating,
+            padding: EdgeInsets.zero,
+            content: CustomSnakeBarContent(
+              icon: const Icon(Icons.error, color: Colors.red , size: 25,),
+              message: error.errorMessage ?? '',
+              bgColor: Colors.grey.shade600,
+              borderColor: Colors.redAccent.shade200,
+            ),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        },
+      );
+    });
+
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -295,7 +340,136 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                     ],
                                   ),
                                 ),
-                                 const SizedBox(
+                                 const SizedBox(height: 10,),
+                                if (orderModel.amount == null)
+                                  CustomTextFormField(
+                                  label: 'Set amount'.tr(),
+                                  validator: (text){},
+                                  controller: amount,
+                                  searchSuffix: Container(
+                                    margin: const EdgeInsets.all(10),
+                                    child: MaterialButton(
+                                      onPressed: (){
+                                        if(amount.text.isNotEmpty) {
+                                          ref.read(orderViewModelProvider.notifier).updateAmount(orderId: orderId, amount: amount.text);
+                                        }
+                                      },
+                                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      padding: EdgeInsets.zero,
+                                      color: Colors.grey[100],
+                                      child: AutoSizeText(
+                                        'Update'.tr(),
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600,
+                                            color: Theme.of(context).primaryColor
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  textInputType: TextInputType.number,
+
+                                )
+                                else Column(
+                                  children: [
+                                    Container(
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color:  const Color(0xffDCDCDC))),
+                                      padding:  const EdgeInsets.all(12),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                        children: [
+                                          AutoSizeText(
+                                            'last_updated_amount'.tr(),
+                                            style:  TextStyle(
+                                              fontSize: 11,
+                                              color: Theme.of(context).primaryColor,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                          AutoSizeText(
+                                            orderModel.amount ?? 'Not set'.tr(),
+                                            style:  TextStyle(
+                                              color: Theme.of(context).primaryColor,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5,),
+                                    if(orderModel.isPaid == false)
+                                      CustomTextFormField(
+                                        label: 'Update amount'.tr(),
+                                        validator: (text){},
+                                        controller: amount,
+                                        searchSuffix: Container(
+                                          margin: const EdgeInsets.all(10),
+                                          child: MaterialButton(
+                                            onPressed: (){
+                                              if(amount.text.isNotEmpty) {
+                                                ref.read(orderViewModelProvider.notifier).updateAmount(orderId: orderId, amount: amount.text);
+                                              }
+                                            },
+                                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            padding: EdgeInsets.zero,
+                                            color: Colors.grey[100],
+                                            child: AutoSizeText(
+                                              'Update'.tr(),
+                                              style: TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Theme.of(context).primaryColor
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                  ],
+                                ),
+                                 const SizedBox(height: 10,),
+                                Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                          color:  const Color(0xffDCDCDC))),
+                                  padding:  const EdgeInsets.all(12),
+                                  child: Column(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: [
+                                      AutoSizeText(
+                                        'order_report'.tr(),
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Theme.of(context).primaryColor,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                      AutoSizeText(
+                                        orderModel.report ?? 'Not set'.tr(),
+                                        style: TextStyle(
+                                          color: Theme.of(context).primaryColor,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(
                                   height: 10,
                                 ),
                                 Container(
@@ -320,7 +494,7 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                       orderModel.files?.isEmpty ?? true
                                 ? Center(child: Padding(
                                   padding:  const EdgeInsets.all(8.0),
-                                  child: EmptyWidget(text: 'no_files'.tr() , height: 20,textSize: 14,),
+                                  child: SizedBox(height:200,child: Center(child: EmptyWidget(text: 'no_files'.tr() , height: 20,textSize: 14,))),
                                 ))
                               :  ListView.builder(
                                         itemCount: orderModel.files?.length,
@@ -355,42 +529,6 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                           );
                                         },
                                       ),
-                                    ],
-                                  ),
-                                ),
-                                 const SizedBox(
-                                  height: 10,
-                                ),
-                                Container(
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                          color:  const Color(0xffDCDCDC))),
-                                  padding:  const EdgeInsets.all(12),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      AutoSizeText(
-                                        'order_report'.tr(),
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Theme.of(context).primaryColor,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                       AutoSizeText(
-                                        '${orderModel.report}',
-                                        style: TextStyle(
-                                          color: Theme.of(context).primaryColor,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      )
                                     ],
                                   ),
                                 ),

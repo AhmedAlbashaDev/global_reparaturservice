@@ -26,6 +26,7 @@ class CustomerCardNewOrder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: isOnMap ? 100 : 90,
+      width: double.infinity,
       decoration: BoxDecoration(
           border: Border.all(color: const Color(0xFFDBDBDB)),
           borderRadius: BorderRadius.circular(10),
@@ -105,6 +106,7 @@ class CustomerCardNewOrder extends StatelessWidget {
                 ),
                 SizedBox(
                     height: 50,
+                    width: 100,
                     child: CustomButton(
                         onPressed: () {
                           Navigator.push(
@@ -151,7 +153,7 @@ class CustomerCardNewOrder extends StatelessWidget {
                                 fontWeight: FontWeight.w500),
                           ),
                           AutoSizeText(
-                            userModel?.email ?? '',
+                            '',// '${userModel.address}',
                             style: TextStyle(
                                 color: Theme.of(context).primaryColor,
                                 fontSize: 10,

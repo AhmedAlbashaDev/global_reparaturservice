@@ -15,14 +15,11 @@ import '../../../widgets/empty_widget.dart';
 import '../../../widgets/floating_add_button.dart';
 import '../../../widgets/pagination_footer.dart';
 import '../../search.dart';
-import '/../../core/providers/search_field_status.dart';
 import '../../../widgets/custom_app_bar.dart';
 import '../../../widgets/gradient_background.dart';
-import '../../../widgets/search.dart';
 import '../users/add_new_customer.dart';
 
-final selectedUserToNewOrder = StateProvider<UserModel?>((ref) => null);
-
+final selectedUserToNewOrder = StateProvider.autoDispose<UserModel?>((ref) => null);
 
 class SelectOrAddCustomerScreen extends ConsumerStatefulWidget {
   const SelectOrAddCustomerScreen({super.key});
@@ -45,11 +42,6 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
       ref.read(usersCustomersViewModelProvider.notifier).loadAll(endPoint: 'customers');
     }
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
@@ -207,7 +199,7 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
                                                     PageTransition(
                                                         type: PageTransitionType.rightToLeft,
                                                         duration: const Duration(milliseconds: 500),
-                                                        child:  SearchScreen(endPoint: 'customers', title: 'customers'.tr())));
+                                                        child:  SearchScreen(endPoint: 'customers', title: 'customers'.tr() , callback: true,)));
                                               },
                                               child: Image.asset(
                                                 'assets/images/search.png',

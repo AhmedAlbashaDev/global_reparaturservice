@@ -38,6 +38,8 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
   late TextEditingController email;
   late TextEditingController phone;
   late TextEditingController address;
+  late TextEditingController postalCode;
+  late TextEditingController city;
   late TextEditingController zone;
   late TextEditingController additional;
 
@@ -52,6 +54,8 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
     email = TextEditingController();
     phone = TextEditingController();
     address = TextEditingController();
+    postalCode = TextEditingController();
+    city = TextEditingController();
     zone = TextEditingController();
     additional = TextEditingController();
 
@@ -60,6 +64,8 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
       email.text = userModel?.email ?? '';
       phone.text = userModel?.phone ?? '';
       address.text = userModel?.address ?? '';
+      postalCode.text = userModel?.postalCode ?? '';
+      city.text = userModel?.city ?? '';
       zone.text = userModel?.zoneArea ?? '';
       additional.text =  '';
     }
@@ -68,13 +74,15 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     name.dispose();
     email.dispose();
     phone.dispose();
     address.dispose();
+    postalCode.dispose();
+    city.dispose();
     zone.dispose();
     additional.dispose();
+    super.dispose();
   }
 
   @override
@@ -107,7 +115,8 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
         error: (error) {
 
           final snackBar = SnackBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: Theme.of(context).primaryColor,
+            showCloseIcon: true,
             behavior: SnackBarBehavior.floating,
             padding: EdgeInsets.zero,
             content: CustomSnakeBarContent(
@@ -153,7 +162,8 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
             error: (error) {
 
               final snackBar = SnackBar(
-                backgroundColor: Colors.transparent,
+                backgroundColor: Theme.of(context).primaryColor,
+                showCloseIcon: true,
                 behavior: SnackBarBehavior.floating,
                 padding: EdgeInsets.zero,
                 content: CustomSnakeBarContent(
@@ -198,7 +208,8 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
             },
             error: (error) {
               final snackBar = SnackBar(
-                backgroundColor: Colors.transparent,
+                backgroundColor: Theme.of(context).primaryColor,
+                showCloseIcon: true,
                 behavior: SnackBarBehavior.floating,
                 padding: EdgeInsets.zero,
                 content: CustomSnakeBarContent(
@@ -226,13 +237,15 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
               child: Column(
                 children: [
                   CustomAppBar(
-                    title: 'add_new_customer'.tr(),
+                    title: isUpdate == false ? 'add_new_customer'.tr() : 'update_customer',
+
                   ),
                   Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 22, vertical: 4),
                     child: Form(
                       key: _addCustomerFormKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         children: [
                           const SizedBox(
@@ -269,13 +282,15 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                           CustomTextFormField(
                             controller: phone,
                             textInputType: TextInputType.phone,
+                            maxLength: 12,
+                            height: 60,
                             readOnly: isUpdate,
                             validator: (String? text) {
                               if (text?.isEmpty ?? true) {
                                 return 'this_filed_required'.tr();
                               }
-                              else if ((text?.length ?? 0) < 9) {
-                                return 'phone_number_length_required'.tr();
+                              else if (text != null && text.length < 12) {
+                                return 'Phone must be 12 number minimum'.tr();
                               }
                               return null;
                             },
@@ -294,9 +309,37 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                             },
                             label: 'address'.tr(),
                           ),
-                          const SizedBox(
-                            height: 10,
+                          const SizedBox(height: 10,),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CustomTextFormField(
+                                  controller: postalCode,
+                                  validator: (text) {
+                                    if(text?.isEmpty ?? true){
+                                      return 'this_filed_required'.tr();
+                                    }
+                                    return null;
+                                  },
+                                  textInputType: TextInputType.number,
+                                  label: 'Postal Code'.tr(),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Expanded(
+                                child: CustomTextFormField(
+                                  controller: city,
+                                  validator: (text) {
+                                    return null;
+                                  },
+                                  label: 'City'.tr(),
+                                ),
+                              ),
+                            ],
                           ),
+                          const SizedBox(height: 10,),
                           CustomTextFormField(
                             controller: zone,
                             validator: (String? text) {
@@ -307,14 +350,14 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                             },
                             label: 'zone_area'.tr(),
                           ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          CustomTextFormField(
-                            controller: additional,
-                            validator: (String? text) {},
-                            label: 'additional_info'.tr(),
-                          ),
+                          // const SizedBox(
+                          //   height: 10,
+                          // ),
+                          // CustomTextFormField(
+                          //   controller: additional,
+                          //   validator: (String? text) {},
+                          //   label: 'additional_info'.tr(),
+                          // ),
                           const SizedBox(
                             height: 20,
                           ),
@@ -452,6 +495,8 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                                               email: email.text,
                                               phoneNo: phone.text,
                                               address: address.text,
+                                              postalCode: postalCode.text,
+                                              city: city.text,
                                               zoneArea: zone.text,
                                               additional: additional.text);
                                         }

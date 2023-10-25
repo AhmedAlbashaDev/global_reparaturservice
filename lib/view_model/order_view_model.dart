@@ -67,6 +67,24 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
     });
   }
 
+  Future<void> updateAmount({required int orderId ,required String? amount}) async{
+
+    setState(const ResponseState<OrderModel>.loading());
+
+    final response = await ordersRepository.update(
+      orderId: orderId,
+      data: {
+        "amount" : amount,
+      },
+    );
+
+    response.whenOrNull(success: (data) {
+      setState(ResponseState<OrderModel>.success(data: data));
+    }, error: (error) {
+      setState(ResponseState<OrderModel>.error(error: error));
+    });
+  }
+
   Future<void> finishOrder({required int orderId ,required String report}) async{
 
     setState(const ResponseState<OrderModel>.loading());

@@ -12,6 +12,7 @@ import '../../../../core/providers/search_field_status.dart';
 import '../../../../view_model/users/get_users_view_model.dart';
 import '../../../widgets/custom_error.dart';
 import '../../../widgets/custom_shimmer.dart';
+import '../../../widgets/custom_snakbar.dart';
 import '../../../widgets/empty_widget.dart';
 import '../../../widgets/search.dart';
 import '../../../widgets/pagination_footer.dart';
@@ -163,7 +164,25 @@ class UsersTechniciansTab extends ConsumerWidget {
                                     PageTransition(
                                         type: PageTransitionType.rightToLeft,
                                         duration: const Duration(milliseconds: 500),
-                                        child:  SearchScreen(endPoint: 'drivers', title: 'technicians'.tr())));
+                                        child:  SearchScreen(endPoint: 'drivers', title: 'technicians'.tr()))).then((value) {
+                                  final snackBar = SnackBar(
+                                    backgroundColor: Theme.of(context).primaryColor,
+                                    showCloseIcon: true,
+                                    behavior: SnackBarBehavior.floating,
+                                    padding: EdgeInsets.zero,
+                                    content: CustomSnakeBarContent(
+                                      icon: const Icon(
+                                        Icons.info,
+                                        color: Colors.green,
+                                        size: 25,
+                                      ),
+                                      message: 'Pull-Down to refresh data if you make any update'.tr(),
+                                      bgColor: Colors.grey.shade600,
+                                      borderColor: Colors.green.shade200,
+                                    ),
+                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                });
 
                               },
                               child: Image.asset(

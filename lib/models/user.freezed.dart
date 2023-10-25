@@ -28,15 +28,20 @@ mixin _$UserModel {
   DateTime? get emailVerifiedAt => throw _privateConstructorUsedError;
   int? get type => throw _privateConstructorUsedError;
   String? get address => throw _privateConstructorUsedError;
+  @JsonKey(name: 'postal_code')
+  String? get postalCode => throw _privateConstructorUsedError;
+  String? get city => throw _privateConstructorUsedError;
   String? get phone => throw _privateConstructorUsedError;
+  double? get lat => throw _privateConstructorUsedError;
+  double? get lng => throw _privateConstructorUsedError;
   @JsonKey(name: 'zone_area')
   String? get zoneArea => throw _privateConstructorUsedError;
   @JsonKey(name: 'national_id')
   String? get nationalId => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
-  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_at')
-  DateTime get updatedAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'deleted_at')
   DateTime? get deletedAt => throw _privateConstructorUsedError;
   String? get role => throw _privateConstructorUsedError;
@@ -60,11 +65,15 @@ abstract class $UserModelCopyWith<$Res> {
       @JsonKey(name: 'email_verified_at') DateTime? emailVerifiedAt,
       int? type,
       String? address,
+      @JsonKey(name: 'postal_code') String? postalCode,
+      String? city,
       String? phone,
+      double? lat,
+      double? lng,
       @JsonKey(name: 'zone_area') String? zoneArea,
       @JsonKey(name: 'national_id') String? nationalId,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt,
       @JsonKey(name: 'deleted_at') DateTime? deletedAt,
       String? role});
 }
@@ -89,11 +98,15 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? emailVerifiedAt = freezed,
     Object? type = freezed,
     Object? address = freezed,
+    Object? postalCode = freezed,
+    Object? city = freezed,
     Object? phone = freezed,
+    Object? lat = freezed,
+    Object? lng = freezed,
     Object? zoneArea = freezed,
     Object? nationalId = freezed,
-    Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
     Object? deletedAt = freezed,
     Object? role = freezed,
   }) {
@@ -126,10 +139,26 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.address
           : address // ignore: cast_nullable_to_non_nullable
               as String?,
+      postalCode: freezed == postalCode
+          ? _value.postalCode
+          : postalCode // ignore: cast_nullable_to_non_nullable
+              as String?,
+      city: freezed == city
+          ? _value.city
+          : city // ignore: cast_nullable_to_non_nullable
+              as String?,
       phone: freezed == phone
           ? _value.phone
           : phone // ignore: cast_nullable_to_non_nullable
               as String?,
+      lat: freezed == lat
+          ? _value.lat
+          : lat // ignore: cast_nullable_to_non_nullable
+              as double?,
+      lng: freezed == lng
+          ? _value.lng
+          : lng // ignore: cast_nullable_to_non_nullable
+              as double?,
       zoneArea: freezed == zoneArea
           ? _value.zoneArea
           : zoneArea // ignore: cast_nullable_to_non_nullable
@@ -138,14 +167,14 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.nationalId
           : nationalId // ignore: cast_nullable_to_non_nullable
               as String?,
-      createdAt: null == createdAt
+      createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
+              as DateTime?,
+      updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       deletedAt: freezed == deletedAt
           ? _value.deletedAt
           : deletedAt // ignore: cast_nullable_to_non_nullable
@@ -174,11 +203,15 @@ abstract class _$$UserModelImplCopyWith<$Res>
       @JsonKey(name: 'email_verified_at') DateTime? emailVerifiedAt,
       int? type,
       String? address,
+      @JsonKey(name: 'postal_code') String? postalCode,
+      String? city,
       String? phone,
+      double? lat,
+      double? lng,
       @JsonKey(name: 'zone_area') String? zoneArea,
       @JsonKey(name: 'national_id') String? nationalId,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt,
       @JsonKey(name: 'deleted_at') DateTime? deletedAt,
       String? role});
 }
@@ -201,11 +234,15 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? emailVerifiedAt = freezed,
     Object? type = freezed,
     Object? address = freezed,
+    Object? postalCode = freezed,
+    Object? city = freezed,
     Object? phone = freezed,
+    Object? lat = freezed,
+    Object? lng = freezed,
     Object? zoneArea = freezed,
     Object? nationalId = freezed,
-    Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
     Object? deletedAt = freezed,
     Object? role = freezed,
   }) {
@@ -238,10 +275,26 @@ class __$$UserModelImplCopyWithImpl<$Res>
           ? _value.address
           : address // ignore: cast_nullable_to_non_nullable
               as String?,
+      postalCode: freezed == postalCode
+          ? _value.postalCode
+          : postalCode // ignore: cast_nullable_to_non_nullable
+              as String?,
+      city: freezed == city
+          ? _value.city
+          : city // ignore: cast_nullable_to_non_nullable
+              as String?,
       phone: freezed == phone
           ? _value.phone
           : phone // ignore: cast_nullable_to_non_nullable
               as String?,
+      lat: freezed == lat
+          ? _value.lat
+          : lat // ignore: cast_nullable_to_non_nullable
+              as double?,
+      lng: freezed == lng
+          ? _value.lng
+          : lng // ignore: cast_nullable_to_non_nullable
+              as double?,
       zoneArea: freezed == zoneArea
           ? _value.zoneArea
           : zoneArea // ignore: cast_nullable_to_non_nullable
@@ -250,14 +303,14 @@ class __$$UserModelImplCopyWithImpl<$Res>
           ? _value.nationalId
           : nationalId // ignore: cast_nullable_to_non_nullable
               as String?,
-      createdAt: null == createdAt
+      createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
+              as DateTime?,
+      updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       deletedAt: freezed == deletedAt
           ? _value.deletedAt
           : deletedAt // ignore: cast_nullable_to_non_nullable
@@ -281,7 +334,11 @@ class _$UserModelImpl implements _UserModel {
       @JsonKey(name: 'email_verified_at') required this.emailVerifiedAt,
       required this.type,
       required this.address,
+      @JsonKey(name: 'postal_code') required this.postalCode,
+      required this.city,
       required this.phone,
+      required this.lat,
+      required this.lng,
       @JsonKey(name: 'zone_area') required this.zoneArea,
       @JsonKey(name: 'national_id') required this.nationalId,
       @JsonKey(name: 'created_at') required this.createdAt,
@@ -308,7 +365,16 @@ class _$UserModelImpl implements _UserModel {
   @override
   final String? address;
   @override
+  @JsonKey(name: 'postal_code')
+  final String? postalCode;
+  @override
+  final String? city;
+  @override
   final String? phone;
+  @override
+  final double? lat;
+  @override
+  final double? lng;
   @override
   @JsonKey(name: 'zone_area')
   final String? zoneArea;
@@ -317,10 +383,10 @@ class _$UserModelImpl implements _UserModel {
   final String? nationalId;
   @override
   @JsonKey(name: 'created_at')
-  final DateTime createdAt;
+  final DateTime? createdAt;
   @override
   @JsonKey(name: 'updated_at')
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
   @override
   @JsonKey(name: 'deleted_at')
   final DateTime? deletedAt;
@@ -329,7 +395,7 @@ class _$UserModelImpl implements _UserModel {
 
   @override
   String toString() {
-    return 'UserModel(id: $id, name: $name, image: $image, email: $email, emailVerifiedAt: $emailVerifiedAt, type: $type, address: $address, phone: $phone, zoneArea: $zoneArea, nationalId: $nationalId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, role: $role)';
+    return 'UserModel(id: $id, name: $name, image: $image, email: $email, emailVerifiedAt: $emailVerifiedAt, type: $type, address: $address, postalCode: $postalCode, city: $city, phone: $phone, lat: $lat, lng: $lng, zoneArea: $zoneArea, nationalId: $nationalId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, role: $role)';
   }
 
   @override
@@ -345,7 +411,12 @@ class _$UserModelImpl implements _UserModel {
                 other.emailVerifiedAt == emailVerifiedAt) &&
             (identical(other.type, type) || other.type == type) &&
             (identical(other.address, address) || other.address == address) &&
+            (identical(other.postalCode, postalCode) ||
+                other.postalCode == postalCode) &&
+            (identical(other.city, city) || other.city == city) &&
             (identical(other.phone, phone) || other.phone == phone) &&
+            (identical(other.lat, lat) || other.lat == lat) &&
+            (identical(other.lng, lng) || other.lng == lng) &&
             (identical(other.zoneArea, zoneArea) ||
                 other.zoneArea == zoneArea) &&
             (identical(other.nationalId, nationalId) ||
@@ -370,7 +441,11 @@ class _$UserModelImpl implements _UserModel {
       emailVerifiedAt,
       type,
       address,
+      postalCode,
+      city,
       phone,
+      lat,
+      lng,
       zoneArea,
       nationalId,
       createdAt,
@@ -402,11 +477,15 @@ abstract class _UserModel implements UserModel {
       required final DateTime? emailVerifiedAt,
       required final int? type,
       required final String? address,
+      @JsonKey(name: 'postal_code') required final String? postalCode,
+      required final String? city,
       required final String? phone,
+      required final double? lat,
+      required final double? lng,
       @JsonKey(name: 'zone_area') required final String? zoneArea,
       @JsonKey(name: 'national_id') required final String? nationalId,
-      @JsonKey(name: 'created_at') required final DateTime createdAt,
-      @JsonKey(name: 'updated_at') required final DateTime updatedAt,
+      @JsonKey(name: 'created_at') required final DateTime? createdAt,
+      @JsonKey(name: 'updated_at') required final DateTime? updatedAt,
       @JsonKey(name: 'deleted_at') required final DateTime? deletedAt,
       required final String? role}) = _$UserModelImpl;
 
@@ -429,7 +508,16 @@ abstract class _UserModel implements UserModel {
   @override
   String? get address;
   @override
+  @JsonKey(name: 'postal_code')
+  String? get postalCode;
+  @override
+  String? get city;
+  @override
   String? get phone;
+  @override
+  double? get lat;
+  @override
+  double? get lng;
   @override
   @JsonKey(name: 'zone_area')
   String? get zoneArea;
@@ -438,10 +526,10 @@ abstract class _UserModel implements UserModel {
   String? get nationalId;
   @override
   @JsonKey(name: 'created_at')
-  DateTime get createdAt;
+  DateTime? get createdAt;
   @override
   @JsonKey(name: 'updated_at')
-  DateTime get updatedAt;
+  DateTime? get updatedAt;
   @override
   @JsonKey(name: 'deleted_at')
   DateTime? get deletedAt;

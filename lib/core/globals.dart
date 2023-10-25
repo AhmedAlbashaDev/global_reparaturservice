@@ -19,3 +19,9 @@ bool isValidEmail({String? text}) {
 const kGoogleApiKey = "AIzaSyBrfjwqJ1lK61Q_SpHjz4aIjjdh9Oh96eA";
 //AIzaSyC95kdIk-zL-KFFysNUC5GQKDnbx7wYmqE
 //AIzaSyBRlt7gIugQ9Hs726pgbfD6YRMcdmW4bRM
+
+
+/// Center Location
+///
+String centerLat = '52.5200';
+String centerLng = '13.4050';

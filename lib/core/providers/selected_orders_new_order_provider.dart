@@ -11,12 +11,14 @@ class SelectedOrdersState extends StateNotifier<List<OrderModel>> {
     return state.length;
   }
 
-  addOrder (OrderModel orderModel){
-    state = [...state, orderModel];
+  addOrder (OrderModel? orderModel){
+    if(orderModel != null){
+      state = [...state, orderModel];
+    }
   }
 
-  removeOrder (OrderModel orderModel){
-    state = state.where((order) => order.id != orderModel.id).toList();
+  removeOrder (OrderModel? orderModel){
+    state = state.where((order) => order.id != orderModel?.id).toList();
   }
 
 }

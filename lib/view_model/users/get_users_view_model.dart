@@ -34,7 +34,7 @@ class UsersViewModel extends StateNotifier<ResponseState<PaginationModel<UserMod
 
   Future<void> loadAll({required String endPoint}) async{
 
-    setState(const ResponseState<PaginationModel<UserModel>>.loading());
+    setState(const ResponseState<PaginationModel<UserModel>>.loading());//rOLUUPUh
 
     await Future.delayed(const Duration(seconds: 1));
 
@@ -48,10 +48,6 @@ class UsersViewModel extends StateNotifier<ResponseState<PaginationModel<UserMod
   }
 
   Future<void> loadMore({required String endPoint , required int pageNumber ,required List<UserModel> oldList}) async{
-
-    setState(const ResponseState<PaginationModel<UserModel>>.loading());
-
-    await Future.delayed(const Duration(seconds: 1));
 
     final response = await usersRepository.loadAll(endPoint: '$endPoint?page=$pageNumber');
 

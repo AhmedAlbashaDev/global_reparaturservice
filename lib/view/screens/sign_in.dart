@@ -43,17 +43,19 @@ class _SignInState extends ConsumerState<SignIn> {
     Future.microtask(() => ref.read(bottomNavigationMenuProvider.notifier).state = 0);
     // admin  (admin@admin.com    : 123admin )
     // driver (ahmedmohammedkhier@gmail.com : gDseinWe )
-    email = TextEditingController(text: 'admin@admin.com');
-    password = TextEditingController(text: '123admin');
+    // email = TextEditingController(text: 'foxa233@gmail.com');
+    // password = TextEditingController(text: 'rOLUUPUh');
+    email = TextEditingController();
+    password = TextEditingController();
+
 
   }
 
   @override
   void dispose() {
-
-    super.dispose();
     email.dispose();
     password.dispose();
+    super.dispose();
 
   }
 
@@ -94,7 +96,8 @@ class _SignInState extends ConsumerState<SignIn> {
           }
 
           final snackBar = SnackBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: Theme.of(context).primaryColor,
+            showCloseIcon: true,
             behavior: SnackBarBehavior.floating,
             padding: EdgeInsets.zero,
             content: CustomSnakeBarContent(
@@ -133,6 +136,7 @@ class _SignInState extends ConsumerState<SignIn> {
                     const SizedBox(height: 20,),
                     Form(
                       key: _loginFormKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -215,7 +219,9 @@ class _SignInState extends ConsumerState<SignIn> {
                             orElse: (){
                               return  CustomButton(
                                   onPressed: (){
+
                                     if(_loginFormKey.currentState?.validate() ?? false){
+
                                       ref.read(authViewModelProvider.notifier).login(email: email.text, password: password.text);
                                     }
                                   },

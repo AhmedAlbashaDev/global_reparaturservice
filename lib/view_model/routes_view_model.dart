@@ -35,10 +35,6 @@ class RoutesViewModel extends StateNotifier<ResponseState<PaginationModel<Routes
 
   Future<void> loadMore({required int pageNumber ,required List<RoutesModel> oldList}) async{
 
-    setState(const ResponseState<PaginationModel<RoutesModel>>.loading());
-
-    await Future.delayed(const Duration(seconds: 1));
-
     final response = await routesRepository.loadAll(endPoint: 'roads?page=$pageNumber');
 
     response.whenOrNull(data: (data) {

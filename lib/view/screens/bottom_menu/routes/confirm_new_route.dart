@@ -14,7 +14,6 @@ import '../../../widgets/custom_app_bar.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_snakbar.dart';
 import '../../../widgets/gradient_background.dart';
-import '../../../widgets/loading_dialog.dart';
 import '../../../widgets/order_card.dart';
 
 class ConfirmNewRoute extends ConsumerWidget {
@@ -27,14 +26,8 @@ class ConfirmNewRoute extends ConsumerWidget {
       next.whenOrNull(
         success: (order) {
 
-          if(ModalRoute.of(context)?.isCurrent != true){
-            Navigator.pop(context);
-          }
-
           Navigator.pop(context);
-          Navigator.pop(context);
-
-          ref.read(routesViewModelProvider.notifier).loadAll();
+          Navigator.pop(context , 'update');
 
         },
         error: (error) {
@@ -44,7 +37,8 @@ class ConfirmNewRoute extends ConsumerWidget {
           }
 
           final snackBar = SnackBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: Theme.of(context).primaryColor,
+            showCloseIcon: true,
             behavior: SnackBarBehavior.floating,
             content: CustomSnakeBarContent(
               icon: const Icon(Icons.error, color: Colors.red , size: 25,),
@@ -57,7 +51,6 @@ class ConfirmNewRoute extends ConsumerWidget {
         },
       );
     });
-
 
     return Scaffold(
       body: SafeArea(

@@ -24,7 +24,7 @@ class SplashViewModel extends StateNotifier<ResponseState<UserModel>>{
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    final token  = prefs.getString('local');
+    final token  = prefs.getString('userToken');
 
     ref.read(tokenProvider.notifier).state = token;
     
@@ -43,6 +43,7 @@ class SplashViewModel extends StateNotifier<ResponseState<UserModel>>{
       response.whenOrNull(data: (data) {
         state = ResponseState<UserModel>.data(data: data);
       }, error: (error) {
+        ref.read(tokenProvider.notifier).state = null;
         state = ResponseState<UserModel>.error(error: error);
       });
     }

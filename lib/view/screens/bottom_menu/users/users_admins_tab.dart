@@ -9,11 +9,10 @@ import 'package:global_reparaturservice/view_model/users/get_users_view_model.da
 import 'package:page_transition/page_transition.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-import '../../../../core/providers/search_field_status.dart';
 import '../../../widgets/custom_error.dart';
 import '../../../widgets/custom_shimmer.dart';
+import '../../../widgets/custom_snakbar.dart';
 import '../../../widgets/empty_widget.dart';
-import '../../../widgets/search.dart';
 import '../../../widgets/pagination_footer.dart';
 import '../../search.dart';
 
@@ -167,7 +166,26 @@ class UsersAdminsTab extends ConsumerWidget {
                                       PageTransition(
                                           type: PageTransitionType.rightToLeft,
                                           duration: const Duration(milliseconds: 500),
-                                          child:  SearchScreen(endPoint: 'admins', title: 'admins'.tr())));
+                                          child:  SearchScreen(endPoint: 'admins', title: 'admins'.tr()))).then((value)
+                                          {
+                                            final snackBar = SnackBar(
+                                              backgroundColor: Theme.of(context).primaryColor,
+                                              showCloseIcon: true,
+                                              behavior: SnackBarBehavior.floating,
+                                              padding: EdgeInsets.zero,
+                                              content: CustomSnakeBarContent(
+                                                icon: const Icon(
+                                                  Icons.info,
+                                                  color: Colors.green,
+                                                  size: 25,
+                                                ),
+                                                message: 'Pull-Down to refresh data if you make any update'.tr(),
+                                                bgColor: Colors.grey.shade600,
+                                                borderColor: Colors.green.shade200,
+                                              ),
+                                            );
+                                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                  });
                                 },
                                 child: Image.asset(
                                   'assets/images/search.png',
@@ -282,6 +300,7 @@ class UsersAdminsTab extends ConsumerWidget {
                                                       isUpdate: true,
                                                       userModel: usersAdmins.data[index],
                                                     ))).then((value) {
+                                                      print('Added new Admin update');
                                                       if(value == 'update'){
                                                         ref
                                                             .read(usersAdminsViewModelProvider.notifier)

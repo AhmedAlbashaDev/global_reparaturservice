@@ -37,8 +37,8 @@ class _ForgetPasswordScreenState extends ConsumerState<ForgetPasswordScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     email.dispose();
+    super.dispose();
   }
 
   @override
@@ -48,7 +48,8 @@ class _ForgetPasswordScreenState extends ConsumerState<ForgetPasswordScreen> {
       next.whenOrNull(
         success: (order) {
           final snackBar = SnackBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: Theme.of(context).primaryColor,
+            showCloseIcon: true,
             behavior: SnackBarBehavior.floating,
             padding: EdgeInsets.zero,
             content: CustomSnakeBarContent(
@@ -63,7 +64,8 @@ class _ForgetPasswordScreenState extends ConsumerState<ForgetPasswordScreen> {
         error: (error) {
 
           final snackBar = SnackBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: Theme.of(context).primaryColor,
+            showCloseIcon: true,
             behavior: SnackBarBehavior.floating,
             padding: EdgeInsets.zero,
             content: CustomSnakeBarContent(

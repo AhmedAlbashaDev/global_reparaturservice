@@ -8,18 +8,16 @@ import 'package:global_reparaturservice/view/screens/bottom_menu/orders/order_de
 import 'package:global_reparaturservice/view/screens/search.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-
-import '../../../../core/providers/search_field_status.dart';
 import '../../../../view_model/orders_view_model.dart';
 import '../../../widgets/custom_error.dart';
 import '../../../widgets/custom_menu_screens_app_bar.dart';
+import '../../../widgets/custom_snakbar.dart';
 import '../../../widgets/empty_widget.dart';
 import '../../../widgets/floating_add_button.dart';
 import '../../../widgets/gradient_background.dart';
 import '../../../widgets/order_card.dart';
 import '../../../widgets/orders_loading.dart';
 import '../../../widgets/pagination_footer.dart';
-import '../../../widgets/search.dart';
 import 'new_order.dart';
 
 
@@ -44,11 +42,6 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
     Future.microtask(() {
       ref.read(ordersViewModelProvider.notifier).loadAll();
     });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
@@ -149,7 +142,25 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                                                     PageTransition(
                                                         type: PageTransitionType.rightToLeft,
                                                         duration: const Duration(milliseconds: 500),
-                                                        child:  SearchScreen(endPoint: 'orders', title: 'orders'.tr())));
+                                                        child:  SearchScreen(endPoint: 'orders', title: 'orders'.tr()))).then((value) {
+                                                  final snackBar = SnackBar(
+                                                    backgroundColor: Theme.of(context).primaryColor,
+                                                    showCloseIcon: true,
+                                                    behavior: SnackBarBehavior.floating,
+                                                    padding: EdgeInsets.zero,
+                                                    content: CustomSnakeBarContent(
+                                                      icon: const Icon(
+                                                        Icons.info,
+                                                        color: Colors.green,
+                                                        size: 25,
+                                                      ),
+                                                      message: 'Pull-Down to refresh data if you make any update'.tr(),
+                                                      bgColor: Colors.grey.shade600,
+                                                      borderColor: Colors.green.shade200,
+                                                    ),
+                                                  );
+                                                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                                });
                                               },
                                               child: Image.asset(
                                                 'assets/images/search.png',
@@ -244,7 +255,14 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
       ),
       floatingActionButton: FloatingAddButton(
         onPresses: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const NewOrderScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const NewOrderScreen())).then((value) {
+            print('Added new orders update');
+            if(value == 'update'){
+              ref
+                  .read(ordersViewModelProvider.notifier)
+                  .loadAll();
+            }
+          });
         },
       ),
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

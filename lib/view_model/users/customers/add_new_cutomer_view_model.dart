@@ -17,7 +17,7 @@ class AddNewCustomerViewModel extends StateNotifier<ResponseState<UserModel>>{
 
   AddNewCustomerViewModel(this.usersRepository) : super(const ResponseState<UserModel>.idle());
 
-  Future<void> create({required String endPoint , required String name , required String email, required String phoneNo, required String address, required String zoneArea, required String additional,}) async{
+  Future<void> create({required String endPoint , required String name , required String email, required String phoneNo, required String address, required String postalCode, required String city, required String zoneArea, required String additional,}) async{
 
     setState(const ResponseState<UserModel>.loading());
 
@@ -28,6 +28,8 @@ class AddNewCustomerViewModel extends StateNotifier<ResponseState<UserModel>>{
       'email' : email,
       'phone' : phoneNo,
       'address' : address,
+      'postal_code' : postalCode,
+      'city' : city,
       'zone_area' : zoneArea,
       'additional_info' : '',
     });

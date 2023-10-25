@@ -35,10 +35,6 @@ class OrdersViewModel extends StateNotifier<ResponseState<PaginationModel<OrderM
 
   Future<void> loadMore({required int pageNumber ,required List<OrderModel> oldList}) async{
 
-    setState(const ResponseState<PaginationModel<OrderModel>>.loading());
-
-    await Future.delayed(const Duration(seconds: 1));
-
     final response = await usersRepository.loadAll(endPoint: 'orders?page=$pageNumber');
 
     response.whenOrNull(data: (data) {

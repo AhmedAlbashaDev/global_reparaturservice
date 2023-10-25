@@ -57,11 +57,12 @@ class _SplashState extends ConsumerState<Splash> {
             ref.read(currentAppModeProvider.notifier).state = AppMode.technician;
           }
 
+          // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OnBoarding()));
+
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home()));
 
         },
         success: (order) {
-
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OnBoarding()));
 
         },
@@ -72,7 +73,8 @@ class _SplashState extends ConsumerState<Splash> {
           }
 
           final snackBar = SnackBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: Theme.of(context).primaryColor,
+            showCloseIcon: true,
             behavior: SnackBarBehavior.floating,
             padding: EdgeInsets.zero,
             content: CustomSnakeBarContent(

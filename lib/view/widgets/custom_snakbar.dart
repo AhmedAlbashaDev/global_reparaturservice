@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class CustomSnakeBarContent extends StatelessWidget {
@@ -14,12 +15,12 @@ class CustomSnakeBarContent extends StatelessWidget {
         decoration: BoxDecoration(
           color: bgColor,
           border: Border.all(color: borderColor!, width: 1),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(5),
         ),
         child: ListTile(
           leading: icon,
           contentPadding: EdgeInsets.zero,
-          title:  Text( message!, style: const TextStyle(color: Colors.white),maxLines: 2,overflow: TextOverflow.ellipsis,),
+          title:  AutoSizeText( message!, style: const TextStyle(color: Colors.white),maxLines: 2,overflow: TextOverflow.ellipsis,),
         )
     );
   }

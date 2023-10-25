@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomTextFormField extends StatelessWidget {
-  const CustomTextFormField({super.key, required this.label, this.controller, required this.validator, this.textInputType = TextInputType.text , this.readOnly = false , this.height = 60 , this.onTap , this.maxLength , this.hint , this.searchSuffix});
+  const CustomTextFormField({super.key, required this.label, this.controller, required this.validator, this.textInputType = TextInputType.text , this.readOnly = false , this.height = 50 , this.onTap , this.maxLength , this.minLength , this.hint , this.searchSuffix});
 
   final String label;
   final TextEditingController? controller;
@@ -10,33 +11,34 @@ class CustomTextFormField extends StatelessWidget {
   final bool readOnly;
   final double height;
   final int? maxLength;
+  final int? minLength;
   final VoidCallback? onTap;
   final String? hint;
   final Widget? searchSuffix;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: height,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(9),
-        color: Colors.white,
-      ),
       child: TextFormField(
         controller: controller,
         validator: validator,
+        textAlignVertical: TextAlignVertical.top,
         onTap: onTap,
         keyboardType: textInputType,
         readOnly: readOnly,
         maxLines: null,
         minLines: null,
+        inputFormatters: textInputType == TextInputType.number? [FilteringTextInputFormatter.digitsOnly] : null,
         maxLength: maxLength,
         expands: true,
         style: TextStyle(color: Theme.of(context).primaryColor),
         decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.white,
           labelText: label,
           hintText: hint,
-          suffixIcon: searchSuffix
+          suffixIcon: searchSuffix,
         ),
       ),
     );

@@ -35,9 +35,12 @@ class AuthRepository {
 
       final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      prefs.setString('local' , token);
+      UserModel userModel = UserModel.fromJson(response.data['data']['user']);
 
-      return ResponseState<UserModel>.data(data: UserModel.fromJson(response.data['data']['user']));
+      await prefs.setString('userToken' , token);
+      await prefs.setString('userType' , userModel.role ?? '');
+
+      return ResponseState<UserModel>.data(data: userModel);
 
     } on DioException catch (e) {
       if(e.type == DioExceptionType.badResponse && e.response?.data == null){

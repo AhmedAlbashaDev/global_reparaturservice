@@ -1,6 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:global_reparaturservice/view/screens/bottom_menu/routes/route_details_technician.dart';
+import 'package:global_reparaturservice/view/screens/bottom_menu/routes/route_details_technician_map.dart';
 
 import '../../core/globals.dart';
 
@@ -8,11 +8,11 @@ class CustomAppBar extends StatelessWidget {
   const CustomAppBar({
     super.key,
     required this.title,
-    this.routeId,
+    this.onPop,
   });
 
   final String title;
-  final int? routeId;
+  final VoidCallback? onPop;
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +28,8 @@ class CustomAppBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    onPressed: () {
-                      if(routeId != null) {
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RouteDetailsTechnician(routeId: routeId ?? 0,)));
-                      }
-                      else{
-                        Navigator.pop(context);
-                      }
+                    onPressed: onPop ?? (){
+                      Navigator.pop(context);
                     },
                     icon: const Icon(Icons.arrow_back_ios_new_rounded , size: 30,),
                   ),

@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:global_reparaturservice/models/routes.dart';
+import 'package:global_reparaturservice/view/screens/bottom_menu/routes/track_technician.dart';
 import 'package:global_reparaturservice/view/widgets/custom_button.dart';
 import 'package:global_reparaturservice/view_model/route_view_model.dart';
 import 'package:global_reparaturservice/view_model/routes_view_model.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/globals.dart';
 import '../../../../core/providers/search_field_status.dart';
@@ -69,9 +71,9 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
 
   @override
   void dispose() {
-    super.dispose();
     animationTech.dispose();
     searchControllerTech.dispose();
+    super.dispose();
   }
 
   @override
@@ -96,7 +98,8 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
           }
 
           final snackBar = SnackBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: Theme.of(context).primaryColor,
+            showCloseIcon: true,
             behavior: SnackBarBehavior.floating,
             padding: EdgeInsets.zero,
             content: CustomSnakeBarContent(
@@ -582,50 +585,64 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
                                 bgColor: Theme.of(context).primaryColor,
                               )
                             )
-                                : Container(
+                                : Column(
+                                  children: [
+                                    Container(
                               height: 70,
                               padding: const EdgeInsets.symmetric(horizontal: 16 , vertical: 8),
                               decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: const Color(0xFFDBDBDB))
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(color: const Color(0xFFDBDBDB))
                               ),
                               clipBehavior: Clip.antiAlias,
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Image.asset('assets/images/car.png', height: 30,),
-                                      const SizedBox(width: 10,),
-                                      AutoSizeText(
-                                        '${routeDetails.driver?.name}',
-                                        style: TextStyle(
-                                            color:
-                                            Theme.of(context).primaryColor,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold),
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Image.asset('assets/images/car.png', height: 30,),
+                                          const SizedBox(width: 10,),
+                                          AutoSizeText(
+                                            '${routeDetails.driver?.name}',
+                                            style: TextStyle(
+                                                color:
+                                                Theme.of(context).primaryColor,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
                                       ),
+                                      Center(
+                                        child: Container(
+                                          width: 90,
+                                          decoration: BoxDecoration(
+                                              color: Colors.grey.shade100,
+                                              borderRadius: BorderRadius.circular(20)
+                                          ),
+                                          child: IconButton(
+                                            onPressed: () async{
+                                              final Uri launchUri = Uri(
+                                                scheme: 'tel',
+                                                path: '${routeDetails.driver?.phone}',
+                                              );
+                                              await launchUrl(launchUri);
+                                            },
+                                            color: Theme.of(context).primaryColor,
+                                            icon:  const Icon(Icons.call_rounded),
+                                          ),
+                                        ),
+                                      )
                                     ],
-                                  ),
-                                  Center(
-                                    child: Container(
-                                      width: 90,
-                                      decoration: BoxDecoration(
-                                          color: Colors.grey.shade100,
-                                          borderRadius: BorderRadius.circular(20)
-                                      ),
-                                      child: IconButton(
-                                        onPressed: () {},
-                                        color: Theme.of(context).primaryColor,
-                                        icon:  const Icon(Icons.call_rounded),
-                                      ),
-                                    ),
-                                  )
-                                ],
                               ),
                             ),
+                                    const SizedBox(height: 10,),
+                                    CustomButton(onPressed: (){
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => TrackTechnician(routesModel: routeDetails,)));
+                                    }, text: 'Track Technician'.tr(), textColor: Colors.white, bgColor: Theme.of(context).primaryColor)
+                                  ],
+                                ),
 
                             const SizedBox(height: 20,),
                           ],

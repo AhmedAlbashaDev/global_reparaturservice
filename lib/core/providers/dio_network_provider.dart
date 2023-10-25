@@ -12,7 +12,8 @@ final dioClientNetworkProvider = Provider.autoDispose<Dio>((ref) {
   final token = ref.watch(tokenProvider);
 
   final Dio dio = Dio(BaseOptions(
-      baseUrl: 'https://workshop.anothercars.com/api/',
+      // baseUrl: 'https://workshop.anothercars.com/api/',
+      baseUrl: 'https://smart-intercom.de/api/',
       headers: {
         HttpHeaders.authorizationHeader : token != null ? 'Bearer $token' : null,
         'Content-Type': 'application/json',

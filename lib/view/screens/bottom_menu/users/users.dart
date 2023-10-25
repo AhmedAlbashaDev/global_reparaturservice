@@ -46,12 +46,6 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
 
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -183,13 +177,34 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
       floatingActionButton: FloatingAddButton(
         onPresses: (){
           if(tabController?.index == 0){
-            Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewAdminScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewAdminScreen())).then((value) {
+              print('Added new Admin update');
+              if(value == 'update'){
+                ref
+                    .read(usersAdminsViewModelProvider.notifier)
+                    .loadAll(endPoint: 'admins');
+              }
+            });
           }
           else if(tabController?.index == 1){
-            Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewTechnicianScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewTechnicianScreen())).then((value) {
+              print('Added new Tech update');
+              if(value == 'update'){
+                ref
+                    .read(usersTechniciansViewModelProvider.notifier)
+                    .loadAll(endPoint: 'drivers');
+              }
+            });
           }
           else {
-            Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewCustomerScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewCustomerScreen())).then((value) {
+              print('Added new Cus update');
+              if(value == 'update'){
+                ref
+                    .read(usersCustomersViewModelProvider.notifier)
+                    .loadAll(endPoint: 'customers');
+              }
+            });
 
           }
         },

@@ -8,7 +8,6 @@ import 'package:global_reparaturservice/view_model/users/get_users_view_model.da
 import 'package:page_transition/page_transition.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-import '../../../../core/providers/search_field_status.dart';
 import '../../../../core/globals.dart';
 import '../../../../core/providers/selected_orders_new_order_provider.dart';
 import '../../../../view_model/orders_view_model.dart';
@@ -80,11 +79,11 @@ class _NewRouteScreenState extends ConsumerState<NewRouteScreen>
 
   @override
   void dispose() {
-    super.dispose();
     animation.dispose();
     searchController.dispose();
     animationTech.dispose();
     searchControllerTech.dispose();
+    super.dispose();
   }
 
   //selected_orders
@@ -148,7 +147,7 @@ class _NewRouteScreenState extends ConsumerState<NewRouteScreen>
                                               PageTransition(
                                                   type: PageTransitionType.rightToLeft,
                                                   duration: const Duration(milliseconds: 500),
-                                                  child:  SearchScreen(endPoint: 'orders', title: 'orders'.tr())));
+                                                  child:  SearchScreen(endPoint: 'orders', title: 'orders'.tr() , callback: true,)));
                                         },
                                         child: Image.asset(
                                           'assets/images/search.png',

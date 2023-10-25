@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:global_reparaturservice/models/order.dart';
 import 'package:global_reparaturservice/view_model/order_view_model.dart';
-import 'package:global_reparaturservice/view_model/orders_view_model.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:lottie/lottie.dart';
 
@@ -17,7 +16,6 @@ import '../../../widgets/custom_snakbar.dart';
 import '../../../widgets/custom_text_form_field.dart';
 import '../../../widgets/custsomer_card_new_order.dart';
 import '../../../widgets/gradient_background.dart';
-import '../../../widgets/loading_dialog.dart';
 import 'select_or_add_customer.dart';
 
 final selectedAddressToNewOrder =
@@ -68,7 +66,6 @@ class _State extends ConsumerState<NewOrderScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     maintenanceDeviceController.dispose();
     brand.dispose();
     phone.dispose();
@@ -77,6 +74,7 @@ class _State extends ConsumerState<NewOrderScreen> {
     floorNumber.dispose();
     apartmentNumber.dispose();
     additionalInfo.dispose();
+    super.dispose();
   }
 
 
@@ -87,13 +85,7 @@ class _State extends ConsumerState<NewOrderScreen> {
       next.whenOrNull(
         success: (order) {
 
-          if(ModalRoute.of(context)?.isCurrent != true){
-            Navigator.pop(context);
-          }
-
-          Navigator.pop(context);
-
-          ref.read(ordersViewModelProvider.notifier).loadAll();
+          Navigator.pop(context , 'update');
 
         },
         error: (error) {
@@ -103,7 +95,8 @@ class _State extends ConsumerState<NewOrderScreen> {
           }
 
           final snackBar = SnackBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: Theme.of(context).primaryColor,
+            showCloseIcon: true,
             behavior: SnackBarBehavior.floating,
             padding: EdgeInsets.zero,
             content: CustomSnakeBarContent(
@@ -147,14 +140,14 @@ class _State extends ConsumerState<NewOrderScreen> {
                         child: SingleChildScrollView(
                           child: Form(
                             key: _newOrderFormKey,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
                             child: Column(
                               children: [
                                 const SizedBox(
                                   height: 10,
                                 ),
                                 CustomerCardNewOrder(
-                                  empty:
-                                  ref.read(selectedUserToNewOrder.notifier).state ==
+                                  empty: ref.read(selectedUserToNewOrder.notifier).state ==
                                       null
                                       ? true
                                       : false,
@@ -206,13 +199,18 @@ class _State extends ConsumerState<NewOrderScreen> {
                                 ),
                                 CustomTextFormField(
                                   controller: phone,
-                                  textInputType: TextInputType.number,//Messedamm, 14057 Berlin, Germany
-                                  validator: (text) {
+                                  textInputType: TextInputType.number,
+                                  validator: (String? text) {
                                     if(text?.isEmpty ?? true){
                                       return 'this_filed_required'.tr();
                                     }
+                                    else if(text != null && text.length < 12){
+                                      return 'Phone must be 12 number minimum'.tr();
+                                    }
                                     return null;
                                   },
+                                  maxLength: 12,
+                                  height: 60,
                                   hint: 'order_phone_hint'.tr(),
                                   label: 'order_phone'.tr(),
                                 ),
@@ -317,9 +315,6 @@ class _State extends ConsumerState<NewOrderScreen> {
                                       child: CustomTextFormField(
                                         controller: apartmentNumber,
                                         validator: (text) {
-                                          if(text?.isEmpty ?? true){
-                                            return 'this_filed_required'.tr();
-                                          }
                                           return null;
                                         },
                                         textInputType: TextInputType.number,

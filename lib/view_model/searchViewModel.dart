@@ -21,13 +21,25 @@ class SearchViewModel extends StateNotifier<ResponseState>{
 
   SearchViewModel(this.searchRepository ,this.ref) : super(const ResponseState<UserModel>.idle());
 
-  Future<void> search({required String endPoint , required String searchText}) async{
+  Future<void> search({required String endPoint , required String searchText , String? dateFrom , String? dateTo , bool withoutRoute = false}) async{
 
     state = const ResponseState.loading();
 
     await Future.delayed(const Duration(seconds: 1));
 
-    final response = await searchRepository.search(endPoint: '$endPoint?search_text=$searchText&per_page=5');
+    String url = '';
+
+    if(withoutRoute == true){
+      url = '$endPoint?search_text=$searchText&per_page=10&without_route=$withoutRoute';
+    }
+    else if(dateTo != null && dateFrom != null){
+      url = '$endPoint?search_text=$searchText&per_page=10&date_from=$dateFrom&date_to=$dateTo';
+    }
+    else{
+      url = '$endPoint?search_text=$searchText&per_page=10';
+    }
+
+    final response = await searchRepository.search(endPoint: url);
 
     if(endPoint.contains('roads')){
       response.whenOrNull(data: (data) {
@@ -52,14 +64,26 @@ class SearchViewModel extends StateNotifier<ResponseState>{
     }
   }
 
-  Future<void> searchMore({required String endPoint , required String searchText ,required List oldList ,required int pageNumber}) async{
+  Future<void> searchMore({required String endPoint , required String searchText ,required List oldList ,required int pageNumber ,String? dateFrom , String? dateTo , bool withoutRoute = false}) async{
 
 
     state = const ResponseState.loading();
 
     await Future.delayed(const Duration(seconds: 1));
 
-    final response = await searchRepository.search(endPoint: '$endPoint?search_text=$searchText&per_page=10&page=$pageNumber');
+    String url = '';
+
+    if(withoutRoute == true){
+      url = '$endPoint?search_text=$searchText&per_page=10&without_route=$withoutRoute&page=$pageNumber';
+    }
+    else if(dateTo != null && dateFrom != null){
+      url = '$endPoint?search_text=$searchText&per_page=10&date_from=$dateFrom&date_to=$dateTo&page=$pageNumber';
+    }
+    else{
+      url = '$endPoint?search_text=$searchText&per_page=10&page=$pageNumber';
+    }
+
+    final response = await searchRepository.search(endPoint: url);
 
     if(endPoint.contains('roads')){
       response.whenOrNull(data: (data) {

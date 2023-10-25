@@ -65,11 +65,11 @@ class _State extends ConsumerState<AddNewAdminScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     name.dispose();
     email.dispose();
     password.dispose();
     additional.dispose();
+    super.dispose();
   }
 
   @override
@@ -105,7 +105,8 @@ class _State extends ConsumerState<AddNewAdminScreen> {
               }
 
               final snackBar = SnackBar(
-                backgroundColor: Colors.transparent,
+                backgroundColor: Theme.of(context).primaryColor,
+                showCloseIcon: true,
                 behavior: SnackBarBehavior.floating,
                 padding: EdgeInsets.zero,
                 content: CustomSnakeBarContent(
@@ -151,7 +152,8 @@ class _State extends ConsumerState<AddNewAdminScreen> {
             error: (error) {
 
               final snackBar = SnackBar(
-                backgroundColor: Colors.transparent,
+                backgroundColor: Theme.of(context).primaryColor,
+                showCloseIcon: true,
                 behavior: SnackBarBehavior.floating,
                 padding: EdgeInsets.zero,
                 content: CustomSnakeBarContent(
@@ -198,7 +200,8 @@ class _State extends ConsumerState<AddNewAdminScreen> {
             error: (error) {
 
               final snackBar = SnackBar(
-                backgroundColor: Colors.transparent,
+                backgroundColor: Theme.of(context).primaryColor,
+                showCloseIcon: true,
                 behavior: SnackBarBehavior.floating,
                 padding: EdgeInsets.zero,
                 content: CustomSnakeBarContent(
@@ -226,13 +229,14 @@ class _State extends ConsumerState<AddNewAdminScreen> {
               child: Column(
                 children: [
                   CustomAppBar(
-                    title: 'add_new_admin'.tr(),
+                    title: isUpdate == false ? 'add_new_admin'.tr() : 'update_admin'.tr(),
                   ),
                   Padding(
                     padding:
                     const EdgeInsets.symmetric(horizontal: 22, vertical: 4),
                     child: Form(
                       key: _addAdminFormKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         children: [
                           const SizedBox(
@@ -277,16 +281,16 @@ class _State extends ConsumerState<AddNewAdminScreen> {
                             label: 'password'.tr(),
                           ),
                           const SizedBox(
-                            height: 10,
-                          ),
-                          CustomTextFormField(
-                            controller: additional,
-                            validator: (text) {},
-                            label: 'additional_info'.tr(),
-                          ),
-                          const SizedBox(
                             height: 20,
                           ),
+                          // CustomTextFormField(
+                          //   controller: additional,
+                          //   validator: (text) {},
+                          //   label: 'additional_info'.tr(),
+                          // ),
+                          // const SizedBox(
+                          //   height: 20,
+                          // ),
                           if(isUpdate)
                             Column(
                               children: [
