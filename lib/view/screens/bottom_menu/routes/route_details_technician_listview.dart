@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/models/order.dart';
 import 'package:global_reparaturservice/view/widgets/order_card.dart';
 import 'package:maps_launcher/maps_launcher.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/globals.dart';
 import '../../../widgets/custom_app_bar.dart';
@@ -55,56 +56,52 @@ class RouteDetailsTechnicianListView extends ConsumerWidget {
                           child: ListView.builder(
                             itemCount: orders.length,
                             itemBuilder: (context, index) {
-                              return Row(
+                              return Column(
                                 children: [
-                                  Expanded(
-                                    flex: 3,
-                                    child: OrderCard(
-                                      showOrderStatus: true,
-                                      showOrderPaymentStatus: true,
-                                      showOrderCheckBox: false,
-                                      onPressed: () {
-                                        Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => OrderDetailsTechnician(
-                                                  orderId: orders[index].id,
-                                                  routeId: routeId,
-                                                )));
-                                      },
-                                      orderModel: orders[index],
-                                    ),
+                                  OrderCard(
+                                    showOrderStatus: true,
+                                    showOrderPaymentStatus: true,
+                                    showOrderCheckBox: false,
+                                    onPressed: () {
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => OrderDetailsTechnician(
+                                                orderId: orders[index].id,
+                                                routeId: routeId,
+                                              )));
+                                    },
+                                    orderModel: orders[index],
                                   ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Column(
-                                      children: [
-                                        SizedBox(
-                                            height: 40,
-                                            child: CustomButton(
-                                                onPressed: () {
-                                                  MapsLauncher.launchCoordinates(
-                                                      double.parse(
-                                                          orders[index]
-                                                              .lat),
-                                                      double.parse(
-                                                          orders[index]
-                                                              .lng),
-                                                      orders[index]
-                                                          .address);
-                                                },
-                                                text:
-                                                'show_street'
-                                                    .tr(),
-                                                textColor:
-                                                Colors.white,
-                                                bgColor: Theme.of(
-                                                    context)
-                                                    .primaryColor,
-                                            icon: const Icon(Icons.map , color: Colors.white,),)),
-                                      ],
-                                    ),
-                                  )
+                                  const SizedBox(height: 2,),
+                                  SizedBox(
+                                      height: 40,
+                                      child: CustomButton(
+                                        onPressed: () async {
+                                          var name = Uri.encodeComponent(orders[index].address);
+                                          name = name.replaceAll('%20', '+');
+                                          String googleUrl = 'https://www.google.com/maps/place/$name/@${orders[index].lat},${orders[index].lng}';
+
+                                          Uri url = Uri.parse(googleUrl);//order pdf file
+                                          if (await canLaunchUrl(url)) {
+                                            await launchUrl(url);
+                                          } else {
+                                            throw 'Could not launch $url';
+                                          }
+                                        },
+                                        text:
+                                        'show_street'
+                                            .tr(),
+                                        textColor:
+                                        Colors.white,
+                                        bgColor: Theme.of(
+                                            context)
+                                            .primaryColor,
+                                        icon: const Icon(Icons.map , color: Colors.white,),
+                                        radius: 10,
+                                      )
+                                  ),
+                                  const SizedBox(height: 5,),
                                 ],
                               );
                             },

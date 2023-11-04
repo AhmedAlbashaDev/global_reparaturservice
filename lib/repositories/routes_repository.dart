@@ -30,13 +30,13 @@ class RoutesRepository {
 
       PaginationModel<RoutesModel> paginationModel = PaginationModel<RoutesModel>.fromJson(response.data['data']);
 
-      List<RoutesModel> list = [];
+      List<RoutesModel> data = [];
 
       for(final json in response.data['data']['data']){
-        list.add(RoutesModel.fromJson(json));
+        data.add(RoutesModel.fromJson(json));
       }
 
-      return ResponseState<PaginationModel<RoutesModel>>.data(data: paginationModel.copyWith(data: list));
+      return ResponseState<PaginationModel<RoutesModel>>.data(data: paginationModel.copyWith(data: data));
 
     } on DioException catch (e) {
       if(e.type == DioExceptionType.badResponse && e.response?.data == null){

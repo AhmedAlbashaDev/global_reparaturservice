@@ -66,7 +66,7 @@ class RouteViewModel extends StateNotifier<ResponseState<RoutesModel>> {
     });
   }
 
-  Future<void> update({required int? routeId, required String description,required int? driverId,required List<OrderModel?> orders}) async {
+  Future<void> update({required int? routeId, String? description, int? driverId,required List<OrderModel?> orders}) async {
 
 
     setState(const ResponseState<RoutesModel>.loading());
@@ -79,13 +79,21 @@ class RouteViewModel extends StateNotifier<ResponseState<RoutesModel>> {
       ordersIDs.add(order?.id);
     }
 
+    Map data = {
+      'orders_ids' : ordersIDs,
+    };
+
+    if(driverId != null){
+      data['driver_id'] = driverId;
+    }
+
+    if(description != null){
+      data['description'] = description;
+    }
+
     final response = await routesRepository.update(
         routeId: routeId,
-        data: {
-          'description' : description,
-          'driver_id' : driverId,
-          'orders_ids[]' : ordersIDs,
-        }
+        data: data
     );
 
     response.whenOrNull(success: (data) {

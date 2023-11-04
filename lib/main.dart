@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
 import 'package:device_preview/device_preview.dart';
-import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -14,11 +14,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:global_reparaturservice/core/service/shared_preferences.dart';
 import 'package:global_reparaturservice/repositories/users_repository.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 
 import 'core/globals.dart';
@@ -78,15 +77,12 @@ void showFlutterNotification(RemoteMessage message) {
   AndroidNotification? android = message.notification?.android;
   if (notification != null && android != null && !kIsWeb) {
 
-    var body = notification.body as Map<String , dynamic>;
-
-    print('Notification Body keys ${body.keys}');
-    print('Notification Body values ${body.values}');
+    var body = jsonDecode(notification.body ?? '');
 
     flutterLocalNotificationsPlugin.show(
       notification.hashCode,
       notification.title,
-      'Route id #${body['id']}',
+      body['type'],
       NotificationDetails(
         android: AndroidNotificationDetails(
           channel.id,
@@ -122,38 +118,34 @@ Future<void> main() async {
   Stripe.publishableKey = dotenv.env['STRIPE_PUBLISH'] ?? '';
 
 
-  //dotenv.env['STRIPE_SECRET']
-
+  // runApp(
+  //     ProviderScope(
+  //       child: EasyLocalization(
+  //           supportedLocales: const [Locale('en'), Locale('de')],
+  //           path: 'assets/translations',
+  //           fallbackLocale: const Locale('en'),
+  //           startLocale: const Locale('en'),
+  //           child: const MyApp()),
+  //     )
+  //   );
 
   runApp(
-      ProviderScope(
-        child: EasyLocalization(
+      ProviderScope(child: DevicePreview(
+        enabled: true,
+        builder: (context) => EasyLocalization(
             supportedLocales: const [Locale('en'), Locale('de')],
             path: 'assets/translations',
             fallbackLocale: const Locale('en'),
             startLocale: const Locale('en'),
             child: const MyApp()),
-      )
-    );
-
-  // runApp(
-  //     ProviderScope(child: DevicePreview(
-  //       enabled: true,
-  //       builder: (context) => EasyLocalization(
-  //           supportedLocales: const [Locale('en'), Locale('de')],
-  //           path: 'assets/translations',
-  //           fallbackLocale: const Locale('en', 'US'),
-  //           child: const MyApp()),
-  //     ))
-  // );
+      ))
+  );
 
 }
 
 Future<void> initializeService() async {
 
-  SharedPreferences preferences = await SharedPreferences.getInstance();
 
-  if(preferences.getString('userToken') != null && preferences.getString('userType') == 'driver'){
     final service = FlutterBackgroundService();
 
     await [Permission.location, Permission.locationAlways,].request();
@@ -211,7 +203,6 @@ Future<void> initializeService() async {
     );
 
     service.startService();
-  }
 }
 
 // to ensure this is executed
@@ -252,31 +243,21 @@ void onStart(ServiceInstance service) async {
     service.stopSelf();
   });
 
-
-  print('I am here out 1');
-
-  SharedPreferences preferences = await SharedPreferences.getInstance();
   // bring to foreground
   Timer.periodic(const Duration(minutes: 1), (timer) async {
-    if (service is AndroidServiceInstance) {
-      if (await service.isForegroundService()) {
 
-        print('I am here out 2');
+    if(await SharedPref.get('userToken') != null && await SharedPref.get('userType') == 'driver'){
+      if (service is AndroidServiceInstance) {
+        if (await service.isForegroundService()) {
 
-        print('I am here 1');
-        await UsersRepository().updateLocation();
+          await UsersRepository().updateLocation();
 
-        print('I am here 2');
+          service.setForegroundNotificationInfo(
+            title: "Global Reparaturservice Technician Track".tr(),
+            content: "${'Location updated at'.tr()} ${Jiffy.parse(DateTime.now().toString(),).format(pattern: 'dd-MM-yyyy : h:mm')}",
+          );
 
-        service.setForegroundNotificationInfo(
-          title: "Global Reparaturservice Technician Track".tr(),
-          content: "${'Location updated at'.tr()} ${Jiffy.parse(DateTime.now().toString(),).format(pattern: 'dd-MM-yyyy : h:mm')}",
-        );
-
-
-        print('I am here out 3 : ${preferences.getString('userToken')}');
-        print('I am here out 3 : ${preferences.getString('userType')}');// if you don't using custom notification, uncomment this
-
+        }
       }
     }
     // // test using external plugin
@@ -327,6 +308,7 @@ class _MyAppState extends State<MyApp> {
       // );
     });
   }
+
   @override
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.sizeOf(context).height / 100;

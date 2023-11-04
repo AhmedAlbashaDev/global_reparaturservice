@@ -13,24 +13,43 @@ final ordersViewModelProvider = StateNotifierProvider.autoDispose<OrdersViewMode
   return OrdersViewModel(OrdersRepository(dioClient: ref.read(dioClientNetworkProvider) , ref: ref));
 });
 
+final todayOrdersViewModelProvider = StateNotifierProvider.autoDispose<OrdersViewModel,ResponseState<PaginationModel<OrderModel>>>((ref) {
+  final cancelToken = CancelToken();
+  ref.onDispose(cancelToken.cancel);
+  return OrdersViewModel(OrdersRepository(dioClient: ref.read(dioClientNetworkProvider) , ref: ref));
+});
+
 class OrdersViewModel extends StateNotifier<ResponseState<PaginationModel<OrderModel>>>{
   final OrdersRepository usersRepository;
 
   OrdersViewModel(this.usersRepository) : super(const ResponseState<PaginationModel<OrderModel>>.loading());
 
-  Future<void> loadAll({bool? pendingOrdersOnly}) async{
+  Future<void> loadAll({bool? pendingOrdersOnly , bool? today}) async{
 
     setState(const ResponseState<PaginationModel<OrderModel>>.loading());
 
     await Future.delayed(const Duration(seconds: 1));
 
-    final response = await usersRepository.loadAll(endPoint: pendingOrdersOnly ?? false ? 'orders?without_route=true' : 'orders');
+    String endPoint = "";
+
+    if(pendingOrdersOnly == true){
+      endPoint = 'orders?without_route=true';
+    }
+    else if(today == true){
+      endPoint = 'orders?today=true';
+    }
+    else {
+      endPoint = 'orders';
+    }
+
+    final response = await usersRepository.loadAll(endPoint: endPoint);
 
     response.whenOrNull(data: (data) {
       setState(ResponseState<PaginationModel<OrderModel>>.data(data: data));
     }, error: (error) {
       setState(ResponseState<PaginationModel<OrderModel>>.error(error: error));
     });
+
   }
 
   Future<void> loadMore({required int pageNumber ,required List<OrderModel> oldList}) async{

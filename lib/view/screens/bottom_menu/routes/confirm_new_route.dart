@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/core/providers/selected_orders_new_order_provider.dart';
 import 'package:global_reparaturservice/models/routes.dart';
+import 'package:global_reparaturservice/models/user.dart';
 import 'package:global_reparaturservice/view/screens/bottom_menu/routes/new_route.dart';
 import 'package:global_reparaturservice/view_model/route_view_model.dart';
-import 'package:global_reparaturservice/view_model/routes_view_model.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../../../models/response_state.dart';
@@ -17,7 +17,9 @@ import '../../../widgets/gradient_background.dart';
 import '../../../widgets/order_card.dart';
 
 class ConfirmNewRoute extends ConsumerWidget {
-  const ConfirmNewRoute({super.key});
+  const ConfirmNewRoute({super.key , this.technician});
+
+  final UserModel? technician;
 
   @override
   Widget build(BuildContext context , WidgetRef ref) {
@@ -72,7 +74,7 @@ class ConfirmNewRoute extends ConsumerWidget {
                         const SizedBox(height: 10,),
                         AutoSizeText.rich(
                           TextSpan(
-                              text: 'selected_orders_for_this_route'.tr(),
+                              text: 'orders'.tr(),
                               children:  [
                                 TextSpan(
                                     text: ' (${ref.read(selectedOrdersToNewOrder).length})',
@@ -103,7 +105,7 @@ class ConfirmNewRoute extends ConsumerWidget {
                         const SizedBox(height: 5,),
 
                         AutoSizeText(
-                          'assigned_technician'.tr(),
+                          'technician'.tr(),
                           style: TextStyle(
                               color: Theme.of(context).primaryColor,
                               fontSize: 18,
@@ -112,11 +114,11 @@ class ConfirmNewRoute extends ConsumerWidget {
 
                         const SizedBox(height: 10,),
 
-                        ref.read(selectTechnicianLater) == true
+                        technician == null
                             ? SizedBox(
                           height: 50,
                           child: CheckboxListTile(
-                            value: ref.watch(selectTechnicianLater) ?? false,
+                            value: true,
                             activeColor: Theme.of(context).primaryColor,
                             enabled: false,
                             onChanged: (value){
@@ -152,7 +154,7 @@ class ConfirmNewRoute extends ConsumerWidget {
                                   Image.asset('assets/images/car.png', height: 30,),
                                   const SizedBox(width: 10,),
                                   AutoSizeText(
-                                    '${ref.read(selectedTechnician)?.name}',
+                                    '${technician?.name}',
                                     style: TextStyle(
                                         color:
                                         Theme.of(context).primaryColor,
@@ -179,7 +181,7 @@ class ConfirmNewRoute extends ConsumerWidget {
                                 onPressed: (){
                                   ref.read(routeViewModelProvider.notifier).create(
                                     description: 'This is just description',
-                                    driverId: ref.read(selectedTechnician)?.id,
+                                    driverId: technician?.id,
                                     orders: ref.read(selectedOrdersToNewOrder),
                                   );
                                 },

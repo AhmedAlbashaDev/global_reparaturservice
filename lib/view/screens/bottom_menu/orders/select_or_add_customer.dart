@@ -18,6 +18,7 @@ import '../../search.dart';
 import '../../../widgets/custom_app_bar.dart';
 import '../../../widgets/gradient_background.dart';
 import '../users/add_new_customer.dart';
+import 'new_order.dart';
 
 final selectedUserToNewOrder = StateProvider.autoDispose<UserModel?>((ref) => null);
 
@@ -252,6 +253,16 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
                                                       child: MaterialButton(
                                                         onPressed: (){
                                                           ref.read(selectedUserToNewOrder.notifier).state = usersCustomers.data[index];
+                                                          ref
+                                                              .read(selectedAddressToNewOrder.notifier)
+                                                              .state = {
+                                                            'address' : usersCustomers.data[index].address,
+                                                            'lat' : usersCustomers.data[index].lat,
+                                                            'lng' : usersCustomers.data[index].lng,
+                                                            'postal_code' : usersCustomers.data[index].postalCode,
+                                                            'city' : usersCustomers.data[index].city,
+                                                            'zone_area' : usersCustomers.data[index].zoneArea,
+                                                          };
                                                           Navigator.pop(context);
                                                         },
                                                         padding: EdgeInsets.zero,

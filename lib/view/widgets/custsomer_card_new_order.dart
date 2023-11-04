@@ -153,7 +153,7 @@ class CustomerCardNewOrder extends StatelessWidget {
                                 fontWeight: FontWeight.w500),
                           ),
                           AutoSizeText(
-                            '',// '${userModel.address}',
+                            userModel?.email ?? '',
                             style: TextStyle(
                                 color: Theme.of(context).primaryColor,
                                 fontSize: 10,
@@ -209,7 +209,8 @@ class CustomerCardNewOrder extends StatelessWidget {
                                   icon: const Icon(Icons.call_rounded),
                                 ),
                             ),
-                            Container(
+                            if(orderPhone != null)
+                              Container(
                               height: 40,
                               width: 90,
                               decoration: BoxDecoration(
@@ -220,7 +221,7 @@ class CustomerCardNewOrder extends StatelessWidget {
                                 onPressed: () async {
                                   final Uri launchUri = Uri(
                                     scheme: 'tel',
-                                    path: '${orderPhone}',
+                                    path: '$orderPhone',
                                   );
                                   await launchUrl(launchUri);
                                 },

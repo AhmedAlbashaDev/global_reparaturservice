@@ -5,9 +5,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:global_reparaturservice/models/pagination_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/custom_exception.dart';
+import '../core/service/shared_preferences.dart';
 import '../models/response_state.dart';
 import '../models/user.dart';
 
@@ -262,11 +262,10 @@ class UsersRepository {
 
   Future<void> updateLocation() async {
 
-    SharedPreferences preferences = await SharedPreferences.getInstance();
 
     Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
-    final token = preferences.getString('userToken');
+    final token = await SharedPref.get('userToken');
 
     dioClient = Dio(BaseOptions(
         baseUrl: 'https://smart-intercom.de/api/',
@@ -290,6 +289,43 @@ class UsersRepository {
     try {
 
       final response = await dioClient?.delete(endPoint);
+
+      if(response?.data['success'] == false){
+        return ResponseState<UserModel>.error(
+          error: CustomException(
+            errorStatusCode: response?.data['code'],
+            errorMessage: response?.data['message'] ?? 'unknown_error_please_try_again'.tr(),
+            errorType: DioExceptionType.unknown.name,
+          ),
+        );
+      }
+
+      return ResponseState<UserModel>.data(data: UserModel.fromJson(response?.data['data']));
+
+    } on DioException catch (e) {
+      if(e.type == DioExceptionType.badResponse && e.response?.data == null){
+        return ResponseState<UserModel>.error(
+          error: CustomException(
+            errorStatusCode:  500,
+            errorMessage:     'unknown_error_please_try_again'.tr(),
+            errorType:        e.type.name,
+          ),
+        );
+      }
+      return ResponseState<UserModel>.error(
+        error: CustomException(
+          errorStatusCode:  e.response?.data['code'],
+          errorMessage:     e.response?.data['message'],
+          errorType:        e.type.name,
+        ),
+      );
+    }
+  }
+
+  Future<ResponseState<UserModel>> enable({required String endPoint}) async {
+    try {
+
+      final response = await dioClient?.post(endPoint);
 
       if(response?.data['success'] == false){
         return ResponseState<UserModel>.error(

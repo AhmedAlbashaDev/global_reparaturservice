@@ -18,8 +18,14 @@ import '../../../widgets/custsomer_card_new_order.dart';
 import '../../../widgets/gradient_background.dart';
 import 'select_or_add_customer.dart';
 
+// final selectedAddressToNewOrder =
+//     StateProvider<PlacesDetailsResponse?>((ref) => null);
+
 final selectedAddressToNewOrder =
-    StateProvider<PlacesDetailsResponse?>((ref) => null);
+StateProvider<Map<String , dynamic>?>((ref) => null);
+
+final newOrderTabsSelectedProvider = StateProvider<int>((ref) => 0);
+
 
 class NewOrderScreen extends ConsumerStatefulWidget {
   const NewOrderScreen({super.key});
@@ -28,52 +34,67 @@ class NewOrderScreen extends ConsumerStatefulWidget {
   ConsumerState createState() => _State();
 }
 
-class _State extends ConsumerState<NewOrderScreen> {
+class _State extends ConsumerState<NewOrderScreen> with TickerProviderStateMixin {
 
 
+  late TextEditingController referenceNumber;
   late TextEditingController maintenanceDeviceController;
   late TextEditingController brand;
   late TextEditingController phone;
+  late TextEditingController otherPhone;
   late TextEditingController description;
   late TextEditingController address;
   late TextEditingController floorNumber;
   late TextEditingController apartmentNumber;
   late TextEditingController additionalInfo;
 
+  TabController? tabController;
+
+
+  double? lat;
+  double? lng;
 
   final GlobalKey<FormState> _newOrderFormKey = GlobalKey<FormState>();
-
+  final GlobalKey<FormState> _dropOffFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
 
     Future.microtask(() {
+      ref.read(newOrderTabsSelectedProvider.notifier).state = 0;
       ref.read(selectedAddressToNewOrder.notifier).state = null;
       ref.read(selectedUserToNewOrder.notifier).state = null;
     });
 
+    referenceNumber = TextEditingController();
     maintenanceDeviceController = TextEditingController();
     brand = TextEditingController();
     phone = TextEditingController();
+    otherPhone = TextEditingController();
     description = TextEditingController();
     address = TextEditingController();
     floorNumber = TextEditingController();
     apartmentNumber = TextEditingController();
     additionalInfo = TextEditingController();
 
+    tabController = TabController(length: 2, vsync: this);
+
   }
 
   @override
   void dispose() {
+    referenceNumber.dispose();
     maintenanceDeviceController.dispose();
     brand.dispose();
     phone.dispose();
+    otherPhone.dispose();
     description.dispose();
     address.dispose();
     floorNumber.dispose();
     apartmentNumber.dispose();
     additionalInfo.dispose();
+    tabController?.dispose();
     super.dispose();
   }
 
@@ -111,7 +132,8 @@ class _State extends ConsumerState<NewOrderScreen> {
       );
     });
 
-    address.text = ref.watch(selectedAddressToNewOrder)?.result.formattedAddress ?? '';
+    address.text      = ref.watch(selectedAddressToNewOrder)?['address'] ?? ( ref.watch(selectedUserToNewOrder)?.address ?? '');
+    otherPhone.text   = ref.watch(selectedUserToNewOrder)?.phone ?? '';
 
     return Scaffold(
       body: SafeArea(
@@ -137,220 +159,378 @@ class _State extends ConsumerState<NewOrderScreen> {
                       child: Padding(
                         padding:
                         const EdgeInsets.symmetric(horizontal: 22, vertical: 4),
-                        child: SingleChildScrollView(
-                          child: Form(
-                            key: _newOrderFormKey,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
-                            child: Column(
-                              children: [
-                                const SizedBox(
-                                  height: 10,
+                        child: DefaultTabController(
+                          length: 2,
+                          child: Column(
+                            children: [
+                              Container(
+                                height: 45,
+                                width: screenWidth * 95,
+                                padding:  const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
                                 ),
-                                CustomerCardNewOrder(
-                                  empty: ref.read(selectedUserToNewOrder.notifier).state ==
-                                      null
-                                      ? true
-                                      : false,
-                                  userModel: ref.watch(selectedUserToNewOrder),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(30)
                                 ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                CustomTextFormField(
-                                  controller: maintenanceDeviceController,
-                                  validator: (text) {
-                                    if(text?.isEmpty ?? true){
-                                      return 'this_filed_required'.tr();
-                                    }
-                                    return null;
-                                  },
-                                  label: 'maintenance_device'.tr(),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                CustomTextFormField(
-                                  controller: brand,
-                                  validator: (text) {
-                                    if(text?.isEmpty ?? true){
-                                      return 'this_filed_required'.tr();
-                                    }
-                                    return null;
-                                  },
-                                  label: 'brand'.tr(),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                CustomTextFormField(
-                                  controller: description,
-                                  height: 150,
-                                  maxLength: 150,
-                                  validator: (text) {
-                                    if(text?.isEmpty ?? true){
-                                      return 'this_filed_required'.tr();
-                                    }
-                                    return null;
-                                  },
-                                  label: 'problem_summary'.tr(),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                CustomTextFormField(
-                                  controller: phone,
-                                  textInputType: TextInputType.number,
-                                  validator: (String? text) {
-                                    if(text?.isEmpty ?? true){
-                                      return 'this_filed_required'.tr();
-                                    }
-                                    else if(text != null && text.length < 12){
-                                      return 'Phone must be 12 number minimum'.tr();
-                                    }
-                                    return null;
-                                  },
-                                  maxLength: 12,
-                                  height: 60,
-                                  hint: 'order_phone_hint'.tr(),
-                                  label: 'order_phone'.tr(),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                InkWell(
-                                  onTap: () async {
-                                    Prediction? prediction =
-                                    await PlacesAutocomplete.show(
-                                      context: context,
-                                      apiKey: kGoogleApiKey,
-                                      onError: (error) {},
-                                      mode: Mode.fullscreen,
-                                      language: "de",
-                                      sessionToken: DateTime.now().timeZoneName,
-                                      types: [],
-                                      decoration: InputDecoration(
-                                        hintText: 'Search',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(20),
-                                          borderSide: const BorderSide(
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(20),
-                                          borderSide: const BorderSide(
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                      strictbounds: false,
-                                      components: [Component(Component.country, "de")],
-                                    );
-
-                                    if (prediction != null) {
-                                      GoogleMapsPlaces places =
-                                      GoogleMapsPlaces(apiKey: kGoogleApiKey);
-                                      PlacesDetailsResponse? detail =
-                                      await places.getDetailsByPlaceId(
-                                          prediction.placeId ?? '');
-                                      ref
-                                          .read(selectedAddressToNewOrder.notifier)
-                                          .state = detail;
-                                    }
-                                  },
-                                  child: Container(
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(9),
-                                          color: Colors.white,
-                                          border:
-                                          Border.all(color: Colors.grey.shade400)),
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 20),
-                                      child: Row(
-                                        children: [
-                                          AutoSizeText(
-                                            'auto_complete_address'.tr(),
-                                          ),
-                                        ],
-                                      )),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                CustomTextFormField(
-                                  controller: address,
-                                  validator: (text) {
-                                    if(text?.isEmpty ?? true){
-                                      return 'this_filed_required'.tr();
-                                    }
-                                    return null;
-                                  },
-                                  readOnly: true,
-                                  label: 'address'.tr(),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
+                                child: Row(
+                                  // controller: tabController,
                                   children: [
                                     Expanded(
-                                      flex: 3,
-                                      child: CustomTextFormField(
-                                        controller: floorNumber,
-                                        validator: (text) {
-                                          if(text?.isEmpty ?? true){
-                                            return 'this_filed_required'.tr();
-                                          }
-                                          return null;
+                                      child: InkWell(
+                                        onTap :(){
+                                          ref.read(newOrderTabsSelectedProvider.notifier).state = 0;
+                                          tabController?.animateTo(0);
                                         },
-                                        textInputType: TextInputType.number,
-                                        label: 'floor_number'.tr(),
+                                        child: Container(
+                                          decoration: ref.watch(newOrderTabsSelectedProvider) == 0 ?  BoxDecoration(
+                                              color: Theme.of(context).primaryColor,
+                                              borderRadius: BorderRadius.circular(20)
+                                          ) : null,
+                                          child: Center(
+                                            child: AutoSizeText(
+                                              'Pick-Up Or On-Site'.tr(),
+                                              style: ref.watch(newOrderTabsSelectedProvider) == 0 ?  const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
+                                              ) :  TextStyle(
+                                                  color: Theme.of(context).primaryColor,
+                                                  fontWeight: FontWeight.w500
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
                                     Expanded(
-                                      flex: 4,
-                                      child: CustomTextFormField(
-                                        controller: apartmentNumber,
-                                        validator: (text) {
-                                          return null;
+                                      child: InkWell(
+                                        onTap :(){
+                                          ref.read(newOrderTabsSelectedProvider.notifier).state = 1;
+                                          tabController?.animateTo(1);
                                         },
-                                        textInputType: TextInputType.number,
-                                        label: 'apartment_number'.tr(),
+                                        child: Container(
+                                          decoration: ref.watch(newOrderTabsSelectedProvider) == 1 ?  BoxDecoration(
+                                              color: Theme.of(context).primaryColor,
+                                              borderRadius: BorderRadius.circular(20)
+                                          ) : null,
+                                          child: Center(
+                                            child: AutoSizeText(
+                                              'Drop-Off'.tr(),
+                                              style: ref.watch(newOrderTabsSelectedProvider) == 1 ?  const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
+                                              ) :  TextStyle(
+                                                  color: Theme.of(context).primaryColor,
+                                                  fontWeight: FontWeight.w500
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(
-                                  height: 10,
+                              ),
+                              Expanded(
+                                child: TabBarView(
+                                  physics:  const NeverScrollableScrollPhysics(),
+                                  controller: tabController,
+                                  children: [
+                                    SingleChildScrollView(
+                                      child: Form(
+                                        key: _newOrderFormKey,
+                                        child: Column(
+                                          children: [
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomerCardNewOrder(
+                                              empty: ref.read(selectedUserToNewOrder.notifier).state ==
+                                                  null
+                                                  ? true
+                                                  : false,
+                                              userModel: ref.watch(selectedUserToNewOrder),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextFormField(
+                                              controller: maintenanceDeviceController,
+                                              validator: (text) {
+                                                if(text?.isEmpty ?? true){
+                                                  return 'this_filed_required'.tr();
+                                                }
+                                                return null;
+                                              },
+                                              label: 'maintenance_device'.tr(),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextFormField(
+                                              controller: brand,
+                                              validator: (text) {
+                                                if(text?.isEmpty ?? true){
+                                                  return 'this_filed_required'.tr();
+                                                }
+                                                return null;
+                                              },
+                                              label: 'brand'.tr(),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextFormField(
+                                              controller: description,
+                                              height: 150,
+                                              maxLength: 150,
+                                              validator: (text) {
+                                                if(text?.isEmpty ?? true){
+                                                  return 'this_filed_required'.tr();
+                                                }
+                                                return null;
+                                              },
+                                              label: 'problem_summary'.tr(),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextFormField(
+                                              controller: otherPhone,
+                                              readOnly: true,
+                                              textInputType: TextInputType.number,
+                                              validator: (String? text) {
+                                                if(text?.isEmpty ?? true){
+                                                  return 'this_filed_required'.tr();
+                                                }
+                                                else if(text != null && text.length < 12){
+                                                  return 'Phone must be 12 number minimum'.tr();
+                                                }
+                                                return null;
+                                              },
+                                              maxLength: 12,
+                                              height: 60,
+                                              hint: 'order_phone'.tr(),
+                                              label: 'order_phone'.tr(),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextFormField(
+                                              controller: phone,
+                                              textInputType: TextInputType.number,
+                                              validator: (String? text) {
+                                                if((text != null && text.isNotEmpty) && text.length < 12){
+                                                  return 'Phone must be 12 number minimum'.tr();
+                                                }
+                                                return null;
+                                              },
+                                              maxLength: 12,
+                                              height: 70,
+
+                                              hint: 'Optional'.tr(),
+                                              label: 'Other phone number'.tr(),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextFormField(
+                                              controller: address,
+                                              height: 80,
+                                              validator: (text) {
+                                                if(text?.isEmpty ?? true){
+                                                  return 'this_filed_required'.tr();
+                                                }
+                                                return null;
+                                              },
+                                              readOnly: true,
+                                              label: 'address'.tr(),
+                                            ),
+                                            const SizedBox(
+                                              height: 5,
+                                            ),
+                                            CustomButton(onPressed: () async {
+                                              Prediction? prediction =
+                                              await PlacesAutocomplete.show(
+                                                context: context,
+                                                apiKey: kGoogleApiKey,
+                                                onError: (error) {},
+                                                mode: Mode.fullscreen,
+                                                language: "de",
+                                                sessionToken: DateTime.now().timeZoneName,
+                                                types: [],
+                                                decoration: InputDecoration(
+                                                  hintText: 'Search',
+                                                  focusedBorder: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(20),
+                                                    borderSide: const BorderSide(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  enabledBorder: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(20),
+                                                    borderSide: const BorderSide(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                                strictbounds: false,
+                                                components: [Component(Component.country, "de")],
+                                              );
+
+                                              if (prediction != null) {
+                                                GoogleMapsPlaces places =
+                                                GoogleMapsPlaces(apiKey: kGoogleApiKey);
+                                                PlacesDetailsResponse? detail =
+                                                await places.getDetailsByPlaceId(
+                                                    prediction.placeId ?? '');
+
+                                                // print('Location name ${prediction.description}');
+                                                // print('detail.result.formattedAddress name ${detail.result.formattedAddress}');
+
+                                                Map<String , dynamic> data = {};
+
+                                                for (var element in detail.result.addressComponents) {
+                                                  if(element.types[0] == 'postal_code'){
+                                                    data['postal_code'] = element.longName;
+                                                  }
+                                                  if(element.types[0] == 'administrative_area_level_1'){
+                                                    data['city'] = element.longName;
+                                                  }
+                                                  if(element.types[0] == 'administrative_area_level_3' || element.types[0] == 'administrative_area_level_2'){
+                                                    data['zone_area'] = element.longName;
+                                                  }
+                                                }
+
+                                                data['address'] = detail.result.formattedAddress;
+                                                data['lat'] = detail.result.geometry?.location.lat;
+                                                data['lng'] = detail.result.geometry?.location.lng;
+
+                                                ref
+                                                    .read(selectedAddressToNewOrder.notifier)
+                                                    .state = data;
+                                              }
+                                            }, text: 'Update Address'.tr(), textColor: Colors.white, bgColor: Theme.of(context).primaryColor),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  flex: 3,
+                                                  child: CustomTextFormField(
+                                                    controller: floorNumber,
+                                                    validator: (text) {
+                                                      if(text?.isEmpty ?? true){
+                                                        return 'this_filed_required'.tr();
+                                                      }
+                                                      return null;
+                                                    },
+                                                    textInputType: TextInputType.number,
+                                                    label: 'floor_number'.tr(),
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Expanded(
+                                                  flex: 4,
+                                                  child: CustomTextFormField(
+                                                    controller: apartmentNumber,
+                                                    validator: (text) {
+                                                      return null;
+                                                    },
+                                                    textInputType: TextInputType.number,
+                                                    label: 'apartment_number'.tr(),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextFormField(
+                                              controller: additionalInfo,
+                                              height: 90,
+                                              validator: (text) {},
+                                              label: 'additional_info'.tr(),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomButton(
+                                                onPressed: () {
+                                                  if(_newOrderFormKey.currentState?.validate() ?? false){
+                                                    ref.read(orderViewModelProvider.notifier).create(maintenanceDevice: maintenanceDeviceController.text, brand: brand.text, description: description.text, address: address.text, floorNumber: floorNumber.text, apartmentNumber: apartmentNumber.text, additionalInfo: additionalInfo.text, customerId: ref.read(selectedUserToNewOrder)?.id, lat: ref.read(selectedAddressToNewOrder)?['lat'], lng: ref.read(selectedAddressToNewOrder)?['lng'] , phone: phone.text);
+                                                  }
+                                                },
+                                                text: 'place_an_order'.tr(),
+                                                textColor: Colors.white,
+                                                bgColor: Theme.of(context).primaryColor),
+                                            const SizedBox(
+                                              height: 5,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    SingleChildScrollView(
+                                      child: Form(
+                                        key: _dropOffFormKey,
+                                        child: Column(
+                                          children: [
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            AutoSizeText(
+                                              'Enter the reference number for the pickup order below and place a drop-off order connected with the pick-up order'.tr(),
+                                              style: TextStyle(
+                                                  color: Theme.of(context).primaryColor,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomTextFormField(
+                                              controller: referenceNumber,
+                                              validator: (text) {
+                                                if(text?.isEmpty ?? true){
+                                                  return 'this_filed_required'.tr();
+                                                }
+                                                return null;
+                                              },
+                                              label: 'Reference number'.tr(),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomButton(
+                                                onPressed: () {
+                                                  if(_dropOffFormKey.currentState?.validate() ?? false){
+                                                    // ref.read(orderViewModelProvider.notifier).create(maintenanceDevice: maintenanceDeviceController.text, brand: brand.text, description: description.text, address: address.text, floorNumber: floorNumber.text, apartmentNumber: apartmentNumber.text, additionalInfo: additionalInfo.text, customerId: ref.read(selectedUserToNewOrder)?.id, lat: ref.read(selectedAddressToNewOrder)?['lat'], lng: ref.read(selectedAddressToNewOrder)?['lng'] , phone: phone.text);
+                                                  }
+                                                },
+                                                text: 'place_an_order'.tr(),
+                                                textColor: Colors.white,
+                                                bgColor: Theme.of(context).primaryColor),
+                                            const SizedBox(
+                                              height: 5,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                CustomTextFormField(
-                                  controller: additionalInfo,
-                                  height: 90,
-                                  validator: (text) {},
-                                  label: 'additional_info'.tr(),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                CustomButton(
-                                    onPressed: () {
-                                      if(_newOrderFormKey.currentState?.validate() ?? false){
-                                        ref.read(orderViewModelProvider.notifier).create(maintenanceDevice: maintenanceDeviceController.text, brand: brand.text, description: description.text, address: address.text, floorNumber: floorNumber.text, apartmentNumber: apartmentNumber.text, additionalInfo: additionalInfo.text, customerId: ref.read(selectedUserToNewOrder)?.id, lat: ref.read(selectedAddressToNewOrder)?.result.geometry?.location.lat, lng: ref.read(selectedAddressToNewOrder)?.result.geometry?.location.lng , phone: phone.text);
-                                      }
-                                    },
-                                    text: 'place_an_order'.tr(),
-                                    textColor: Colors.white,
-                                    bgColor: Theme.of(context).primaryColor),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                              ],
-                            ),
+                              )
+                            ],
                           ),
-                        ),
+                        )
                       ),
                     );
                   }

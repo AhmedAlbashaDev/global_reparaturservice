@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class FloatingAddButton extends StatelessWidget {
-  const FloatingAddButton({super.key, required this.onPresses});
+  const FloatingAddButton({super.key, required this.onPresses , this.child});
 
+  final Widget? child;
   final VoidCallback onPresses;
 
   @override
@@ -13,7 +14,7 @@ class FloatingAddButton extends StatelessWidget {
       shape: const CircleBorder(),
       color: Colors.white,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      child: Image.asset('assets/images/add.png' , height: 50,),
+      child:  child ?? Image.asset('assets/images/add.png' , height: 50,),
     );
   }
 }

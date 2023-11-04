@@ -25,8 +25,8 @@ mixin _$OrderModel {
   String get referenceNo => throw _privateConstructorUsedError;
   String get address => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
-  String get lat => throw _privateConstructorUsedError;
-  String get lng => throw _privateConstructorUsedError;
+  double get lat => throw _privateConstructorUsedError;
+  double get lng => throw _privateConstructorUsedError;
   int get status => throw _privateConstructorUsedError;
   @JsonKey(name: 'maintenance_device')
   String get maintenanceDevice => throw _privateConstructorUsedError;
@@ -35,7 +35,7 @@ mixin _$OrderModel {
   String? get blockNo => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_paid')
   bool get isPaid => throw _privateConstructorUsedError;
-  String? get amount => throw _privateConstructorUsedError;
+  int? get amount => throw _privateConstructorUsedError;
   String? get report => throw _privateConstructorUsedError;
   @JsonKey(name: 'payment_id')
   String? get paymentId => throw _privateConstructorUsedError;
@@ -46,7 +46,7 @@ mixin _$OrderModel {
   @JsonKey(name: 'order_phone_number')
   String? get orderPhoneNumber => throw _privateConstructorUsedError;
   @JsonKey(name: 'floor_number')
-  String? get floorNumber => throw _privateConstructorUsedError;
+  int? get floorNumber => throw _privateConstructorUsedError;
   @JsonKey(name: 'apartment_number')
   String? get apartmentNumber => throw _privateConstructorUsedError;
   @JsonKey(name: 'additional_info')
@@ -87,20 +87,20 @@ abstract class $OrderModelCopyWith<$Res> {
       @JsonKey(name: 'reference_no') String referenceNo,
       String address,
       String description,
-      String lat,
-      String lng,
+      double lat,
+      double lng,
       int status,
       @JsonKey(name: 'maintenance_device') String maintenanceDevice,
       String? brand,
       @JsonKey(name: 'block_no') String? blockNo,
       @JsonKey(name: 'is_paid') bool isPaid,
-      String? amount,
+      int? amount,
       String? report,
       @JsonKey(name: 'payment_id') String? paymentId,
       @JsonKey(name: 'payment_way') dynamic paymentWay,
       @JsonKey(name: 'customer_id') int customerId,
       @JsonKey(name: 'order_phone_number') String? orderPhoneNumber,
-      @JsonKey(name: 'floor_number') String? floorNumber,
+      @JsonKey(name: 'floor_number') int? floorNumber,
       @JsonKey(name: 'apartment_number') String? apartmentNumber,
       @JsonKey(name: 'additional_info') String? additionalInfo,
       UserModel? customer,
@@ -181,11 +181,11 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
       lat: null == lat
           ? _value.lat
           : lat // ignore: cast_nullable_to_non_nullable
-              as String,
+              as double,
       lng: null == lng
           ? _value.lng
           : lng // ignore: cast_nullable_to_non_nullable
-              as String,
+              as double,
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -209,7 +209,7 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
       amount: freezed == amount
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as int?,
       report: freezed == report
           ? _value.report
           : report // ignore: cast_nullable_to_non_nullable
@@ -233,7 +233,7 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
       floorNumber: freezed == floorNumber
           ? _value.floorNumber
           : floorNumber // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as int?,
       apartmentNumber: freezed == apartmentNumber
           ? _value.apartmentNumber
           : apartmentNumber // ignore: cast_nullable_to_non_nullable
@@ -311,20 +311,20 @@ abstract class _$$OrderModelImplCopyWith<$Res>
       @JsonKey(name: 'reference_no') String referenceNo,
       String address,
       String description,
-      String lat,
-      String lng,
+      double lat,
+      double lng,
       int status,
       @JsonKey(name: 'maintenance_device') String maintenanceDevice,
       String? brand,
       @JsonKey(name: 'block_no') String? blockNo,
       @JsonKey(name: 'is_paid') bool isPaid,
-      String? amount,
+      int? amount,
       String? report,
       @JsonKey(name: 'payment_id') String? paymentId,
       @JsonKey(name: 'payment_way') dynamic paymentWay,
       @JsonKey(name: 'customer_id') int customerId,
       @JsonKey(name: 'order_phone_number') String? orderPhoneNumber,
-      @JsonKey(name: 'floor_number') String? floorNumber,
+      @JsonKey(name: 'floor_number') int? floorNumber,
       @JsonKey(name: 'apartment_number') String? apartmentNumber,
       @JsonKey(name: 'additional_info') String? additionalInfo,
       UserModel? customer,
@@ -404,11 +404,11 @@ class __$$OrderModelImplCopyWithImpl<$Res>
       lat: null == lat
           ? _value.lat
           : lat // ignore: cast_nullable_to_non_nullable
-              as String,
+              as double,
       lng: null == lng
           ? _value.lng
           : lng // ignore: cast_nullable_to_non_nullable
-              as String,
+              as double,
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -432,7 +432,7 @@ class __$$OrderModelImplCopyWithImpl<$Res>
       amount: freezed == amount
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as int?,
       report: freezed == report
           ? _value.report
           : report // ignore: cast_nullable_to_non_nullable
@@ -456,7 +456,7 @@ class __$$OrderModelImplCopyWithImpl<$Res>
       floorNumber: freezed == floorNumber
           ? _value.floorNumber
           : floorNumber // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as int?,
       apartmentNumber: freezed == apartmentNumber
           ? _value.apartmentNumber
           : apartmentNumber // ignore: cast_nullable_to_non_nullable
@@ -558,9 +558,9 @@ class _$OrderModelImpl implements _OrderModel {
   @override
   final String description;
   @override
-  final String lat;
+  final double lat;
   @override
-  final String lng;
+  final double lng;
   @override
   final int status;
   @override
@@ -575,7 +575,7 @@ class _$OrderModelImpl implements _OrderModel {
   @JsonKey(name: 'is_paid')
   final bool isPaid;
   @override
-  final String? amount;
+  final int? amount;
   @override
   final String? report;
   @override
@@ -592,7 +592,7 @@ class _$OrderModelImpl implements _OrderModel {
   final String? orderPhoneNumber;
   @override
   @JsonKey(name: 'floor_number')
-  final String? floorNumber;
+  final int? floorNumber;
   @override
   @JsonKey(name: 'apartment_number')
   final String? apartmentNumber;
@@ -750,22 +750,22 @@ abstract class _OrderModel implements OrderModel {
       @JsonKey(name: 'reference_no') required final String referenceNo,
       required final String address,
       required final String description,
-      required final String lat,
-      required final String lng,
+      required final double lat,
+      required final double lng,
       required final int status,
       @JsonKey(name: 'maintenance_device')
       required final String maintenanceDevice,
       required final String? brand,
       @JsonKey(name: 'block_no') required final String? blockNo,
       @JsonKey(name: 'is_paid') required final bool isPaid,
-      required final String? amount,
+      required final int? amount,
       required final String? report,
       @JsonKey(name: 'payment_id') required final String? paymentId,
       @JsonKey(name: 'payment_way') required final dynamic paymentWay,
       @JsonKey(name: 'customer_id') required final int customerId,
       @JsonKey(name: 'order_phone_number')
       required final String? orderPhoneNumber,
-      @JsonKey(name: 'floor_number') required final String? floorNumber,
+      @JsonKey(name: 'floor_number') required final int? floorNumber,
       @JsonKey(name: 'apartment_number') required final String? apartmentNumber,
       @JsonKey(name: 'additional_info') required final String? additionalInfo,
       required final UserModel? customer,
@@ -793,9 +793,9 @@ abstract class _OrderModel implements OrderModel {
   @override
   String get description;
   @override
-  String get lat;
+  double get lat;
   @override
-  String get lng;
+  double get lng;
   @override
   int get status;
   @override
@@ -810,7 +810,7 @@ abstract class _OrderModel implements OrderModel {
   @JsonKey(name: 'is_paid')
   bool get isPaid;
   @override
-  String? get amount;
+  int? get amount;
   @override
   String? get report;
   @override
@@ -827,7 +827,7 @@ abstract class _OrderModel implements OrderModel {
   String? get orderPhoneNumber;
   @override
   @JsonKey(name: 'floor_number')
-  String? get floorNumber;
+  int? get floorNumber;
   @override
   @JsonKey(name: 'apartment_number')
   String? get apartmentNumber;

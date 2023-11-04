@@ -14,7 +14,6 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/globals.dart';
-import '../../../../core/providers/search_field_status.dart';
 import '../../../../models/response_state.dart';
 import '../../../../view_model/users/get_users_view_model.dart';
 import '../../../widgets/custom_app_bar.dart';
@@ -24,7 +23,6 @@ import '../../../widgets/custom_snakbar.dart';
 import '../../../widgets/empty_widget.dart';
 import '../../../widgets/gradient_background.dart';
 import '../../../widgets/order_card.dart';
-import '../../../widgets/search.dart';
 import '../../search.dart';
 import 'new_route.dart';
 import '../../../widgets/pagination_footer.dart';
@@ -51,6 +49,10 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
 
   final RefreshController _refreshControllerTech =
   RefreshController(initialRefresh: false);
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+
 
   @override
   void initState() {
@@ -115,6 +117,7 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
     });
 
     return Scaffold(
+      key: _scaffoldKey,
       body: SafeArea(
         child: Stack(
           children: [
@@ -133,519 +136,964 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
                       ),
                     ),
                   data: (routeDetails) {
-                    return SingleChildScrollView(
-                      child: Padding(
-                        padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                      color: const Color(0xffDCDCDC))),
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                mainAxisAlignment:
-                                MainAxisAlignment.start,
-                                crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                                children: [
-                                  AutoSizeText(
-                                    'route_status'.tr(),
-                                    style:  TextStyle(
-                                      fontSize: 11,
-                                      color: Theme.of(context).primaryColor,
-                                      fontWeight: FontWeight.w400,
+                    return Expanded(
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        color: const Color(0xffDCDCDC))),
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.start,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                                  children: [
+                                    AutoSizeText(
+                                      'route_status'.tr(),
+                                      style:  TextStyle(
+                                        fontSize: 11,
+                                        color: Theme.of(context).primaryColor,
+                                        fontWeight: FontWeight.w400,
+                                      ),
                                     ),
+                                    AutoSizeText(
+                                      routeDetails.statusName.tr(),
+                                      style:  TextStyle(
+                                        color: Theme.of(context).primaryColor,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  AutoSizeText.rich(
+                                    TextSpan(
+                                        text: 'orders'.tr(),
+                                        children:  [
+                                          TextSpan(
+                                              text: ' (${routeDetails.orders?.length})',
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500))
+                                        ]),
+                                    style: TextStyle(
+                                        color: Theme.of(context).primaryColor,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
                                   ),
-                                  AutoSizeText(
-                                    routeDetails.statusName.tr(),
-                                    style:  TextStyle(
-                                      color: Theme.of(context).primaryColor,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
+                                  IconButton(
+                                    onPressed: (){
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => NewRouteScreen(isUpdate: true,routesModel: routeDetails,))
+                                      );
+                                    },
+                                    icon: Icon(
+                                      Icons.add_box_rounded,
+                                      color: Theme.of(context)
+                                          .primaryColor,
+                                      size: 35,
                                     ),
                                   )
                                 ],
                               ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            AutoSizeText.rich(
-                              TextSpan(
-                                  text: 'selected_orders_for_this_route'.tr(),
-                                  children:  [
-                                    TextSpan(
-                                        text: ' (${routeDetails.orders?.length})',
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500))
-                                  ]),
-                              style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            ListView.builder(
-                              physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) {
-                                return OrderCard(
-                                    orderModel: routeDetails.orders?[index],
-                                    onPressed: null,
-                                    showOrderStatus: true,
-                                    showOrderCheckBox: false,
-                                    showOrderPaymentStatus: true
-                                );
-                              },
-                              itemCount: routeDetails.orders?.length,
-                            ),
+                              ListView.builder(
+                                physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemBuilder: (context, index) {
+                                  return OrderCard(
+                                      scaffoldContext: _scaffoldKey.currentContext,
+                                      orderModel: routeDetails.orders?[index],
+                                      onPressed: null,
+                                      showOrderStatus: true,
+                                      showOrderCheckBox: false,
+                                      showOrderPaymentStatus: true,
+                                      route: routeDetails,
+                                  );
+                                },
+                                itemCount: routeDetails.orders?.length,
+                              ),
+                              const SizedBox(height: 5,),
+                              AutoSizeText(
+                                'technician'.tr(),
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold),
+                              ),
 
-                            const SizedBox(height: 5,),
+                              const SizedBox(height: 20,),
 
-                            AutoSizeText(
-                              'assigned_technician'.tr(),
-                              style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold),
-                            ),
-
-                            const SizedBox(height: 20,),
-
-                            routeDetails.driverId == null
-                                ? SizedBox(
-                              height: 50,
-                              child: CustomButton(
-                                onPressed: (){
-                                  showModalBottomSheet(
-                                      context: context,
-                                      shape: const RoundedRectangleBorder(
-                                          borderRadius:
-                                          BorderRadius.vertical(top: Radius.circular(10))),
-                                      backgroundColor: Colors.white,
-                                      isScrollControlled: true,
-                                      builder: (context) {
-                                        return Consumer(builder: (context , ref , child){
-                                          return Container(
-                                            height: screenHeight * 80,
-                                            width: screenWidth * 100,
-                                            margin: const EdgeInsets.symmetric(
-                                                horizontal: 20, vertical: 10),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Center(
-                                                  child: Container(
-                                                    height: 8,
-                                                    width: 45,
-                                                    decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(10),
-                                                        color: const Color(0xffD9D9D9)),
+                              routeDetails.driverId == null
+                                  ? SizedBox(
+                                height: 50,
+                                child: CustomButton(
+                                  onPressed: (){
+                                    showModalBottomSheet(
+                                        context: context,
+                                        shape: const RoundedRectangleBorder(
+                                            borderRadius:
+                                            BorderRadius.vertical(top: Radius.circular(10))),
+                                        backgroundColor: Colors.white,
+                                        isScrollControlled: true,
+                                        builder: (context) {
+                                          return Consumer(builder: (context , ref , child){
+                                            return Container(
+                                              height: screenHeight * 80,
+                                              width: screenWidth * 100,
+                                              margin: const EdgeInsets.symmetric(
+                                                  horizontal: 20, vertical: 10),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Center(
+                                                    child: Container(
+                                                      height: 8,
+                                                      width: 45,
+                                                      decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.circular(10),
+                                                          color: const Color(0xffD9D9D9)),
+                                                    ),
                                                   ),
-                                                ),
-                                                const SizedBox(
-                                                  height: 25,
-                                                ),
-                                                Expanded(
-                                                    child: Padding(
-                                                        padding:
-                                                        const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
-                                                        child: ref.watch(usersTechniciansViewModelProvider).maybeWhen(
-                                                          loading: () => Column(
-                                                            children: [
-                                                              SizedBox(
-                                                                height: 50,
-                                                                child: Stack(
-                                                                  children: [
-                                                                    Row(
-                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                      children: [
-                                                                        AutoSizeText.rich(
-                                                                          TextSpan(text: 'technicians'.tr(), children: const [
-                                                                            TextSpan(
-                                                                                text: ' ( - )',
-                                                                                style: TextStyle(
-                                                                                    fontSize: 15,
-                                                                                    fontWeight: FontWeight.w500))
-                                                                          ]),
-                                                                          style: TextStyle(
-                                                                              color: Theme.of(context).primaryColor,
-                                                                              fontSize: 18,
-                                                                              fontWeight: FontWeight.bold),
-                                                                        ),
-                                                                        Center(
-                                                                          child: SizedBox(
-                                                                            width: 35,
-                                                                            child: MaterialButton(
-                                                                              padding: EdgeInsets.zero,
-                                                                              materialTapTargetSize:
-                                                                              MaterialTapTargetSize.shrinkWrap,
-                                                                              onPressed: null,
-                                                                              child: Image.asset(
-                                                                                'assets/images/search.png',
-                                                                                height: 20,
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                        )
-                                                                      ],
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              Expanded(
-                                                                child: ListView.builder(
-                                                                  shrinkWrap: true,
-                                                                  physics: const NeverScrollableScrollPhysics(),
-                                                                  itemCount: 10,
-                                                                  itemBuilder: (context , index){
-                                                                    return SizedBox(
-                                                                      width: screenWidth * 100,
-                                                                      height: 80,
-                                                                      child: Row(
-                                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                                                        children: [
-                                                                          Expanded(
-                                                                            child: Center(
-                                                                              child: Column(
-                                                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                                                children: [
-                                                                                  RoundedShimmerContainer(
-                                                                                    height: 17,
-                                                                                    width: screenWidth * 75,
-                                                                                  ),
-                                                                                  const SizedBox(height: 10,),
-                                                                                  RoundedShimmerContainer(
-                                                                                    height: 15,
-                                                                                    width: screenWidth * 70,
-                                                                                  )
-                                                                                ],
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                          const Column(
-                                                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                                                            mainAxisAlignment: MainAxisAlignment.center,
-                                                                            children: [
-                                                                              RoundedShimmerContainer(
-                                                                                height: 20,
-                                                                                width: 20,
-                                                                                shape: BoxShape.circle,
-                                                                              ),
-                                                                            ],
-                                                                          )
-
-                                                                        ],
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          data: (technicians) {
-
-                                                            _refreshControllerTech.refreshCompleted(resetFooterState: true);
-                                                            _refreshControllerTech.loadComplete();
-
-                                                            return technicians.data.isEmpty
-                                                                ? EmptyWidget(text: 'no_technicians'.tr())
-                                                                : Column(
-                                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                                  const SizedBox(
+                                                    height: 25,
+                                                  ),
+                                                  Expanded(
+                                                      child: Padding(
+                                                          padding:
+                                                          const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+                                                          child: ref.watch(usersTechniciansViewModelProvider).maybeWhen(
+                                                            loading: () => Column(
                                                               children: [
-                                                                Stack(
-                                                                  children: [
-                                                                    Row(
-                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                      children: [
-                                                                        AutoSizeText.rich(
-                                                                          TextSpan(text: 'technicians'.tr(), children:  [
-                                                                            TextSpan(
-                                                                                text: ' (${technicians.data.length})',
-                                                                                style: const TextStyle(
-                                                                                    fontSize: 15,
-                                                                                    fontWeight: FontWeight.w500))
-                                                                          ]),
-                                                                          style: TextStyle(
-                                                                              color: Theme.of(context).primaryColor,
-                                                                              fontSize: 18,
-                                                                              fontWeight: FontWeight.bold),
-                                                                        ),
-                                                                        Center(
-                                                                          child: SizedBox(
-                                                                            width: 35,
-                                                                            child: MaterialButton(
-                                                                              padding: EdgeInsets.zero,
-                                                                              materialTapTargetSize:
-                                                                              MaterialTapTargetSize.shrinkWrap,
-                                                                              onPressed: () {
-                                                                                Navigator.push(
-                                                                                    context,
-                                                                                    PageTransition(
-                                                                                        type: PageTransitionType.rightToLeft,
-                                                                                        duration: const Duration(milliseconds: 500),
-                                                                                        child:  SearchScreen(endPoint: 'drivers', title: 'technicians'.tr())));
-                                                                              },
-                                                                              child: Image.asset(
-                                                                                'assets/images/search.png',
-                                                                                height: 20,
-                                                                              ),
-                                                                            ),
+                                                                SizedBox(
+                                                                  height: 50,
+                                                                  child: Stack(
+                                                                    children: [
+                                                                      Row(
+                                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                        children: [
+                                                                          AutoSizeText.rich(
+                                                                            TextSpan(text: 'technicians'.tr(), children: const [
+                                                                              TextSpan(
+                                                                                  text: ' ( - )',
+                                                                                  style: TextStyle(
+                                                                                      fontSize: 15,
+                                                                                      fontWeight: FontWeight.w500))
+                                                                            ]),
+                                                                            style: TextStyle(
+                                                                                color: Theme.of(context).primaryColor,
+                                                                                fontSize: 18,
+                                                                                fontWeight: FontWeight.bold),
                                                                           ),
-                                                                        )
-                                                                      ],
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                                Expanded(
-                                                                  child: SmartRefresher(
-                                                                    controller: _refreshControllerTech,
-                                                                    enablePullDown: true,
-                                                                    enablePullUp: true,
-                                                                    onRefresh: () async {
-                                                                      ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers');
-                                                                    },
-                                                                    onLoading: () async {
-                                                                      if (technicians.to != technicians.total) {
-                                                                        ref
-                                                                            .read(usersTechniciansViewModelProvider.notifier)
-                                                                            .loadMore(
-                                                                            endPoint: 'drivers',
-                                                                            pageNumber: technicians.currentPage + 1,
-                                                                            oldList: technicians.data);
-                                                                      } else {
-                                                                        _refreshControllerTech.loadNoData();
-                                                                      }
-                                                                    },
-                                                                    header: const WaterDropHeader(),
-                                                                    footer: const PaginationFooter(),
-                                                                    child: SingleChildScrollView(
-                                                                      child: AnimationLimiter(
-                                                                        child: ListView.builder(
-                                                                          shrinkWrap: true,
-                                                                          physics: const NeverScrollableScrollPhysics(),
-                                                                          itemBuilder: (context, index) {
-
-                                                                            final technician = technicians.data[index];
-
-                                                                            return AnimationConfiguration.staggeredList(
-                                                                              position: index,
-                                                                              duration: const Duration(milliseconds: 400),
-                                                                              child: SlideAnimation(
-                                                                                verticalOffset: 50.0,
-                                                                                child: FadeInAnimation(
-                                                                                  child: Container(
-                                                                                      margin: const EdgeInsets.all(5),
-                                                                                      child: MaterialButton(
-                                                                                        onPressed: () {
-                                                                                          if(ref.watch(selectedTechnician)?.id == technician.id){
-                                                                                            ref.read(selectedTechnician.notifier).state = null;
-                                                                                          }
-                                                                                          else{
-                                                                                            ref.read(selectTechnicianLater.notifier).state = false;
-                                                                                            ref.read(selectedTechnician.notifier).state = technician;
-                                                                                          }
-                                                                                        },
-                                                                                        padding: EdgeInsets.zero,
-                                                                                        shape: RoundedRectangleBorder(
-                                                                                            borderRadius:
-                                                                                            BorderRadius.circular(10)),
-                                                                                        clipBehavior: Clip.antiAlias,
-                                                                                        elevation: .5,
-                                                                                        color: Colors.white,
-                                                                                        child: Container(
-                                                                                          height: 90,
-                                                                                          decoration: BoxDecoration(
-                                                                                            borderRadius:
-                                                                                            BorderRadius.circular(10),
-                                                                                            color: Colors.white,
-                                                                                          ),
-                                                                                          padding: const EdgeInsets.symmetric(
-                                                                                              horizontal: 16, vertical: 8),
-                                                                                          child: Center(
-                                                                                            child: Row(
-                                                                                              mainAxisAlignment:
-                                                                                              MainAxisAlignment
-                                                                                                  .spaceBetween,
-                                                                                              children: [
-                                                                                                Column(
-                                                                                                  crossAxisAlignment:
-                                                                                                  CrossAxisAlignment.start,
-                                                                                                  mainAxisAlignment:
-                                                                                                  MainAxisAlignment.center,
-                                                                                                  children: [
-                                                                                                    AutoSizeText(
-                                                                                                      technician.name,
-                                                                                                      style: TextStyle(
-                                                                                                          color:
-                                                                                                          Theme.of(context)
-                                                                                                              .primaryColor,
-                                                                                                          fontSize: 15,
-                                                                                                          fontWeight:
-                                                                                                          FontWeight.bold),
-                                                                                                    ),
-                                                                                                    const SizedBox(
-                                                                                                      height: 10,
-                                                                                                    ),
-                                                                                                    AutoSizeText(
-                                                                                                      technician
-                                                                                                          .phone ??
-                                                                                                          technician.email,
-                                                                                                      style: TextStyle(
-                                                                                                          color:
-                                                                                                          Theme.of(context)
-                                                                                                              .primaryColor,
-                                                                                                          fontSize: 10,
-                                                                                                          fontWeight:
-                                                                                                          FontWeight.w500),
-                                                                                                    ),
-                                                                                                  ],
-                                                                                                ),
-                                                                                                Transform.scale(
-                                                                                                  scale: 1.3,
-                                                                                                  child: Checkbox(
-                                                                                                    value: ref.watch(selectedTechnician)?.id == technician.id,
-                                                                                                    activeColor: Theme.of(context).primaryColor,
-                                                                                                    onChanged: (value){
-                                                                                                      if(ref.watch(selectedTechnician)?.id == technician.id){
-                                                                                                        ref.read(selectedTechnician.notifier).state = null;
-                                                                                                      }
-                                                                                                      else{
-                                                                                                        ref.read(selectTechnicianLater.notifier).state = false;
-                                                                                                        ref.read(selectedTechnician.notifier).state = technician;
-                                                                                                      }
-                                                                                                    },
-                                                                                                  ),
-                                                                                                ),
-                                                                                              ],
-                                                                                            ),
-                                                                                          ),
-                                                                                        ),
-                                                                                      )),
+                                                                          Center(
+                                                                            child: SizedBox(
+                                                                              width: 35,
+                                                                              child: MaterialButton(
+                                                                                padding: EdgeInsets.zero,
+                                                                                materialTapTargetSize:
+                                                                                MaterialTapTargetSize.shrinkWrap,
+                                                                                onPressed: null,
+                                                                                child: Image.asset(
+                                                                                  'assets/images/search.png',
+                                                                                  height: 20,
                                                                                 ),
                                                                               ),
-                                                                            );
-                                                                          },
-                                                                          itemCount: technicians.data.length,
+                                                                            ),
+                                                                          )
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                Expanded(
+                                                                  child: ListView.builder(
+                                                                    shrinkWrap: true,
+                                                                    physics: const NeverScrollableScrollPhysics(),
+                                                                    itemCount: 10,
+                                                                    itemBuilder: (context , index){
+                                                                      return SizedBox(
+                                                                        width: screenWidth * 100,
+                                                                        height: 80,
+                                                                        child: Row(
+                                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                                                          children: [
+                                                                            Expanded(
+                                                                              child: Center(
+                                                                                child: Column(
+                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                                                  children: [
+                                                                                    RoundedShimmerContainer(
+                                                                                      height: 17,
+                                                                                      width: screenWidth * 75,
+                                                                                    ),
+                                                                                    const SizedBox(height: 10,),
+                                                                                    RoundedShimmerContainer(
+                                                                                      height: 15,
+                                                                                      width: screenWidth * 70,
+                                                                                    )
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                            const Column(
+                                                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                                                              mainAxisAlignment: MainAxisAlignment.center,
+                                                                              children: [
+                                                                                RoundedShimmerContainer(
+                                                                                  height: 20,
+                                                                                  width: 20,
+                                                                                  shape: BoxShape.circle,
+                                                                                ),
+                                                                              ],
+                                                                            )
+
+                                                                          ],
+                                                                        ),
+                                                                      );
+                                                                    },
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            data: (technicians) {
+
+                                                              _refreshControllerTech.refreshCompleted(resetFooterState: true);
+                                                              _refreshControllerTech.loadComplete();
+
+                                                              return technicians.data.isEmpty
+                                                                  ? EmptyWidget(text: 'no_technicians'.tr())
+                                                                  : Column(
+                                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                                children: [
+                                                                  Stack(
+                                                                    children: [
+                                                                      Row(
+                                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                        children: [
+                                                                          AutoSizeText.rich(
+                                                                            TextSpan(text: 'technicians'.tr(), children:  [
+                                                                              TextSpan(
+                                                                                  text: ' (${technicians.data.length})',
+                                                                                  style: const TextStyle(
+                                                                                      fontSize: 15,
+                                                                                      fontWeight: FontWeight.w500))
+                                                                            ]),
+                                                                            style: TextStyle(
+                                                                                color: Theme.of(context).primaryColor,
+                                                                                fontSize: 18,
+                                                                                fontWeight: FontWeight.bold),
+                                                                          ),
+                                                                          Center(
+                                                                            child: SizedBox(
+                                                                              width: 35,
+                                                                              child: MaterialButton(
+                                                                                padding: EdgeInsets.zero,
+                                                                                materialTapTargetSize:
+                                                                                MaterialTapTargetSize.shrinkWrap,
+                                                                                onPressed: () {
+                                                                                  Navigator.push(
+                                                                                      context,
+                                                                                      PageTransition(
+                                                                                          type: PageTransitionType.rightToLeft,
+                                                                                          duration: const Duration(milliseconds: 500),
+                                                                                          child:  SearchScreen(endPoint: 'drivers', title: 'technicians'.tr())));
+                                                                                },
+                                                                                child: Image.asset(
+                                                                                  'assets/images/search.png',
+                                                                                  height: 20,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          )
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  Expanded(
+                                                                    child: SmartRefresher(
+                                                                      controller: _refreshControllerTech,
+                                                                      enablePullDown: true,
+                                                                      enablePullUp: true,
+                                                                      onRefresh: () async {
+                                                                        ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers');
+                                                                      },
+                                                                      onLoading: () async {
+                                                                        if (technicians.to != technicians.total) {
+                                                                          ref
+                                                                              .read(usersTechniciansViewModelProvider.notifier)
+                                                                              .loadMore(
+                                                                              endPoint: 'drivers',
+                                                                              pageNumber: technicians.currentPage + 1,
+                                                                              oldList: technicians.data);
+                                                                        } else {
+                                                                          _refreshControllerTech.loadNoData();
+                                                                        }
+                                                                      },
+                                                                      header: const WaterDropHeader(),
+                                                                      footer: const PaginationFooter(),
+                                                                      child: SingleChildScrollView(
+                                                                        child: AnimationLimiter(
+                                                                          child: ListView.builder(
+                                                                            shrinkWrap: true,
+                                                                            physics: const NeverScrollableScrollPhysics(),
+                                                                            itemBuilder: (context, index) {
+
+                                                                              final technician = technicians.data[index];
+
+                                                                              return AnimationConfiguration.staggeredList(
+                                                                                position: index,
+                                                                                duration: const Duration(milliseconds: 400),
+                                                                                child: SlideAnimation(
+                                                                                  verticalOffset: 50.0,
+                                                                                  child: FadeInAnimation(
+                                                                                    child: Container(
+                                                                                        margin: const EdgeInsets.all(5),
+                                                                                        child: MaterialButton(
+                                                                                          onPressed: () {
+                                                                                            if(ref.watch(selectedTechnician)?.id == technician.id){
+                                                                                              ref.read(selectedTechnician.notifier).state = null;
+                                                                                            }
+                                                                                            else{
+                                                                                              ref.read(selectTechnicianLater.notifier).state = false;
+                                                                                              ref.read(selectedTechnician.notifier).state = technician;
+                                                                                            }
+                                                                                          },
+                                                                                          padding: EdgeInsets.zero,
+                                                                                          shape: RoundedRectangleBorder(
+                                                                                              borderRadius:
+                                                                                              BorderRadius.circular(10)),
+                                                                                          clipBehavior: Clip.antiAlias,
+                                                                                          elevation: .5,
+                                                                                          color: Colors.white,
+                                                                                          child: Container(
+                                                                                            height: 90,
+                                                                                            decoration: BoxDecoration(
+                                                                                              borderRadius:
+                                                                                              BorderRadius.circular(10),
+                                                                                              color: Colors.white,
+                                                                                            ),
+                                                                                            padding: const EdgeInsets.symmetric(
+                                                                                                horizontal: 16, vertical: 8),
+                                                                                            child: Center(
+                                                                                              child: Row(
+                                                                                                mainAxisAlignment:
+                                                                                                MainAxisAlignment
+                                                                                                    .spaceBetween,
+                                                                                                children: [
+                                                                                                  Column(
+                                                                                                    crossAxisAlignment:
+                                                                                                    CrossAxisAlignment.start,
+                                                                                                    mainAxisAlignment:
+                                                                                                    MainAxisAlignment.center,
+                                                                                                    children: [
+                                                                                                      AutoSizeText(
+                                                                                                        technician.name,
+                                                                                                        style: TextStyle(
+                                                                                                            color:
+                                                                                                            Theme.of(context)
+                                                                                                                .primaryColor,
+                                                                                                            fontSize: 15,
+                                                                                                            fontWeight:
+                                                                                                            FontWeight.bold),
+                                                                                                      ),
+                                                                                                      const SizedBox(
+                                                                                                        height: 10,
+                                                                                                      ),
+                                                                                                      AutoSizeText(
+                                                                                                        technician
+                                                                                                            .phone ??
+                                                                                                            technician.email,
+                                                                                                        style: TextStyle(
+                                                                                                            color:
+                                                                                                            Theme.of(context)
+                                                                                                                .primaryColor,
+                                                                                                            fontSize: 10,
+                                                                                                            fontWeight:
+                                                                                                            FontWeight.w500),
+                                                                                                      ),
+                                                                                                    ],
+                                                                                                  ),
+                                                                                                  Transform.scale(
+                                                                                                    scale: 1.3,
+                                                                                                    child: Checkbox(
+                                                                                                      value: ref.watch(selectedTechnician)?.id == technician.id,
+                                                                                                      activeColor: Theme.of(context).primaryColor,
+                                                                                                      onChanged: (value){
+                                                                                                        if(ref.watch(selectedTechnician)?.id == technician.id){
+                                                                                                          ref.read(selectedTechnician.notifier).state = null;
+                                                                                                        }
+                                                                                                        else{
+                                                                                                          ref.read(selectTechnicianLater.notifier).state = false;
+                                                                                                          ref.read(selectedTechnician.notifier).state = technician;
+                                                                                                        }
+                                                                                                      },
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                ],
+                                                                                              ),
+                                                                                            ),
+                                                                                          ),
+                                                                                        )),
+                                                                                  ),
+                                                                                ),
+                                                                              );
+                                                                            },
+                                                                            itemCount: technicians.data.length,
+                                                                          ),
                                                                         ),
                                                                       ),
                                                                     ),
                                                                   ),
-                                                                ),
-                                                              ],
-                                                            );
-                                                          },
-                                                          error: (error) => CustomError(
-                                                            message: error.errorMessage ?? '',
-                                                            onRetry: (){
-                                                              ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers',);
+                                                                ],
+                                                              );
                                                             },
-                                                          ),
-                                                          orElse: () => Center(
-                                                            child: CustomError(
-                                                              message: 'Unknown Error Please Try Again',
+                                                            error: (error) => CustomError(
+                                                              message: error.errorMessage ?? '',
                                                               onRetry: (){
                                                                 ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers',);
                                                               },
                                                             ),
-                                                          ),
-                                                        )
-                                                    )),
-                                                const SizedBox(height: 10,),
-                                                CustomButton(
-                                                  onPressed: (ref.watch(selectedTechnician) == null) ? null :   () {
-                                                    Navigator.pop(context);
-                                                    ref.read(routeViewModelProvider.notifier).update(routeId: routeId,description: routeDetails.description, driverId: ref.watch(selectedTechnician)?.id, orders: routeDetails.orders ?? []);
-                                                    // Navigator.push(context, MaterialPageRoute(builder: (context) =>  const ConfirmNewRoute()));
-                                                  },
-                                                  text: 'confirm'.tr(),
-                                                  textColor: Colors.white,
-                                                  bgColor: Theme.of(context).primaryColor,
-                                                )
-                                              ],
-                                            ),
-                                          );
+                                                            orElse: () => Center(
+                                                              child: CustomError(
+                                                                message: 'Unknown Error Please Try Again',
+                                                                onRetry: (){
+                                                                  ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers',);
+                                                                },
+                                                              ),
+                                                            ),
+                                                          )
+                                                      )),
+                                                  const SizedBox(height: 10,),
+                                                  CustomButton(
+                                                    onPressed: (ref.watch(selectedTechnician) == null) ? null :   () {
+                                                      Navigator.pop(context);
+                                                      ref.read(routeViewModelProvider.notifier).update(routeId: routeId,description: routeDetails.description, driverId: ref.watch(selectedTechnician)?.id, orders: routeDetails.orders ?? []);
+                                                      // Navigator.push(context, MaterialPageRoute(builder: (context) =>  const ConfirmNewRoute()));
+                                                    },
+                                                    text: 'confirm'.tr(),
+                                                    textColor: Colors.white,
+                                                    bgColor: Theme.of(context).primaryColor,
+                                                  )
+                                                ],
+                                              ),
+                                            );
+                                          });
                                         });
-                                      });
-                                },
-                                text: 'assign_driver'.tr(),
-                                textColor: Colors.white,
-                                bgColor: Theme.of(context).primaryColor,
+                                  },
+                                  text: 'assign_driver'.tr(),
+                                  textColor: Colors.white,
+                                  bgColor: Theme.of(context).primaryColor,
+                                )
                               )
-                            )
-                                : Column(
-                                  children: [
-                                    Container(
-                              height: 70,
-                              padding: const EdgeInsets.symmetric(horizontal: 16 , vertical: 8),
-                              decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(color: const Color(0xFFDBDBDB))
-                              ),
-                              clipBehavior: Clip.antiAlias,
-                              child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  : Column(
                                     children: [
+                                      Container(
+                                height: 70,
+                                padding: const EdgeInsets.symmetric(horizontal: 16 , vertical: 8),
+                                decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: const Color(0xFFDBDBDB))
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            Image.asset('assets/images/car.png', height: 30,),
+                                            const SizedBox(width: 10,),
+                                            AutoSizeText(
+                                              '${routeDetails.driver?.name}',
+                                              style: TextStyle(
+                                                  color:
+                                                  Theme.of(context).primaryColor,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
+                                        ),
+                                        Center(
+                                          child: Container(
+                                            width: 90,
+                                            decoration: BoxDecoration(
+                                                color: Colors.grey.shade100,
+                                                borderRadius: BorderRadius.circular(20)
+                                            ),
+                                            child: IconButton(
+                                              onPressed: () async{
+                                                final Uri launchUri = Uri(
+                                                  scheme: 'tel',
+                                                  path: '${routeDetails.driver?.phone}',
+                                                );
+                                                await launchUrl(launchUri);
+                                              },
+                                              color: Theme.of(context).primaryColor,
+                                              icon:  const Icon(Icons.call_rounded),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                ),
+                              ),
+                                      const SizedBox(height: 10,),
                                       Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
-                                          Image.asset('assets/images/car.png', height: 30,),
-                                          const SizedBox(width: 10,),
-                                          AutoSizeText(
-                                            '${routeDetails.driver?.name}',
-                                            style: TextStyle(
-                                                color:
-                                                Theme.of(context).primaryColor,
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.bold),
+                                          Expanded(
+                                            child: CustomButton(
+                                                onPressed: (){
+                                              Navigator.push(context, MaterialPageRoute(builder: (context) => TrackTechnician(routesModel: routeDetails,)));
+                                            },
+                                                radius: 8,
+                                                text: 'Location'.tr(), textColor: Colors.white, bgColor: Theme.of(context).primaryColor
+                                            ),
+                                          ),
+                                          const SizedBox(width: 5,),
+                                          Expanded(
+                                            child: CustomButton(
+                                                onPressed: (){
+                                                  showModalBottomSheet(
+                                                      context: context,
+                                                      shape: const RoundedRectangleBorder(
+                                                          borderRadius:
+                                                          BorderRadius.vertical(top: Radius.circular(10))),
+                                                      backgroundColor: Colors.white,
+                                                      isScrollControlled: true,
+                                                      builder: (context) {
+                                                        return Consumer(builder: (context , ref , child){
+                                                          return Container(
+                                                            height: screenHeight * 80,
+                                                            width: screenWidth * 100,
+                                                            margin: const EdgeInsets.symmetric(
+                                                                horizontal: 20, vertical: 10),
+                                                            child: Column(
+                                                              mainAxisSize: MainAxisSize.min,
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              children: [
+                                                                Center(
+                                                                  child: Container(
+                                                                    height: 8,
+                                                                    width: 45,
+                                                                    decoration: BoxDecoration(
+                                                                        borderRadius: BorderRadius.circular(10),
+                                                                        color: const Color(0xffD9D9D9)),
+                                                                  ),
+                                                                ),
+                                                                const SizedBox(
+                                                                  height: 25,
+                                                                ),
+                                                                Expanded(
+                                                                    child: Padding(
+                                                                        padding:
+                                                                        const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+                                                                        child: ref.watch(usersTechniciansViewModelProvider).maybeWhen(
+                                                                          loading: () => Column(
+                                                                            children: [
+                                                                              SizedBox(
+                                                                                height: 50,
+                                                                                child: Stack(
+                                                                                  children: [
+                                                                                    Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      children: [
+                                                                                        AutoSizeText.rich(
+                                                                                          TextSpan(text: 'technicians'.tr(), children: const [
+                                                                                            TextSpan(
+                                                                                                text: ' ( - )',
+                                                                                                style: TextStyle(
+                                                                                                    fontSize: 15,
+                                                                                                    fontWeight: FontWeight.w500))
+                                                                                          ]),
+                                                                                          style: TextStyle(
+                                                                                              color: Theme.of(context).primaryColor,
+                                                                                              fontSize: 18,
+                                                                                              fontWeight: FontWeight.bold),
+                                                                                        ),
+                                                                                        Center(
+                                                                                          child: SizedBox(
+                                                                                            width: 35,
+                                                                                            child: MaterialButton(
+                                                                                              padding: EdgeInsets.zero,
+                                                                                              materialTapTargetSize:
+                                                                                              MaterialTapTargetSize.shrinkWrap,
+                                                                                              onPressed: null,
+                                                                                              child: Image.asset(
+                                                                                                'assets/images/search.png',
+                                                                                                height: 20,
+                                                                                              ),
+                                                                                            ),
+                                                                                          ),
+                                                                                        )
+                                                                                      ],
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+                                                                              Expanded(
+                                                                                child: ListView.builder(
+                                                                                  shrinkWrap: true,
+                                                                                  physics: const NeverScrollableScrollPhysics(),
+                                                                                  itemCount: 10,
+                                                                                  itemBuilder: (context , index){
+                                                                                    return SizedBox(
+                                                                                      width: screenWidth * 100,
+                                                                                      height: 80,
+                                                                                      child: Row(
+                                                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                        children: [
+                                                                                          Expanded(
+                                                                                            child: Center(
+                                                                                              child: Column(
+                                                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                                                children: [
+                                                                                                  RoundedShimmerContainer(
+                                                                                                    height: 17,
+                                                                                                    width: screenWidth * 75,
+                                                                                                  ),
+                                                                                                  const SizedBox(height: 10,),
+                                                                                                  RoundedShimmerContainer(
+                                                                                                    height: 15,
+                                                                                                    width: screenWidth * 70,
+                                                                                                  )
+                                                                                                ],
+                                                                                              ),
+                                                                                            ),
+                                                                                          ),
+                                                                                          const Column(
+                                                                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                                                            children: [
+                                                                                              RoundedShimmerContainer(
+                                                                                                height: 20,
+                                                                                                width: 20,
+                                                                                                shape: BoxShape.circle,
+                                                                                              ),
+                                                                                            ],
+                                                                                          )
+
+                                                                                        ],
+                                                                                      ),
+                                                                                    );
+                                                                                  },
+                                                                                ),
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                          data: (technicians) {
+
+                                                                            _refreshControllerTech.refreshCompleted(resetFooterState: true);
+                                                                            _refreshControllerTech.loadComplete();
+
+                                                                            technicians.data.remove(routeDetails.driver);
+
+                                                                            return technicians.data.isEmpty
+                                                                                ? Column(
+                                                                                  children: [
+                                                                                    Stack(
+                                                                                      children: [
+                                                                                        Row(
+                                                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                          children: [
+                                                                                            AutoSizeText.rich(
+                                                                                              TextSpan(text: 'technicians'.tr(), children:  [
+                                                                                                TextSpan(
+                                                                                                    text: ' (${technicians.data.length})',
+                                                                                                    style: const TextStyle(
+                                                                                                        fontSize: 15,
+                                                                                                        fontWeight: FontWeight.w500))
+                                                                                              ]),
+                                                                                              style: TextStyle(
+                                                                                                  color: Theme.of(context).primaryColor,
+                                                                                                  fontSize: 18,
+                                                                                                  fontWeight: FontWeight.bold),
+                                                                                            ),
+                                                                                            Center(
+                                                                                              child: SizedBox(
+                                                                                                width: 35,
+                                                                                                child: MaterialButton(
+                                                                                                  padding: EdgeInsets.zero,
+                                                                                                  materialTapTargetSize:
+                                                                                                  MaterialTapTargetSize.shrinkWrap,
+                                                                                                  onPressed: () {
+                                                                                                    Navigator.push(
+                                                                                                        context,
+                                                                                                        PageTransition(
+                                                                                                            type: PageTransitionType.rightToLeft,
+                                                                                                            duration: const Duration(milliseconds: 500),
+                                                                                                            child:  SearchScreen(endPoint: 'drivers', title: 'technicians'.tr())));
+                                                                                                  },
+                                                                                                  child: Image.asset(
+                                                                                                    'assets/images/search.png',
+                                                                                                    height: 20,
+                                                                                                  ),
+                                                                                                ),
+                                                                                              ),
+                                                                                            )
+                                                                                          ],
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                    EmptyWidget(text: 'no_technicians'.tr()),
+                                                                                  ],
+                                                                                )
+                                                                                : Column(
+                                                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                                                              children: [
+                                                                                Stack(
+                                                                                  children: [
+                                                                                    Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                      children: [
+                                                                                        AutoSizeText.rich(
+                                                                                          TextSpan(text: 'technicians'.tr(), children:  [
+                                                                                            TextSpan(
+                                                                                                text: ' (${technicians.data.length})',
+                                                                                                style: const TextStyle(
+                                                                                                    fontSize: 15,
+                                                                                                    fontWeight: FontWeight.w500))
+                                                                                          ]),
+                                                                                          style: TextStyle(
+                                                                                              color: Theme.of(context).primaryColor,
+                                                                                              fontSize: 18,
+                                                                                              fontWeight: FontWeight.bold),
+                                                                                        ),
+                                                                                        Center(
+                                                                                          child: SizedBox(
+                                                                                            width: 35,
+                                                                                            child: MaterialButton(
+                                                                                              padding: EdgeInsets.zero,
+                                                                                              materialTapTargetSize:
+                                                                                              MaterialTapTargetSize.shrinkWrap,
+                                                                                              onPressed: () {
+                                                                                                Navigator.push(
+                                                                                                    context,
+                                                                                                    PageTransition(
+                                                                                                        type: PageTransitionType.rightToLeft,
+                                                                                                        duration: const Duration(milliseconds: 500),
+                                                                                                        child:  SearchScreen(endPoint: 'drivers', title: 'technicians'.tr())));
+                                                                                              },
+                                                                                              child: Image.asset(
+                                                                                                'assets/images/search.png',
+                                                                                                height: 20,
+                                                                                              ),
+                                                                                            ),
+                                                                                          ),
+                                                                                        )
+                                                                                      ],
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
+                                                                                Expanded(
+                                                                                  child: SmartRefresher(
+                                                                                    controller: _refreshControllerTech,
+                                                                                    enablePullDown: true,
+                                                                                    enablePullUp: true,
+                                                                                    onRefresh: () async {
+                                                                                      ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers');
+                                                                                    },
+                                                                                    onLoading: () async {
+                                                                                      if (technicians.to != technicians.total) {
+                                                                                        ref
+                                                                                            .read(usersTechniciansViewModelProvider.notifier)
+                                                                                            .loadMore(
+                                                                                            endPoint: 'drivers',
+                                                                                            pageNumber: technicians.currentPage + 1,
+                                                                                            oldList: technicians.data);
+                                                                                      } else {
+                                                                                        _refreshControllerTech.loadNoData();
+                                                                                      }
+                                                                                    },
+                                                                                    header: const WaterDropHeader(),
+                                                                                    footer: const PaginationFooter(),
+                                                                                    child: SingleChildScrollView(
+                                                                                      child: AnimationLimiter(
+                                                                                        child: ListView.builder(
+                                                                                          shrinkWrap: true,
+                                                                                          physics: const NeverScrollableScrollPhysics(),
+                                                                                          itemBuilder: (context, index) {
+
+                                                                                            final technician = technicians.data[index];
+
+                                                                                            return AnimationConfiguration.staggeredList(
+                                                                                              position: index,
+                                                                                              duration: const Duration(milliseconds: 400),
+                                                                                              child: SlideAnimation(
+                                                                                                verticalOffset: 50.0,
+                                                                                                child: FadeInAnimation(
+                                                                                                  child: Container(
+                                                                                                      margin: const EdgeInsets.all(5),
+                                                                                                      child: MaterialButton(
+                                                                                                        onPressed: () {
+                                                                                                          if(ref.watch(selectedTechnician)?.id == technician.id){
+                                                                                                            ref.read(selectedTechnician.notifier).state = null;
+                                                                                                          }
+                                                                                                          else{
+                                                                                                            ref.read(selectTechnicianLater.notifier).state = false;
+                                                                                                            ref.read(selectedTechnician.notifier).state = technician;
+                                                                                                          }
+                                                                                                        },
+                                                                                                        padding: EdgeInsets.zero,
+                                                                                                        shape: RoundedRectangleBorder(
+                                                                                                            borderRadius:
+                                                                                                            BorderRadius.circular(10)),
+                                                                                                        clipBehavior: Clip.antiAlias,
+                                                                                                        elevation: .5,
+                                                                                                        color: Colors.white,
+                                                                                                        child: Container(
+                                                                                                          height: 90,
+                                                                                                          decoration: BoxDecoration(
+                                                                                                            borderRadius:
+                                                                                                            BorderRadius.circular(10),
+                                                                                                            color: Colors.white,
+                                                                                                          ),
+                                                                                                          padding: const EdgeInsets.symmetric(
+                                                                                                              horizontal: 16, vertical: 8),
+                                                                                                          child: Center(
+                                                                                                            child: Row(
+                                                                                                              mainAxisAlignment:
+                                                                                                              MainAxisAlignment
+                                                                                                                  .spaceBetween,
+                                                                                                              children: [
+                                                                                                                Column(
+                                                                                                                  crossAxisAlignment:
+                                                                                                                  CrossAxisAlignment.start,
+                                                                                                                  mainAxisAlignment:
+                                                                                                                  MainAxisAlignment.center,
+                                                                                                                  children: [
+                                                                                                                    AutoSizeText(
+                                                                                                                      technician.name,
+                                                                                                                      style: TextStyle(
+                                                                                                                          color:
+                                                                                                                          Theme.of(context)
+                                                                                                                              .primaryColor,
+                                                                                                                          fontSize: 15,
+                                                                                                                          fontWeight:
+                                                                                                                          FontWeight.bold),
+                                                                                                                    ),
+                                                                                                                    const SizedBox(
+                                                                                                                      height: 10,
+                                                                                                                    ),
+                                                                                                                    AutoSizeText(
+                                                                                                                      technician
+                                                                                                                          .phone ??
+                                                                                                                          technician.email,
+                                                                                                                      style: TextStyle(
+                                                                                                                          color:
+                                                                                                                          Theme.of(context)
+                                                                                                                              .primaryColor,
+                                                                                                                          fontSize: 10,
+                                                                                                                          fontWeight:
+                                                                                                                          FontWeight.w500),
+                                                                                                                    ),
+                                                                                                                  ],
+                                                                                                                ),
+                                                                                                                Transform.scale(
+                                                                                                                  scale: 1.3,
+                                                                                                                  child: Checkbox(
+                                                                                                                    value: ref.watch(selectedTechnician)?.id == technician.id,
+                                                                                                                    activeColor: Theme.of(context).primaryColor,
+                                                                                                                    onChanged: (value){
+                                                                                                                      if(ref.watch(selectedTechnician)?.id == technician.id){
+                                                                                                                        ref.read(selectedTechnician.notifier).state = null;
+                                                                                                                      }
+                                                                                                                      else{
+                                                                                                                        ref.read(selectTechnicianLater.notifier).state = false;
+                                                                                                                        ref.read(selectedTechnician.notifier).state = technician;
+                                                                                                                      }
+                                                                                                                    },
+                                                                                                                  ),
+                                                                                                                ),
+                                                                                                              ],
+                                                                                                            ),
+                                                                                                          ),
+                                                                                                        ),
+                                                                                                      )),
+                                                                                                ),
+                                                                                              ),
+                                                                                            );
+                                                                                          },
+                                                                                          itemCount: technicians.data.length,
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                            );
+                                                                          },
+                                                                          error: (error) => CustomError(
+                                                                            message: error.errorMessage ?? '',
+                                                                            onRetry: (){
+                                                                              ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers',);
+                                                                            },
+                                                                          ),
+                                                                          orElse: () => Center(
+                                                                            child: CustomError(
+                                                                              message: 'Unknown Error Please Try Again',
+                                                                              onRetry: (){
+                                                                                ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers',);
+                                                                              },
+                                                                            ),
+                                                                          ),
+                                                                        )
+                                                                    )),
+                                                                const SizedBox(height: 10,),
+                                                                CustomButton(
+                                                                  onPressed: (ref.watch(selectedTechnician) == null) ? null :   () {
+                                                                    Navigator.pop(context);
+                                                                    ref.read(routeViewModelProvider.notifier).update(routeId: routeId,description: routeDetails.description, driverId: ref.watch(selectedTechnician)?.id, orders: routeDetails.orders ?? []);
+                                                                    // Navigator.push(context, MaterialPageRoute(builder: (context) =>  const ConfirmNewRoute()));
+                                                                  },
+                                                                  text: 'confirm'.tr(),
+                                                                  textColor: Colors.white,
+                                                                  bgColor: Theme.of(context).primaryColor,
+                                                                )
+                                                              ],
+                                                            ),
+                                                          );
+                                                        });
+                                                      });
+                                                },
+                                                radius: 8,
+                                                text: 'Change'.tr(),
+                                                textColor: Colors.white,
+                                                bgColor: Theme.of(context).primaryColor
+                                            ),
                                           ),
                                         ],
-                                      ),
-                                      Center(
-                                        child: Container(
-                                          width: 90,
-                                          decoration: BoxDecoration(
-                                              color: Colors.grey.shade100,
-                                              borderRadius: BorderRadius.circular(20)
-                                          ),
-                                          child: IconButton(
-                                            onPressed: () async{
-                                              final Uri launchUri = Uri(
-                                                scheme: 'tel',
-                                                path: '${routeDetails.driver?.phone}',
-                                              );
-                                              await launchUrl(launchUri);
-                                            },
-                                            color: Theme.of(context).primaryColor,
-                                            icon:  const Icon(Icons.call_rounded),
-                                          ),
-                                        ),
                                       )
                                     ],
-                              ),
-                            ),
-                                    const SizedBox(height: 10,),
-                                    CustomButton(onPressed: (){
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => TrackTechnician(routesModel: routeDetails,)));
-                                    }, text: 'Track Technician'.tr(), textColor: Colors.white, bgColor: Theme.of(context).primaryColor)
-                                  ],
-                                ),
+                                  ),
 
-                            const SizedBox(height: 20,),
-                          ],
+                              const SizedBox(height: 20,),
+                            ],
+                          ),
                         ),
                       ),
                     );

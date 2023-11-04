@@ -15,6 +15,7 @@ import 'package:lottie/lottie.dart' as lottie;
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:swipeable_button_view/swipeable_button_view.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../view_model/route_view_model.dart';
 import '../../../widgets/custom_app_bar.dart';
@@ -119,15 +120,21 @@ class _RouteDetailsTechnicianState
                         ),
                       ),
                       data: (routeDetails) {
-                        for (OrderModel order in routeDetails.orders ?? []) {
+
+                        routeDetails.orders?.asMap().forEach((index, order) {
+
                           if (order.status != 3) {
                             Future.microtask(() {
-                              ref.read(isAllOrdersFinished.notifier).state =
-                                  false;
+                              ref.read(isAllOrdersFinished.notifier).state = false;
+                            });
+                          }
+                          else{
+                            Future.microtask(() {
+                              ref.read(isAllOrdersFinished.notifier).state = true;
                             });
                           }
 
-                          LatLng position = LatLng(double.parse(order.lat), double.parse(order.lng));
+                          LatLng position = LatLng(order.lat, order.lng);
 
                           final marker = Marker(
                             markerId: MarkerId(order.referenceNo),
@@ -172,16 +179,17 @@ class _RouteDetailsTechnicianState
                                               screenWidth * 70,
                                               child: CustomButton(
                                                   icon: const Icon(Icons.map , color: Colors.white,),
-                                                  onPressed: () {
-                                                    MapsLauncher.launchCoordinates(
-                                                        double.parse(
-                                                            order
-                                                                .lat),
-                                                        double.parse(
-                                                            order
-                                                                .lng),
-                                                        order
-                                                            .address);
+                                                  onPressed: () async {
+                                                    var name = Uri.encodeComponent(order.address);
+                                                    name = name.replaceAll('%20', '+');
+                                                    String googleUrl = 'https://www.google.com/maps/place/$name/@${order.lat},${order.lng}';
+
+                                                    Uri url = Uri.parse(googleUrl);//order pdf file
+                                                    if (await canLaunchUrl(url)) {
+                                                      await launchUrl(url);
+                                                    } else {
+                                                      throw 'Could not launch $url';
+                                                    }
                                                   },
                                                   text:
                                                   'show_street'
@@ -226,15 +234,14 @@ class _RouteDetailsTechnicianState
                                 : (ref.watch(selectedOrder) == order.id ? pendingSelected  : pending)) ?? BitmapDescriptor.defaultMarker,
                             //BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow)),
                             infoWindow: InfoWindow(
-                              title: '#${order.id}',
+                              title: '#${index+1}',
                               snippet: order.statusName.tr(),
                             ),
                           );
                           _markers[order.referenceNo] = marker;
 
                           polyLinePoints.add(position);
-
-                        }
+                        });
 
                         return Expanded(
                           child: Stack(
@@ -245,8 +252,8 @@ class _RouteDetailsTechnicianState
                                 },
                                 initialCameraPosition: CameraPosition(
                                   target: LatLng(
-                                      double.parse(routeDetails.orders?.first.lat ?? centerLat),
-                                      double.parse(routeDetails.orders?.first.lng ?? centerLng)),
+                                      routeDetails.orders?.first.lat ?? double.parse(centerLat),
+                                      routeDetails.orders?.first.lng ?? double.parse(centerLng)),
                                   zoom: 14,
                                 ),
                                 myLocationEnabled: true,
@@ -319,7 +326,7 @@ class _RouteDetailsTechnicianState
                                                       isAllOrdersFinished) ??
                                                   false),
                                           buttonText:
-                                              'slide_to_finish_this_route'.tr(),
+                                              'slide_to_finish'.tr(),
                                           buttontextstyle: const TextStyle(
                                             fontSize: 13,
                                             color: Colors.white,

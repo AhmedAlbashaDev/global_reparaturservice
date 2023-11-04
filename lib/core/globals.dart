@@ -3,7 +3,6 @@
 late double screenHeight;
 late double screenWidth;
 
-
 // Validate Email
 bool isValidEmail({String? text}) {
 

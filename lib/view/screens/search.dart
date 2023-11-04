@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:global_reparaturservice/view/screens/bottom_menu/users/add_new_customer.dart';
 import 'package:global_reparaturservice/view/screens/bottom_menu/users/add_new_technician.dart';
+import 'package:global_reparaturservice/view/widgets/empty_widget.dart';
+import 'package:global_reparaturservice/view/widgets/route_card.dart';
 
 import 'package:jiffy/jiffy.dart';
 import 'package:lottie/lottie.dart';
@@ -21,12 +23,14 @@ import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_shimmer.dart';
 import '../widgets/custom_snakbar.dart';
 import '../widgets/custom_text_form_field.dart';
+import '../widgets/floating_add_button.dart';
 import '../widgets/gradient_background.dart';
 import '../widgets/order_card.dart';
 import '../widgets/pagination_footer.dart';
 import 'bottom_menu/orders/order_details_admin.dart';
 import 'bottom_menu/orders/select_or_add_customer.dart';
 import 'bottom_menu/routes/route_details_admin.dart';
+import 'bottom_menu/routes/track_technician.dart';
 import 'bottom_menu/users/add_new_admin.dart';
 
 final searchOrdersFilterProvider = StateProvider.autoDispose<String?>((ref) => 'all'.tr());
@@ -64,6 +68,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   DateTime? fromDate;
   DateTime? toDate;
+
+  PaginationModel<RoutesModel>? routes;
+  PaginationModel<OrderModel>? orders;
+  PaginationModel<UserModel>? users;
 
   Future<void> _selectFromDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -531,9 +539,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                 }
                               },
                               data: (data) {
-                                PaginationModel<RoutesModel>? routes;
-                                PaginationModel<OrderModel>? orders;
-                                PaginationModel<UserModel>? users;
 
                                 if (endPoint.contains('roads')) {
                                   _routesRefreshController.refreshCompleted(
@@ -553,7 +558,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                 }
 
                                 if (routes != null) {
-                                  return routes.data.isEmpty
+                                  return routes?.data.isEmpty ?? true
                                       ? Center(
                                           child: Lottie.asset(
                                               'assets/images/empty_animation.json',
@@ -606,120 +611,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                                       child: SlideAnimation(
                                                         verticalOffset: 50.0,
                                                         child: FadeInAnimation(
-                                                            child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(8.0),
-                                                          child: MaterialButton(
-                                                            onPressed: () {
-                                                              Navigator.push(
-                                                                  context,
-                                                                  MaterialPageRoute(
-                                                                      builder: (context) =>
-                                                                          RouteDetailsAdmin(
-                                                                              routeId: routes?.data[index].id ?? 0)));
-                                                            },
-                                                            padding:
-                                                                EdgeInsets.zero,
-                                                            shape: RoundedRectangleBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10)),
-                                                            clipBehavior:
-                                                                Clip.antiAlias,
-                                                            elevation: .5,
-                                                            color: Colors.white,
-                                                            child: Container(
-                                                              height: 90,
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10),
-                                                                color: Colors
-                                                                    .white,
-                                                              ),
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .symmetric(
-                                                                      horizontal:
-                                                                          16,
-                                                                      vertical:
-                                                                          8),
-                                                              child: Row(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .spaceBetween,
-                                                                children: [
-                                                                  Column(
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .start,
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .center,
-                                                                    children: [
-                                                                      AutoSizeText(
-                                                                        '${routes?.data[index].referenceNo}',
-                                                                        style: TextStyle(
-                                                                            color: Theme.of(context)
-                                                                                .primaryColor,
-                                                                            fontSize:
-                                                                                15,
-                                                                            fontWeight:
-                                                                                FontWeight.bold),
-                                                                      ),
-                                                                      const SizedBox(
-                                                                        height:
-                                                                            8,
-                                                                      ),
-                                                                      AutoSizeText(
-                                                                        routes?.data[index].driver?.name ??
-                                                                            'no_driver_assigned'.tr(),
-                                                                        style: TextStyle(
-                                                                            color: Theme.of(context)
-                                                                                .primaryColor,
-                                                                            fontSize:
-                                                                                10,
-                                                                            fontWeight:
-                                                                                FontWeight.w500),
-                                                                      ),
-                                                                      const SizedBox(
-                                                                        height:
-                                                                            8,
-                                                                      ),
-                                                                      AutoSizeText(
-                                                                        Jiffy.parse('${routes?.data[index].createdAt.toString()}').format(
-                                                                            pattern:
-                                                                                'dd/MM/yyyy'),
-                                                                        style: TextStyle(
-                                                                            color: Theme.of(context)
-                                                                                .primaryColor,
-                                                                            fontSize:
-                                                                                10,
-                                                                            fontWeight:
-                                                                                FontWeight.w500),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                  // AutoSizeText(
-                                                                  //   '${routes?.data[index].statusName.tr()}',
-                                                                  //   style: TextStyle(
-                                                                  //       color: routes?.data[index].status == 3 ? Colors.green : Color(0xFFE2BC37),
-                                                                  //       fontSize: 14,
-                                                                  //       fontWeight: FontWeight.bold),
-                                                                  // ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        )),
+                                                            child: RouteCard(routesModel: routes?.data[index])
+                                                        ),
                                                       ),
                                                     );
                                                   },
-                                                  itemCount: routes.data.length,
+                                                  itemCount: routes?.data.length,
                                                 ),
                                               ),
                                             ),
@@ -727,7 +624,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                         );
                                 }
                                 else if (orders != null) {
-                                  if (orders.data.isEmpty) {
+                                  if (orders?.data.isEmpty ?? true) {
                                     return Center(
                                       child: Lottie.asset(
                                           'assets/images/empty_animation.json',
@@ -800,7 +697,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                                   ),
                                                 );
                                               },
-                                              itemCount: orders.data.length,
+                                              itemCount: orders?.data.length,
                                             ),
                                           ),
                                         ),
@@ -810,12 +707,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                 }
                                 else {
                                   if (users?.data.isEmpty ?? true) {
-                                    return Center(
-                                      child: Lottie.asset(
-                                          'assets/images/empty_animation.json',
-                                          width: double.infinity,
-                                          fit: BoxFit.cover),
-                                    );
+                                    return const EmptyWidget(text: '',);
                                   } else {
                                     return Expanded(
                                       child: SmartRefresher(
@@ -878,7 +770,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                                               elevation: .5,
                                                               color: Colors.white,
                                                               child: Container(
-                                                                height: 90,
+                                                                height: 100,
                                                                 decoration:
                                                                     BoxDecoration(
                                                                   borderRadius:
@@ -921,7 +813,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                                                                 10,
                                                                           ),
                                                                           AutoSizeText(
-                                                                            '${users?.data[index].phone ?? users?.data[index].email}',
+                                                                            '${users?.data[index].phone}',
+                                                                            style: TextStyle(
+                                                                                color: Theme.of(context).primaryColor,
+                                                                                fontSize: 10,
+                                                                                fontWeight: FontWeight.w500),
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            height:
+                                                                            10,
+                                                                          ),
+                                                                          AutoSizeText(
+                                                                            '${users?.data[index].email}',
                                                                             style: TextStyle(
                                                                                 color: Theme.of(context).primaryColor,
                                                                                 fontSize: 10,
@@ -1016,6 +919,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               ],
             ),
           ],
+        ),
+      ),
+      floatingActionButton: Visibility(
+        visible: endPoint.contains('drivers') && (users?.data.isNotEmpty ?? false),
+        child: SizedBox(
+          height: 60,
+          child: FloatingAddButton(
+            onPresses: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => TrackTechnician(techniciansList: users?.data ?? [],)));
+            },
+            child: Icon(Icons.map , color: Theme.of(context).primaryColor,size: 40,),
+          ),
         ),
       ),
     );

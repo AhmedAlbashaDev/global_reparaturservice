@@ -26,9 +26,16 @@ final usersCustomersViewModelProvider = StateNotifierProvider<UsersViewModel,Res
 });
 
 
-
 class UsersViewModel extends StateNotifier<ResponseState<PaginationModel<UserModel>>>{
   final UsersRepository usersRepository;
+
+  List<UserModel>? get users {
+    return state.whenOrNull(
+      data: (usersPag){
+        return usersPag.data;
+      }
+    );
+  }
 
   UsersViewModel(this.usersRepository) : super(const ResponseState<PaginationModel<UserModel>>.loading());
 

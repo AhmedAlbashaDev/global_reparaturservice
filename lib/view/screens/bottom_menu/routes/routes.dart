@@ -3,10 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:global_reparaturservice/view/screens/bottom_menu/routes/route_details_admin.dart';
-import 'package:global_reparaturservice/view/screens/bottom_menu/routes/route_details_technician_map.dart';
 import 'package:global_reparaturservice/view_model/routes_view_model.dart';
-import 'package:jiffy/jiffy.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -19,9 +16,12 @@ import '../../../widgets/custom_snakbar.dart';
 import '../../../widgets/empty_widget.dart';
 import '../../../widgets/floating_add_button.dart';
 import '../../../widgets/gradient_background.dart';
+import '../../../widgets/route_card.dart';
 import '../../search.dart';
 import 'new_route.dart';
 import '../../../widgets/pagination_footer.dart';
+
+final routesTabsSelectedProvider = StateProvider<int>((ref) => 0);
 
 
 class RoutesScreen extends ConsumerStatefulWidget {
@@ -31,21 +31,34 @@ class RoutesScreen extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _RoutesScreenState();
 }
 
-class _RoutesScreenState extends ConsumerState<RoutesScreen> {
+class _RoutesScreenState extends ConsumerState<RoutesScreen> with TickerProviderStateMixin {
 
-  final RefreshController _refreshController =
-  RefreshController(initialRefresh: false);
+  final RefreshController _todayRefreshController = RefreshController(initialRefresh: false);
+  final RefreshController _otherRefreshController = RefreshController(initialRefresh: false);
+
+  TabController? tabController;
+
 
   @override
   void initState() {
     super.initState();
 
     Future.microtask(() {
+      ref.read(routesTabsSelectedProvider.notifier).state = 0;
+      ref.read(todayRoutesViewModelProvider.notifier).loadAll(today: true);
       ref.read(routesViewModelProvider.notifier).loadAll();
     });
 
+    tabController = TabController(length: 2, vsync: this);
+
+
   }
 
+  @override
+  void dispose() {
+    tabController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,219 +73,363 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> {
               Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16 , vertical: 4),
-                    child: ref.watch(routesViewModelProvider).maybeWhen(
-                      loading: () => const RoutesLoading(),
-                      data: (routes) {
-                        _refreshController.refreshCompleted(resetFooterState: true);
-                        _refreshController.loadComplete();
-                        return routes.data.isEmpty
-                            ? EmptyWidget(text: ref.read(currentAppModeProvider.notifier).state == AppMode.admins ? 'no_routes'.tr() : 'no_routes_technician'.tr(),)
-                            : Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Stack(
+                    child: DefaultTabController(
+                      length: 2,
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 45,
+                            width: screenWidth * 90,
+                            padding:  const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(30)
+                            ),
+                            child: Row(
+                              // controller: tabController,
                               children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    AutoSizeText.rich(
-                                      TextSpan(text: 'routes'.tr(), children:  [
-                                        TextSpan(
-                                            text: ' (${routes.data.length})',
-                                            style: const TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w500))
-                                      ]),
-                                      style: TextStyle(
+                                Expanded(
+                                  child: InkWell(
+                                    onTap :(){
+                                      ref.read(routesTabsSelectedProvider.notifier).state = 0;
+                                      tabController?.animateTo(0);
+                                    },
+                                    child: Container(
+                                      decoration: ref.watch(routesTabsSelectedProvider) == 0 ?  BoxDecoration(
                                           color: Theme.of(context).primaryColor,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        const SizedBox(width: 5,),
-                                        Center(
-                                          child: SizedBox(
-                                            width: 35,
-                                            child: MaterialButton(
-                                              padding: EdgeInsets.zero,
-                                              materialTapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                              onPressed: () {
-                                                Navigator.push(
-                                                    context,
-                                                    PageTransition(
-                                                        type: PageTransitionType.rightToLeft,
-                                                        duration: const Duration(milliseconds: 500),
-                                                        child:  SearchScreen(endPoint: 'roads', title: 'routes'.tr()))).then((value) {
-                                                  final snackBar = SnackBar(
-                                                    backgroundColor: Theme.of(context).primaryColor,
-                                                    showCloseIcon: true,
-                                                    behavior: SnackBarBehavior.floating,
-                                                    padding: EdgeInsets.zero,
-                                                    content: CustomSnakeBarContent(
-                                                      icon: const Icon(
-                                                        Icons.info,
-                                                        color: Colors.green,
-                                                        size: 25,
-                                                      ),
-                                                      message: 'Pull-Down to refresh data if you make any update'.tr(),
-                                                      bgColor: Colors.grey.shade600,
-                                                      borderColor: Colors.green.shade200,
-                                                    ),
-                                                  );
-                                                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                                                });
-                                              },
-                                              child: Image.asset(
-                                                'assets/images/search.png',
-                                                height: 20,
-                                              ),
-                                            ),
+                                          borderRadius: BorderRadius.circular(20)
+                                      ) : null,
+                                      child: Center(
+                                        child: AutoSizeText(
+                                          'Today'.tr(),
+                                          style: ref.watch(routesTabsSelectedProvider) == 0 ?  const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                          ) :  TextStyle(
+                                              color: Theme.of(context).primaryColor,
+                                              fontWeight: FontWeight.w500
                                           ),
                                         ),
-                                      ],
-                                    )
-                                  ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: InkWell(
+                                    onTap :(){
+                                      ref.read(routesTabsSelectedProvider.notifier).state = 1;
+                                      tabController?.animateTo(1);
+                                    },
+                                    child: Container(
+                                      decoration: ref.watch(routesTabsSelectedProvider) == 1 ?  BoxDecoration(
+                                          color: Theme.of(context).primaryColor,
+                                          borderRadius: BorderRadius.circular(20)
+                                      ) : null,
+                                      child: Center(
+                                        child: AutoSizeText(
+                                          'Others'.tr(),
+                                          style: ref.watch(routesTabsSelectedProvider) == 1 ?  const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                          ) :  TextStyle(
+                                              color: Theme.of(context).primaryColor,
+                                              fontWeight: FontWeight.w500
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
-                            Expanded(
-                              child: SmartRefresher(
-                                controller: _refreshController,
-                                enablePullDown: true,
-                                enablePullUp: true,
-                                onRefresh: () async {
-                                  ref.read(routesViewModelProvider.notifier).loadAll();
-                                },
-                                onLoading: () async {
-                                  if (routes.to != routes.total) {
-                                    ref
-                                        .read(routesViewModelProvider.notifier)
-                                        .loadMore(
-                                        pageNumber: routes.currentPage + 1,
-                                        oldList: routes.data);
-                                  } else {
-                                    _refreshController.loadNoData();
-                                  }
-                                },
-                                header: const WaterDropHeader(),
-                                footer: const PaginationFooter(),
-                                child: SingleChildScrollView(
-                                  child: AnimationLimiter(
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      itemBuilder: (context, index) {
-                                        return AnimationConfiguration.staggeredList(
-                                          position: index,
-                                          duration: const Duration(milliseconds: 400),
-                                          child: SlideAnimation(
-                                            verticalOffset: 50.0,
-                                            child: FadeInAnimation(
-                                              child: Padding(
-                                                padding: const EdgeInsets.all(8.0),
-                                                child: MaterialButton(
-                                                  onPressed: (){
-                                                    if(ref.read(currentAppModeProvider.notifier).state == AppMode.admins){
-                                                      Navigator.push(context, MaterialPageRoute(builder: (context) => RouteDetailsAdmin(routeId: routes.data[index].id)
-                                                      ));
-                                                    }
-                                                    else{
-                                                      Navigator.push(context, MaterialPageRoute(builder: (context) => RouteDetailsTechnician(routeId: routes.data[index].id)
-                                                      )).then((value) {
-                                                        ref.read(routesViewModelProvider.notifier).loadAll();
-                                                      });
-                                                    }
+                          ),
+                          Expanded(
+                            child: TabBarView(
+                              physics:  const NeverScrollableScrollPhysics(),
+                              controller: tabController,
+                              children: [
+                                ref.watch(todayRoutesViewModelProvider).maybeWhen(
+                                  loading: () => const RoutesLoading(),
+                                  data: (routes) {
+
+                                    _todayRefreshController.refreshCompleted(resetFooterState: true);
+
+                                    return Column(
+                                      children: [
+                                        Stack(
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                AutoSizeText.rich(
+                                                  TextSpan(text: 'routes'.tr(), children:  [
+                                                    TextSpan(
+                                                        text: ' (${routes.data.length})',
+                                                        style: const TextStyle(
+                                                            fontSize: 15,
+                                                            fontWeight: FontWeight.w500))
+                                                  ]),
+                                                  style: TextStyle(
+                                                      color: Theme.of(context).primaryColor,
+                                                      fontSize: 18,
+                                                      fontWeight: FontWeight.bold),
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  children: [
+                                                    const SizedBox(width: 5,),
+                                                    Center(
+                                                      child: SizedBox(
+                                                        width: 35,
+                                                        child: MaterialButton(
+                                                          padding: EdgeInsets.zero,
+                                                          materialTapTargetSize:
+                                                          MaterialTapTargetSize.shrinkWrap,
+                                                          onPressed: () {
+                                                            Navigator.push(
+                                                                context,
+                                                                PageTransition(
+                                                                    type: PageTransitionType.rightToLeft,
+                                                                    duration: const Duration(milliseconds: 500),
+                                                                    child:  SearchScreen(endPoint: 'roads', title: 'routes'.tr()))).then((value) {
+                                                              final snackBar = SnackBar(
+                                                                backgroundColor: Theme.of(context).primaryColor,
+                                                                showCloseIcon: true,
+                                                                behavior: SnackBarBehavior.floating,
+                                                                padding: EdgeInsets.zero,
+                                                                content: CustomSnakeBarContent(
+                                                                  icon: const Icon(
+                                                                    Icons.info,
+                                                                    color: Colors.green,
+                                                                    size: 25,
+                                                                  ),
+                                                                  message: 'Pull-Down to refresh data'.tr(),
+                                                                  bgColor: Colors.grey.shade600,
+                                                                  borderColor: Colors.green.shade200,
+                                                                ),
+                                                              );
+                                                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                                            });
+                                                          },
+                                                          child: Image.asset(
+                                                            'assets/images/search.png',
+                                                            height: 20,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        Expanded(
+                                          child: routes.data.isEmpty
+                                              ? const EmptyWidget()
+                                              : SmartRefresher(
+                                            controller: _todayRefreshController,
+                                            enablePullDown: true,
+                                            enablePullUp: false,
+                                            onRefresh: () async {
+                                              ref.read(todayRoutesViewModelProvider.notifier).loadAll();
+                                            },
+                                            header: const WaterDropHeader(),
+                                            footer: const PaginationFooter(),
+                                            child: SingleChildScrollView(
+                                              child: AnimationLimiter(
+                                                child: ListView.builder(
+                                                  shrinkWrap: true,
+                                                  physics: const NeverScrollableScrollPhysics(),
+                                                  itemBuilder: (context, index) {
+                                                    return AnimationConfiguration.staggeredList(
+                                                      position: index,
+                                                      duration: const Duration(milliseconds: 400),
+                                                      child: SlideAnimation(
+                                                        verticalOffset: 50.0,
+                                                        child: FadeInAnimation(
+                                                          child: RouteCard(
+                                                            routesModel: routes.data[index],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
                                                   },
-                                                  padding: EdgeInsets.zero,
-                                                  shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(10)
-                                                  ),
-                                                  clipBehavior: Clip.antiAlias,
-                                                  elevation: .5,
-                                                  color: Colors.white,
-                                                  child: Container(
-                                                    height: 90,
-                                                    decoration: BoxDecoration(
-                                                      borderRadius: BorderRadius.circular(10),
-                                                      color: Colors.white,
-                                                    ),
-                                                    padding: const EdgeInsets.symmetric(horizontal: 16 , vertical: 8),
-                                                    child: Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      children: [
-                                                        Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          mainAxisAlignment: MainAxisAlignment.center,
-                                                          children: [
-                                                            AutoSizeText(
-                                                              routes.data[index].referenceNo,
-                                                              style: TextStyle(
-                                                                  color:
-                                                                  Theme.of(context).primaryColor,
-                                                                  fontSize: 15,
-                                                                  fontWeight: FontWeight.bold),
-                                                            ),
-                                                            const SizedBox(height: 8,),
-                                                            AutoSizeText(
-                                                              routes.data[index].driver?.name ?? 'no_driver_assigned'.tr(),
-                                                              style: TextStyle(
-                                                                  color:
-                                                                  Theme.of(context).primaryColor,
-                                                                  fontSize: 10,
-                                                                  fontWeight: FontWeight.w500),
-                                                            ),
-                                                            const SizedBox(height: 8,),
-                                                            AutoSizeText(
-                                                              Jiffy.parse(routes.data[index].createdAt.toString()).format(pattern: 'dd/MM/yyyy'),
-                                                              style: TextStyle(
-                                                                  color:
-                                                                  Theme.of(context).primaryColor,
-                                                                  fontSize: 10,
-                                                                  fontWeight: FontWeight.w500),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        AutoSizeText(
-                                                          routes.data[index].statusName.tr(),
-                                                          style: TextStyle(
-                                                              color: routes.data[index].status == 3 ? Colors.green : Color(0xFFE2BC37),
-                                                              fontSize: 14,
-                                                              fontWeight: FontWeight.bold),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
+                                                  itemCount: routes.data.length,
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        );
+                                        )
+                                      ],
+                                    );
+                                  },
+                                  error: (error) => CustomError(
+                                    message: error.errorMessage ?? '',
+                                    onRetry: (){
+                                      ref.read(todayRoutesViewModelProvider.notifier).loadAll();
+                                    },
+                                  ),
+                                  orElse: () => Center(
+                                    child: CustomError(
+                                      message: 'unknown_error_please_try_again'.tr(),
+                                      onRetry: (){
+                                        ref.read(todayRoutesViewModelProvider.notifier).loadAll();
                                       },
-                                      itemCount: routes.data.length,
                                     ),
                                   ),
                                 ),
-                              ),
-                            )
-                          ],
-                        );
-                      },
-                      error: (error) => CustomError(
-                        message: error.errorMessage ?? '',
-                        onRetry: (){
-                          ref.read(routesViewModelProvider.notifier).loadAll();
-                        },
-                      ),
-                      orElse: () => Center(
-                        child: CustomError(
-                          message: 'unknown_error_please_try_again'.tr(),
-                          onRetry: (){
-                            ref.read(routesViewModelProvider.notifier).loadAll();
-                          },
-                        ),
+
+                                ref.watch(routesViewModelProvider).maybeWhen(
+                                  loading: () => const RoutesLoading(),
+                                  data: (routes) {
+
+                                    _otherRefreshController.refreshCompleted(resetFooterState: true);
+                                    _otherRefreshController.loadComplete();
+
+                                    return Column(
+                                      children: [
+                                        Stack(
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                AutoSizeText.rich(
+                                                  TextSpan(text: 'routes'.tr(), children:  [
+                                                    TextSpan(
+                                                        text: ' (${routes.total})',
+                                                        style: const TextStyle(
+                                                            fontSize: 15,
+                                                            fontWeight: FontWeight.w500))
+                                                  ]),
+                                                  style: TextStyle(
+                                                      color: Theme.of(context).primaryColor,
+                                                      fontSize: 18,
+                                                      fontWeight: FontWeight.bold),
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  children: [
+                                                    const SizedBox(width: 5,),
+                                                    Center(
+                                                      child: SizedBox(
+                                                        width: 35,
+                                                        child: MaterialButton(
+                                                          padding: EdgeInsets.zero,
+                                                          materialTapTargetSize:
+                                                          MaterialTapTargetSize.shrinkWrap,
+                                                          onPressed: () {
+                                                            Navigator.push(
+                                                                context,
+                                                                PageTransition(
+                                                                    type: PageTransitionType.rightToLeft,
+                                                                    duration: const Duration(milliseconds: 500),
+                                                                    child:  SearchScreen(endPoint: 'roads', title: 'routes'.tr()))).then((value) {
+                                                              final snackBar = SnackBar(
+                                                                backgroundColor: Theme.of(context).primaryColor,
+                                                                showCloseIcon: true,
+                                                                behavior: SnackBarBehavior.floating,
+                                                                padding: EdgeInsets.zero,
+                                                                content: CustomSnakeBarContent(
+                                                                  icon: const Icon(
+                                                                    Icons.info,
+                                                                    color: Colors.green,
+                                                                    size: 25,
+                                                                  ),
+                                                                  message: 'Pull-Down to refresh data'.tr(),
+                                                                  bgColor: Colors.grey.shade600,
+                                                                  borderColor: Colors.green.shade200,
+                                                                ),
+                                                              );
+                                                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                                            });
+                                                          },
+                                                          child: Image.asset(
+                                                            'assets/images/search.png',
+                                                            height: 20,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        Expanded(
+                                          child: routes.data.isEmpty
+                                              ? const EmptyWidget()
+                                              : SmartRefresher(
+                                            controller: _otherRefreshController,
+                                            enablePullDown: true,
+                                            enablePullUp: true,
+                                            onRefresh: () async {
+                                              ref.read(routesViewModelProvider.notifier).loadAll();
+                                            },
+                                            onLoading: () async {
+                                              if (routes.to != routes.total) {
+                                                ref
+                                                    .read(routesViewModelProvider.notifier)
+                                                    .loadMore(
+                                                    pageNumber: routes.currentPage + 1,
+                                                    oldList: routes.data);
+                                              } else {
+                                                _otherRefreshController.loadNoData();
+                                              }
+                                            },
+                                            header: const WaterDropHeader(),
+                                            footer: const PaginationFooter(),
+                                            child: SingleChildScrollView(
+                                              child: AnimationLimiter(
+                                                child: ListView.builder(
+                                                  shrinkWrap: true,
+                                                  physics: const NeverScrollableScrollPhysics(),
+                                                  itemBuilder: (context, index) {
+                                                    return AnimationConfiguration.staggeredList(
+                                                      position: index,
+                                                      duration: const Duration(milliseconds: 400),
+                                                      child: SlideAnimation(
+                                                        verticalOffset: 50.0,
+                                                        child: FadeInAnimation(
+                                                          child: RouteCard(
+                                                            routesModel: routes.data[index],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                  itemCount: routes.data.length,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    );
+                                  },
+                                  error: (error) => CustomError(
+                                    message: error.errorMessage ?? '',
+                                    onRetry: (){
+                                      ref.read(routesViewModelProvider.notifier).loadAll();
+                                    },
+                                  ),
+                                  orElse: () => Center(
+                                    child: CustomError(
+                                      message: 'unknown_error_please_try_again'.tr(),
+                                      onRetry: (){
+                                        ref.read(routesViewModelProvider.notifier).loadAll();
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     )
                   )
@@ -285,7 +442,7 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> {
         visible: ref.watch(currentAppModeProvider) == AppMode.admins,
         child: FloatingAddButton(
           onPresses: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const NewRouteScreen())).then((value) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => NewRouteScreen())).then((value) {
               print('Added new routes update');
               if(value == 'update'){
                 ref

@@ -41,14 +41,13 @@ class _SignInState extends ConsumerState<SignIn> {
     super.initState();
 
     Future.microtask(() => ref.read(bottomNavigationMenuProvider.notifier).state = 0);
-    // admin  (admin@admin.com    : 123admin )
-    // driver (ahmedmohammedkhier@gmail.com : gDseinWe )
-    // email = TextEditingController(text: 'foxa233@gmail.com');
-    // password = TextEditingController(text: 'rOLUUPUh');
-    email = TextEditingController();
-    password = TextEditingController();
+    email = TextEditingController(text: 'ahmedmohammedkhier@gmail.com');
+    password = TextEditingController(text: 'cw0Mh4hF');
+    // email = TextEditingController(text: 'admin@admin.com');
+    // password = TextEditingController(text: '123admin');
 
-
+    //sahlowle@gmail.com
+    //q6eXUJrN
   }
 
   @override

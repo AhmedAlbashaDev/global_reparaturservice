@@ -32,13 +32,13 @@ class OrdersRepository {
 
       PaginationModel<OrderModel> paginationModel = PaginationModel<OrderModel>.fromJson(response.data['data']);
 
-      List<OrderModel> list = [];
+      List<OrderModel> data = [];
 
       for(final json in response.data['data']['data']){
-        list.add(OrderModel.fromJson(json));
+        data.add(OrderModel.fromJson(json));
       }
 
-      return ResponseState<PaginationModel<OrderModel>>.data(data: paginationModel.copyWith(data: list));
+      return ResponseState<PaginationModel<OrderModel>>.data(data: paginationModel.copyWith(data: data));
 
     } on DioException catch (e) {
       if(e.type == DioExceptionType.badResponse && e.response?.data == null){
@@ -236,6 +236,59 @@ class OrdersRepository {
             ref.read(sendingRequestProgress.notifier).state = progress;
           }
       );
+
+      if(response.data['success'] == false){
+        return ResponseState<OrderModel>.error(
+          error: CustomException(
+            errorStatusCode: response.data['code'],
+            errorMessage:    response.data['message'] ?? 'unknown_error_please_try_again'.tr(),
+            errorType: DioExceptionType.unknown.name,
+          ),
+        );
+      }
+
+      return const ResponseState<OrderModel>.success(data: {});
+
+    } on DioException catch (e) {
+      if(e.type == DioExceptionType.badResponse && e.response?.data == null){
+        return ResponseState<OrderModel>.error(
+          error: CustomException(
+            errorStatusCode:  500,
+            errorMessage:     'unknown_error_please_try_again'.tr(),
+            errorType:        e.type.name,
+          ),
+        );
+      }
+      else if (e.response?.statusCode == 422){
+
+        String message = '';
+
+        for(final key in (e.response?.data['data'] as Map<String , dynamic>).entries){
+          message += '${key.value[0]} , ';
+        }
+
+        return ResponseState<OrderModel>.error(
+          error: CustomException(
+            errorStatusCode:  e.response?.data['code'],
+            errorMessage:     message.isEmpty ? e.response?.data['message'] : message,
+            errorType:        e.type.name,
+          ),
+        );
+      }
+      return ResponseState<OrderModel>.error(
+        error: CustomException(
+          errorStatusCode:  e.response?.data['code'],
+          errorMessage:     e.response?.data['message'] ?? 'unknown_error_please_try_again'.tr(),
+          errorType:        e.type.name,
+        ),
+      );
+    }
+  }
+
+  Future<ResponseState<OrderModel>> sendInvoice({required String endPoint}) async {
+    try {
+
+      final response = await dioClient.post(endPoint);
 
       if(response.data['success'] == false){
         return ResponseState<OrderModel>.error(

@@ -1,21 +1,28 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/view_model/users/customers/add_new_cutomer_view_model.dart';
 import 'package:global_reparaturservice/view_model/users/customers/update_customer_view_model.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../../../core/globals.dart';
 import '../../../../models/response_state.dart';
 import '../../../../models/user.dart';
-import '../../../../view_model/users/customers/delete_customer_view_model.dart';
+import '../../../../view_model/users/customers/toggle_customer_status_view_model.dart';
 import '../../../widgets/custom_app_bar.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_snakbar.dart';
 import '../../../widgets/custom_text_form_field.dart';
 import '../../../widgets/gradient_background.dart';
 import '../../../widgets/loading_dialog.dart';
+
+
+final selectedAddressToNewCustomer =
+StateProvider.autoDispose<Map<String , dynamic>?>((ref) => null);
 
 class AddNewCustomerScreen extends ConsumerStatefulWidget {
   const AddNewCustomerScreen({this.isUpdate = false, this.userModel , super.key});
@@ -43,6 +50,9 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
   late TextEditingController zone;
   late TextEditingController additional;
 
+  double? lat;
+  double? lng;
+
   static final GlobalKey<FormState> _addCustomerFormKey =
       GlobalKey<FormState>();
 
@@ -64,10 +74,12 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
       email.text = userModel?.email ?? '';
       phone.text = userModel?.phone ?? '';
       address.text = userModel?.address ?? '';
-      postalCode.text = userModel?.postalCode ?? '';
+      postalCode.text = userModel?.postalCode.toString() ?? '';
       city.text = userModel?.city ?? '';
       zone.text = userModel?.zoneArea ?? '';
       additional.text =  '';
+      lat = userModel?.lat;
+      lat = userModel?.lng;
     }
 
   }
@@ -182,27 +194,10 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
           );
         });
 
-    ref.listen<ResponseState<UserModel>>(usersDeleteCustomerViewModelProvider,
+    ref.listen<ResponseState<UserModel>>(usersToggleCustomerStatusViewModelProvider,
             (previous, next) {
           next.whenOrNull(
             data: (user) {
-
-              // final snackBar = SnackBar(
-              //   backgroundColor: Colors.transparent,
-              //   behavior: SnackBarBehavior.floating,
-              //   padding: EdgeInsets.zero,
-              //   content: CustomSnakeBarContent(
-              //     icon: Icon(
-              //       Icons.info,
-              //       color: Theme.of(context).primaryColor,
-              //       size: 25,
-              //     ),
-              //     message: 'Successfully deleted'.tr(),
-              //     bgColor: Colors.grey.shade400,
-              //     borderColor: Colors.green,
-              //   ),
-              // );
-              // ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
               Navigator.pop(context , 'update');
             },
@@ -228,6 +223,17 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
           );
         });
 
+
+    if(ref.watch(selectedAddressToNewCustomer) != null){
+      address.text = ref.read(selectedAddressToNewCustomer)?['address'] ?? '';
+      postalCode.text = ref.read(selectedAddressToNewCustomer)?['postal_code'] ?? '';
+      city.text = ref.read(selectedAddressToNewCustomer)?['city'] ?? '';
+      zone.text = ref.read(selectedAddressToNewCustomer)?['zone_area'] ?? '';
+      lat = ref.read(selectedAddressToNewCustomer)?['lat'];
+      lng = ref.read(selectedAddressToNewCustomer)?['lng'];
+      Future.microtask(() => ref.read(selectedAddressToNewCustomer.notifier).state = null);
+    }
+
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -237,7 +243,7 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
               child: Column(
                 children: [
                   CustomAppBar(
-                    title: isUpdate == false ? 'add_new_customer'.tr() : 'update_customer',
+                    title: isUpdate == false ? 'add_new_customer'.tr() : 'update_customer'.tr(),
 
                   ),
                   Padding(
@@ -248,9 +254,35 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         children: [
-                          const SizedBox(
-                            height: 10,
-                          ),
+                          const SizedBox(height: 10,),
+                          if(isUpdate)
+                            Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 12,
+                                        backgroundColor: userModel?.isDisabled ?? false ? Colors.red : Colors.green,
+                                      ),
+                                      const SizedBox(width: 10,),
+                                      AutoSizeText(
+                                        userModel?.isDisabled ?? false ? 'Disabled'.tr() : 'Active'.tr(),
+                                        style: TextStyle(
+                                            color: Theme.of(context).primaryColor,
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 15,),
+                              ],
+                            ),
                           CustomTextFormField(
                             controller: name,
                             validator: (String? text) {
@@ -301,11 +333,73 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                           ),
                           CustomTextFormField(
                             controller: address,
+                            height: 80,
                             validator: (String? text) {
                               if (text?.isEmpty ?? true) {
                                 return 'this_filed_required'.tr();
                               }
                               return null;
+                            },
+                            readOnly: true,
+                            onTap: () async {
+                              Prediction? prediction =
+                              await PlacesAutocomplete.show(
+                                context: context,
+                                apiKey: kGoogleApiKey,
+                                onError: (error) {},
+                                mode: Mode.fullscreen,
+                                language: "de",
+                                sessionToken: DateTime.now().timeZoneName,
+                                types: [],
+                                decoration: InputDecoration(
+                                  hintText: 'Search',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    borderSide: const BorderSide(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    borderSide: const BorderSide(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                strictbounds: false,
+                                components: [Component(Component.country, "de")],
+                              );
+
+                              if (prediction != null) {
+
+                                GoogleMapsPlaces places =
+                                GoogleMapsPlaces(apiKey: kGoogleApiKey);
+                                PlacesDetailsResponse? detail =
+                                await places.getDetailsByPlaceId(
+                                    prediction.placeId ?? '');
+
+                                Map<String , dynamic> data = {};
+
+                                for (var element in detail.result.addressComponents) {
+                                  if(element.types[0] == 'postal_code'){
+                                    data['postal_code'] = element.longName;
+                                  }
+                                  if(element.types[0] == 'administrative_area_level_1'){
+                                    data['city'] = element.longName;
+                                  }
+                                  if(element.types[0] == 'administrative_area_level_3' || element.types[0] == 'administrative_area_level_2'){
+                                    data['zone_area'] = element.longName;
+                                  }
+                                }
+
+                                data['address'] = detail.result.formattedAddress;
+                                data['lat'] = detail.result.geometry?.location.lat;
+                                data['lng'] = detail.result.geometry?.location.lng;
+
+                                ref
+                                    .read(selectedAddressToNewCustomer.notifier)
+                                    .state = data;
+                              }
                             },
                             label: 'address'.tr(),
                           ),
@@ -332,6 +426,9 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                                 child: CustomTextFormField(
                                   controller: city,
                                   validator: (text) {
+                                    if (text?.isEmpty ?? true) {
+                                      return 'this_filed_required'.tr();
+                                    }
                                     return null;
                                   },
                                   label: 'City'.tr(),
@@ -342,22 +439,9 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                           const SizedBox(height: 10,),
                           CustomTextFormField(
                             controller: zone,
-                            validator: (String? text) {
-                              if (text?.isEmpty ?? true) {
-                                return 'this_filed_required'.tr();
-                              }
-                              return null;
-                            },
+                            validator: (String? text) {},
                             label: 'zone_area'.tr(),
                           ),
-                          // const SizedBox(
-                          //   height: 10,
-                          // ),
-                          // CustomTextFormField(
-                          //   controller: additional,
-                          //   validator: (String? text) {},
-                          //   label: 'additional_info'.tr(),
-                          // ),
                           const SizedBox(
                             height: 20,
                           ),
@@ -377,6 +461,8 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                                             if (_addCustomerFormKey.currentState
                                                 ?.validate() ??
                                                 false) {
+
+                                              print('postal code text field ${postalCode.text}');
                                               ref
                                                   .read(usersUpdateCustomerViewModelProvider
                                                   .notifier)
@@ -385,8 +471,12 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                                                   name: name.text,
                                                   email: email.text,
                                                   phone: phone.text,
-                                                  address: address.text,
+                                                  lat: lat,
+                                                  lng: lng,
+                                                  postalCode: postalCode.text,
+                                                  city: city.text,
                                                   zoneArea: zone.text,
+                                                  address: address.text,
                                                   additional: additional.text);
                                             }
                                           },
@@ -398,7 +488,7 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                ref.watch(usersDeleteCustomerViewModelProvider).maybeWhen(
+                                ref.watch(usersToggleCustomerStatusViewModelProvider).maybeWhen(
                                     loading: () => Center(
                                       child: Lottie.asset(
                                           'assets/images/global_loader.json',
@@ -408,66 +498,52 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                                     orElse: (){
                                       return CustomButton(
                                           onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              barrierDismissible: false,
-                                              builder: (_) => Center(
-                                                child: Container(
-                                                  height: screenHeight * 20,
-                                                  width: screenWidth * 90,
-                                                  margin: const EdgeInsets.all(24),
-                                                  decoration: BoxDecoration(
-                                                      color: Colors.white,
-                                                      borderRadius: BorderRadius.circular(12)
+                                            if(userModel?.isDisabled ?? false){
+                                              ref
+                                                  .read(usersToggleCustomerStatusViewModelProvider
+                                                  .notifier)
+                                                  .enable(endPoint: 'customers/active/${userModel?.id}',);
+                                            }
+                                            else{
+                                              AwesomeDialog(
+                                                  context: context,
+                                                  dialogType: DialogType.question,
+                                                  animType: AnimType.rightSlide,
+                                                  title: 'Disable Customer'.tr(),
+                                                  desc: 'Are you sure you want to disable this customer\n All orders without route for this customer will not be able to add to route'.tr(),
+                                                  autoDismiss: false,
+                                                  dialogBackgroundColor: Colors.white,
+                                                  btnCancel: CustomButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop();
+                                                    },
+                                                    radius: 10,
+                                                    text: 'No'.tr(),
+                                                    textColor: Colors.white,
+                                                    bgColor: const Color(0xffd63d46),
+                                                    height: 40,
                                                   ),
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                    children: [
-                                                      Material(
-                                                        child: AutoSizeText(
-                                                          'are_you_sure_you_want_to_delete'.tr(),
-                                                          style: TextStyle(
-                                                              color: Theme.of(context).primaryColor,
-                                                              fontSize: 17,
-                                                              fontWeight: FontWeight.bold),
-                                                        ),
-                                                      ),
-                                                      Row(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                        children: [
-                                                          CustomButton(
-                                                            onPressed: (){
-                                                              Navigator.pop(context);
-                                                            },
-                                                            text: 'no'.tr(),
-                                                            textColor: Theme.of(context).primaryColor,
-                                                            bgColor: Colors.white,
-                                                          ),
-                                                          CustomButton(
-                                                            onPressed: (){
-                                                              Navigator.pop(context);
-                                                              ref
-                                                                  .read(usersDeleteCustomerViewModelProvider
-                                                                  .notifier)
-                                                                  .delete(endPoint: 'customers/${userModel?.id}',);
-                                                            },
-                                                            text: 'yes'.tr(),
-                                                            textColor: Colors.white,
-                                                            bgColor: Colors.red,
-                                                          )
-                                                        ],
-                                                      )
-                                                    ],
+                                                  btnOk: CustomButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop();
+                                                      ref
+                                                          .read(usersToggleCustomerStatusViewModelProvider
+                                                          .notifier)
+                                                          .disable(endPoint: 'customers/${userModel?.id}',);
+                                                    },
+                                                    radius: 10,
+                                                    text: 'Yes'.tr(),
+                                                    textColor: Colors.white,
+                                                    bgColor: Theme.of(context).primaryColor,
+                                                    height: 40,
                                                   ),
-                                                ),
-                                              ),
-                                            );
-
+                                                  onDismissCallback: (dismiss) {})
+                                                  .show();
+                                            }
                                           },
-                                          text: 'delete_customer'.tr(),
+                                          text: userModel?.isDisabled ?? false ? 'activate_customer'.tr() : 'disable_customer'.tr(),
                                           textColor: Colors.white,
-                                          bgColor: Colors.red);
+                                          bgColor: userModel?.isDisabled ?? false ? Theme.of(context).primaryColor : Colors.red);
                                     }
                                 ),
                               ],
@@ -495,6 +571,8 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                                               email: email.text,
                                               phoneNo: phone.text,
                                               address: address.text,
+                                              lat: lat,
+                                              lng: lng,
                                               postalCode: postalCode.text,
                                               city: city.text,
                                               zoneArea: zone.text,

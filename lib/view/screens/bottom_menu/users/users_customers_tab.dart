@@ -14,6 +14,7 @@ import '../../../widgets/custom_shimmer.dart';
 import '../../../widgets/custom_snakbar.dart';
 import '../../../widgets/empty_widget.dart';
 import '../../../widgets/pagination_footer.dart';
+import '../../../widgets/customer_card.dart';
 import '../../search.dart';
 import 'add_new_customer.dart';
 
@@ -179,7 +180,7 @@ class UsersCustomersTab extends ConsumerWidget {
                                         color: Colors.green,
                                         size: 25,
                                       ),
-                                      message: 'Pull-Down to refresh data if you make any update'.tr(),
+                                      message: 'Pull-Down to refresh data'.tr(),
                                       bgColor: Colors.grey.shade600,
                                       borderColor: Colors.green.shade200,
                                     ),
@@ -233,103 +234,7 @@ class UsersCustomersTab extends ConsumerWidget {
                             child: SlideAnimation(
                               verticalOffset: 50.0,
                               child: FadeInAnimation(
-                                child: Container(
-                                    margin: const EdgeInsets.all(5),
-                                    child: MaterialButton(
-                                      onPressed: (){},
-                                      padding: EdgeInsets.zero,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10)
-                                      ),
-                                      clipBehavior: Clip.antiAlias,
-                                      elevation: .5,
-                                      color: Colors.white,
-                                      child: Container(
-                                        height: 90,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
-                                          color: Colors.white,
-                                        ),
-                                        padding: const EdgeInsets.symmetric(horizontal: 16 , vertical: 8),
-                                        child: Container(
-                                          height: 90,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(10),
-                                            color: Colors.white,
-                                          ),
-                                          child: Center(
-                                            child: Padding(
-                                              padding: const EdgeInsets.symmetric(horizontal: 4),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                                    children: [
-                                                      AutoSizeText(
-                                                        usersCustomers.data[index].name,
-                                                        style: TextStyle(
-                                                            color: Theme.of(context).primaryColor,
-                                                            fontSize: 15,
-                                                            fontWeight: FontWeight.bold),
-                                                      ),
-                                                      Row(
-                                                        children: [
-                                                          AutoSizeText(
-                                                            usersCustomers.data[index].email,
-                                                            style: TextStyle(
-                                                                color: Theme.of(context).primaryColor,
-                                                                fontSize: 10,
-                                                                fontWeight: FontWeight.w500),
-                                                          ),
-                                                          const SizedBox(width: 5,),
-                                                          const CircleAvatar(
-                                                            radius: 3,
-                                                            backgroundColor: Colors.grey,
-                                                          ),
-                                                          const SizedBox(width: 5,),
-                                                          AutoSizeText(
-                                                            '${usersCustomers.data[index].phone}',
-                                                            style: TextStyle(
-                                                                color: Theme.of(context).primaryColor,
-                                                                fontSize: 10,
-                                                                fontWeight: FontWeight.w500),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      AutoSizeText(
-                                                          '${usersCustomers.data[index].address ?? ''} - ${usersCustomers.data[index].city ?? ''} - ${usersCustomers.data[index].postalCode ?? ''}',
-                                                        style: TextStyle(
-                                                            color: Theme.of(context).primaryColor,
-                                                            fontSize: 10,
-                                                            fontWeight: FontWeight.w500),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  IconButton(
-                                                    onPressed: (){
-                                                      Navigator.push(context, MaterialPageRoute(builder: (context) => AddNewCustomerScreen(
-                                                        isUpdate: true,
-                                                        userModel: usersCustomers.data[index],
-                                                      ))).then((value) {
-                                                        print('Customer update print');
-                                                        if(value == 'update'){
-                                                          ref
-                                                              .read(usersCustomersViewModelProvider.notifier)
-                                                              .loadAll(endPoint: 'customers');
-                                                        }
-                                                      });
-                                                    },
-                                                    icon: Image.asset('assets/images/edit.png' , height: 20,),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ))
+                                child: CustomerCard(userModel: usersCustomers.data[index],)
                               ),
                             ),
                           );

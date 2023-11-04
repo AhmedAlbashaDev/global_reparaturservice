@@ -24,7 +24,7 @@ class OnBoarding extends StatelessWidget {
                   width: screenWidth * 100,
                   child: Image.asset(
                     'assets/images/on_boarding_image.png',
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill,
                   ),
                 ),
                 Expanded(

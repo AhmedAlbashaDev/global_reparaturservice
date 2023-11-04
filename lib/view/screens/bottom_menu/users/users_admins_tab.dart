@@ -20,7 +20,6 @@ class UsersAdminsTab extends ConsumerWidget {
   UsersAdminsTab(
       {super.key,});
 
-
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
@@ -179,7 +178,7 @@ class UsersAdminsTab extends ConsumerWidget {
                                                   color: Colors.green,
                                                   size: 25,
                                                 ),
-                                                message: 'Pull-Down to refresh data if you make any update'.tr(),
+                                                message: 'Pull-Down to refresh data'.tr(),
                                                 bgColor: Colors.grey.shade600,
                                                 borderColor: Colors.green.shade200,
                                               ),

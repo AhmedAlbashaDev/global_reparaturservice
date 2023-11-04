@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 
+import 'app_locale.dart';
 import 'token_provider.dart';
 
 /// DIO NETWORK PROVIDER
@@ -17,7 +18,8 @@ final dioClientNetworkProvider = Provider.autoDispose<Dio>((ref) {
       headers: {
         HttpHeaders.authorizationHeader : token != null ? 'Bearer $token' : null,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Accept-Language' : ref.watch(currentAppLocaleProvider).name.toString(),
       }
   ));
 

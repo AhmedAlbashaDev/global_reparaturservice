@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:global_reparaturservice/core/service/shared_preferences.dart';
 
 import '../core/custom_exception.dart';
 import '../core/providers/token_provider.dart';
@@ -33,12 +33,11 @@ class AuthRepository {
 
       ref.read(tokenProvider.notifier).state = token;
 
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
 
       UserModel userModel = UserModel.fromJson(response.data['data']['user']);
 
-      await prefs.setString('userToken' , token);
-      await prefs.setString('userType' , userModel.role ?? '');
+      await SharedPref.set('userToken' , token);
+      await SharedPref.set('userType' , userModel.role ?? '');
 
       return ResponseState<UserModel>.data(data: userModel);
 
@@ -146,9 +145,7 @@ class AuthRepository {
         );
       }
 
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-      prefs.clear();
+      SharedPref.clear();
 
       return const ResponseState<UserModel>.success(data: {});
 

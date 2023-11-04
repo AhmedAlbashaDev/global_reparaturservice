@@ -85,6 +85,19 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
     });
   }
 
+  Future<void> sendInvoice({required int orderId}) async{
+
+    setState(const ResponseState<OrderModel>.loading());
+
+    final response = await ordersRepository.sendInvoice(endPoint: 'orders/send-invoice/$orderId');
+
+    response.whenOrNull(success: (data) {
+      setState(const ResponseState<OrderModel>.success(data: {'send_invoice' : true}));
+    }, error: (error) {
+      setState(ResponseState<OrderModel>.error(error: error));
+    });
+  }
+
   Future<void> finishOrder({required int orderId ,required String report}) async{
 
     setState(const ResponseState<OrderModel>.loading());
@@ -100,7 +113,7 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
     );
 
     response.whenOrNull(success: (data) {
-      setState(ResponseState<OrderModel>.success(data: data));
+      setState(const ResponseState<OrderModel>.success(data: {'finish_order' : true}));
     }, error: (error) {
       setState(ResponseState<OrderModel>.error(error: error));
     });

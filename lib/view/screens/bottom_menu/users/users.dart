@@ -2,11 +2,11 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:global_reparaturservice/view/screens/bottom_menu/routes/track_technician.dart';
 import 'package:global_reparaturservice/view/screens/bottom_menu/users/add_new_admin.dart';
 import 'package:global_reparaturservice/view/screens/bottom_menu/users/users_admins_tab.dart';
 import 'package:global_reparaturservice/view_model/users/get_users_view_model.dart';
 
-import '../../../../core/providers/user_tab_selected.dart';
 import '../../../../core/globals.dart';
 import '../../../widgets/custom_menu_screens_app_bar.dart';
 import '../../../widgets/floating_add_button.dart';
@@ -15,6 +15,8 @@ import 'add_new_customer.dart';
 import 'add_new_technician.dart';
 import 'users_customers_tab.dart';
 import 'users_technicians_tab.dart';
+
+final userTabsSelectedProvider = StateProvider<int>((ref) => 0);
 
 class UsersScreen extends ConsumerStatefulWidget {
    const UsersScreen({super.key});
@@ -41,7 +43,12 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
     });
 
     tabController = TabController(length: 3, vsync: this);
+  }
 
+  @override
+  void dispose() {
+    tabController?.dispose();
+    super.dispose();
   }
 
 
@@ -174,7 +181,56 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
           ),
         ],
       ),
-      floatingActionButton: FloatingAddButton(
+      floatingActionButton: tabController?.index == 1 ? Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          SizedBox(
+            height: 50,
+            child: FloatingAddButton(
+              onPresses: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => TrackTechnician(techniciansList: ref.watch(usersTechniciansViewModelProvider.notifier).users ?? [],)));
+              },
+              child: Icon(Icons.map , color: Theme.of(context).primaryColor,size: 30,),
+            ),
+          ),
+          const SizedBox(height: 10,),
+          FloatingAddButton(
+            onPresses: (){
+              if(tabController?.index == 0){
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewAdminScreen())).then((value) {
+                  print('Added new Admin update');
+                  if(value == 'update'){
+                    ref
+                        .read(usersAdminsViewModelProvider.notifier)
+                        .loadAll(endPoint: 'admins');
+                  }
+                });
+              }
+              else if(tabController?.index == 1){
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewTechnicianScreen())).then((value) {
+                  print('Added new Tech update');
+                  if(value == 'update'){
+                    ref
+                        .read(usersTechniciansViewModelProvider.notifier)
+                        .loadAll(endPoint: 'drivers');
+                  }
+                });
+              }
+              else {
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewCustomerScreen())).then((value) {
+                  print('Added new Cus update');
+                  if(value == 'update'){
+                    ref
+                        .read(usersCustomersViewModelProvider.notifier)
+                        .loadAll(endPoint: 'customers');
+                  }
+                });
+
+              }
+            },
+          ),
+        ],
+      ) : FloatingAddButton(
         onPresses: (){
           if(tabController?.index == 0){
             Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewAdminScreen())).then((value) {

@@ -28,7 +28,7 @@ if (flutterVersionName == null) {
 android {
     namespace "com.ahmedalbasha.global_reparaturservice"
     compileSdkVersion 34
-    ndkVersion flutter.ndkVersion
+    ndkVersion "25.1.8937393"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -70,6 +70,6 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.google.firebase:firebase-messaging:23.2.1'
+    implementation 'com.google.firebase:firebase-messaging:23.3.0'
     implementation 'com.android.support:multidex:1.0.3'
 }

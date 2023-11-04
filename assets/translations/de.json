@@ -125,7 +125,7 @@
   "Update": "Aktualisieren",
   "Set amount": "Bestimme die Menge",
   "sure_you_get_the_payment_cash": "Sicher!? ",
-  "slide_to_finish_this_route": "SCHIEBEN SIE, UM DIESE ROUTE ZU BEENDEN",
+  "slide_to_finish": "ZUM ENDE SCHIEBEN",
   "go_to_routes_screen": "Gehen Sie zum Bildschirm „Routen“.",
   "congrats": "Glückwunsch",
   "your_route_successfully_finished": "Ihre Route wurde erfolgreich abgeschlossen",
@@ -140,7 +140,7 @@
   "Global Reparaturservice Technician Track": "Globaler Reparaturservice-Techniker-Track",
   "Location Will update soon": "Standort Wird bald aktualisiert",
   "Route Orders ListView": "Routenaufträge ListView",
-  "Pull-Down to refresh data if you make any update": "Pulldown zum Aktualisieren der Daten, wenn Sie eine Aktualisierung vornehmen",
+  "Pull-Down to refresh data": "Pulldown zum Aktualisieren der Daten",
   "Specific Period": "Ein bestimmter Zeitraum",
   "Select Dates First": "Wählen Sie zuerst „Daten“ aus",
   "Track Technician": "Gleistechniker",
@@ -155,5 +155,7 @@
   "Phone must be 12 number minimum": "Die Telefonnummer muss mindestens 12 Nummern umfassen",
   "Not set": "Nicht eingestellt",
   "Postal Code": "Postleitzahl",
-  "City": "Stadt"
+  "City": "Stadt",
+  "Other phone number": "Andere Telefonnummer",
+  "Press Here to update the address": "Klicken Sie hier, um die Adresse zu aktualisieren"
 }

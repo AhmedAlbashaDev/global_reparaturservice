@@ -7,6 +7,12 @@ import '../../models/pagination_model.dart';
 import '../../models/response_state.dart';
 import '../repositories/routes_repository.dart';
 
+final todayRoutesViewModelProvider = StateNotifierProvider.autoDispose<RoutesViewModel,ResponseState<PaginationModel<RoutesModel>>>((ref) {
+  final cancelToken = CancelToken();
+  ref.onDispose(cancelToken.cancel);
+  return RoutesViewModel(RoutesRepository(dioClient: ref.read(dioClientNetworkProvider) , ref: ref));
+});
+
 final routesViewModelProvider = StateNotifierProvider.autoDispose<RoutesViewModel,ResponseState<PaginationModel<RoutesModel>>>((ref) {
   final cancelToken = CancelToken();
   ref.onDispose(cancelToken.cancel);
@@ -18,13 +24,22 @@ class RoutesViewModel extends StateNotifier<ResponseState<PaginationModel<Routes
 
   RoutesViewModel(this.routesRepository) : super(const ResponseState<PaginationModel<RoutesModel>>.loading());
 
-  Future<void> loadAll() async{
+  Future<void> loadAll({bool? today}) async{
 
     setState(const ResponseState<PaginationModel<RoutesModel>>.loading());
 
     await Future.delayed(const Duration(seconds: 1));
 
-    final response = await routesRepository.loadAll(endPoint: 'roads');
+    String endPoint = "";
+
+    if(today == true){
+      endPoint = 'roads?today=true';
+    }
+    else{
+      endPoint = 'roads';
+    }
+
+    final response = await routesRepository.loadAll(endPoint: endPoint);
 
     response.whenOrNull(data: (data) {
       setState(ResponseState<PaginationModel<RoutesModel>>.data(data: data));

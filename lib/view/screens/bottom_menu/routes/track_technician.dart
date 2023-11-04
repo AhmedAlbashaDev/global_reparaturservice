@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/core/globals.dart';
 import 'package:global_reparaturservice/models/order.dart';
 import 'package:global_reparaturservice/models/routes.dart';
+import 'package:global_reparaturservice/models/user.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lottie/lottie.dart' as lottie;
 
@@ -16,18 +17,19 @@ import '../../../widgets/custom_app_bar.dart';
 // }
 
 class TrackTechnician extends ConsumerStatefulWidget {
-  const TrackTechnician({super.key ,required this.routesModel});
+  const TrackTechnician({super.key ,this.routesModel , this.techniciansList});
 
-  final RoutesModel routesModel;
-
+  final RoutesModel? routesModel;
+  final List<UserModel>? techniciansList;
 
   @override
-  ConsumerState createState() => _TrackTechnicianState(routesModel: routesModel);
+  ConsumerState createState() => _TrackTechnicianState(routesModel: routesModel , techniciansList: techniciansList);
 }
 
 class _TrackTechnicianState extends ConsumerState<TrackTechnician> {
-  _TrackTechnicianState({required this.routesModel});
-  final RoutesModel routesModel;
+  _TrackTechnicianState({required this.routesModel , this.techniciansList});
+  final RoutesModel? routesModel;
+  final List<UserModel>? techniciansList;
 
   late GoogleMapController mapController;
 
@@ -44,42 +46,68 @@ class _TrackTechnicianState extends ConsumerState<TrackTechnician> {
 
   Future<void> configureMap() async {
 
-    completed  = await  BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(30, 30)), 'assets/images/completed.png');
+    if(techniciansList == null){
+      completed  = await  BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(30, 30)), 'assets/images/completed.png');
 
-    pending    = await  BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(30, 30)), 'assets/images/pending.png');
+      pending    = await  BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(30, 30)), 'assets/images/pending.png');
 
-    technician = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(30, 30)), 'assets/images/technician.png');
+      technician = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(30, 30)), 'assets/images/technician.png');
 
-    for(OrderModel order in routesModel.orders ?? []){
-      LatLng position = LatLng(double.parse(order.lat), double.parse(order.lng));
+      for(OrderModel order in routesModel?.orders ?? []){
+        LatLng position = LatLng(order.lat, order.lng);
+
+        final marker = Marker(
+          markerId: MarkerId(order.referenceNo),
+          position: position,
+          icon: (order.status == 3
+              ? completed
+              : pending) ?? BitmapDescriptor.defaultMarker,
+          //BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow)),
+          infoWindow: InfoWindow(
+            title: '#${order.id}',
+            snippet: order.statusName.tr(),
+          ),
+        );
+        _markers[order.referenceNo] = marker;
+
+        polyLinePoints.add(position);
+      }
+
+      LatLng driverPosition = LatLng(routesModel?.driver?.lat ?? double.parse(centerLat), routesModel?.driver?.lng ?? double.parse(centerLng));
 
       final marker = Marker(
-        markerId: MarkerId(order.referenceNo),
-        position: position,
-        icon: (order.status == 3
-            ? completed
-            : pending) ?? BitmapDescriptor.defaultMarker,
-        //BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow)),
-        infoWindow: InfoWindow(
-          title: '#${order.id}',
-          snippet: order.statusName.tr(),
-        ),
+        markerId: MarkerId('${routesModel?.referenceNo}'),
+        position: driverPosition,
+        icon: technician ?? BitmapDescriptor.defaultMarker,
       );
-      _markers[order.referenceNo] = marker;
 
-      polyLinePoints.add(position);
+      _markers['${routesModel?.referenceNo}'] = marker;
+      polyLinePoints.add(driverPosition);
     }
+    else{
 
-    LatLng driverPosition = LatLng(routesModel.driver?.lat ?? double.parse(centerLat), routesModel.driver?.lng ?? double.parse(centerLng));
+      technician = await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(30, 30)), 'assets/images/technician.png');
 
-    final marker = Marker(
-      markerId: MarkerId(routesModel.referenceNo),
-      position: driverPosition,
-      icon: technician ?? BitmapDescriptor.defaultMarker,
-    );
+      for(UserModel technicianObject in techniciansList ?? []){
 
-    _markers[routesModel.referenceNo] = marker;
-    polyLinePoints.add(driverPosition);
+        LatLng position = LatLng(technicianObject.lat ?? 0, technicianObject.lng ?? 0);
+
+        final marker = Marker(
+          markerId: MarkerId('${technicianObject.id}'),
+          position: position,
+          icon: technician ?? BitmapDescriptor.defaultMarker,
+          //BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow)),
+          infoWindow: InfoWindow(
+            title: '#${technicianObject.name}',
+            snippet: technicianObject.phone,
+          ),
+        );
+        _markers['${technicianObject.id}'] = marker;
+
+        polyLinePoints.add(position);
+
+      }
+    }
 
     setState(() {
       isLoading = false;
@@ -121,8 +149,10 @@ class _TrackTechnicianState extends ConsumerState<TrackTechnician> {
                   mapController = controller;
                 },
                 initialCameraPosition: CameraPosition(
-                  target: LatLng(routesModel.driver?.lat ?? double.parse(centerLat), routesModel.driver?.lng ?? double.parse(centerLng)),
-                  zoom: 11,
+                  target: techniciansList == null
+                      ? LatLng(routesModel?.driver?.lat ?? double.parse(centerLat), routesModel?.driver?.lng ?? double.parse(centerLng))
+                      : LatLng(techniciansList?.first.lat ?? double.parse(centerLat), techniciansList?.first.lng ?? double.parse(centerLng)),
+                  zoom: 10,
                 ),
                 myLocationEnabled: true,
                 myLocationButtonEnabled: false,
@@ -130,11 +160,11 @@ class _TrackTechnicianState extends ConsumerState<TrackTechnician> {
                 markers: _markers.values.toSet(),
                 polygons: {
                   Polygon(
-                      polygonId: PolygonId("${routesModel.id}",),
+                      polygonId: const PolygonId("technicians"),
                       points: polyLinePoints,
                       strokeWidth: 2,
                       strokeColor: Theme.of(context).primaryColor.withOpacity(.6),
-                      fillColor: Theme.of(context).primaryColor.withOpacity(.5)
+                      fillColor: Theme.of(context).primaryColor.withOpacity(.6)
                   )
                 },
               ),

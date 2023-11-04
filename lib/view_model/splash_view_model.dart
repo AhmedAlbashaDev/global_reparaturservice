@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/repositories/users_repository.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/providers/dio_network_provider.dart';
 import '../core/providers/token_provider.dart';
+import '../core/service/shared_preferences.dart';
 import '../models/response_state.dart';
 import '../models/user.dart';
 
@@ -22,9 +22,8 @@ class SplashViewModel extends StateNotifier<ResponseState<UserModel>>{
 
   Future<void> checkAndGetLocalUser() async{
 
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    final token  = prefs.getString('userToken');
+    final token  = await SharedPref.get('userToken');
 
     ref.read(tokenProvider.notifier).state = token;
     
@@ -42,8 +41,9 @@ class SplashViewModel extends StateNotifier<ResponseState<UserModel>>{
 
       response.whenOrNull(data: (data) {
         state = ResponseState<UserModel>.data(data: data);
-      }, error: (error) {
+      }, error: (error) async {
         ref.read(tokenProvider.notifier).state = null;
+        await SharedPref.clear();
         state = ResponseState<UserModel>.error(error: error);
       });
     }
