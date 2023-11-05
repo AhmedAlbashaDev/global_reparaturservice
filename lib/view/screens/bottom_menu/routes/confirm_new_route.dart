@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,18 +39,26 @@ class ConfirmNewRoute extends ConsumerWidget {
             Navigator.pop(context);
           }
 
-          final snackBar = SnackBar(
-            backgroundColor: Theme.of(context).primaryColor,
-            showCloseIcon: true,
-            behavior: SnackBarBehavior.floating,
-            content: CustomSnakeBarContent(
-              icon: const Icon(Icons.error, color: Colors.red , size: 25,),
-              message: error.errorMessage ?? '',
-              bgColor: Colors.grey.shade600,
-              borderColor: Colors.redAccent.shade200,
-            ),
-          );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          AwesomeDialog(
+              context: context,
+              dialogType: DialogType.error,
+              animType: AnimType.rightSlide,
+              title: 'Error'.tr(),
+              desc: error.errorMessage,
+              autoDismiss: false,
+              dialogBackgroundColor: Colors.white,
+              btnCancel: CustomButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                radius: 10,
+                text: 'Ok'.tr(),
+                textColor: Colors.white,
+                bgColor: const Color(0xffd63d46),
+                height: 40,
+              ),
+              onDismissCallback: (dismiss) {})
+              .show();
         },
       );
     });

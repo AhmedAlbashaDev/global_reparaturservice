@@ -23,7 +23,6 @@ import '../../../widgets/gradient_background.dart';
 import '../../../widgets/order_card.dart';
 import '../../../widgets/orders_loading.dart';
 import '../../../widgets/pagination_footer.dart';
-import '../../../widgets/search.dart';
 import '../../search.dart';
 import 'confirm_new_route.dart';
 
@@ -31,6 +30,7 @@ import 'confirm_new_route.dart';
 final selectTechnicianLater = StateProvider.autoDispose<bool?>((ref) => false);
 final selectedTechnician = StateProvider.autoDispose<UserModel?>((ref) => null);
 
+// ignore: must_be_immutable
 class NewRouteScreen extends ConsumerStatefulWidget {
   NewRouteScreen({super.key , this.isUpdate = false , this.routesModel});
 

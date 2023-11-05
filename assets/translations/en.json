@@ -181,5 +181,15 @@
   "Drop-Off" : "Drop-Off",
   "Pick-Up Or On-Site": "Pick-Up Or On-Site",
   "Reference number" : "Reference number",
-  "Are you sure you want to disable this customer\\n All orders without route for this customer will not be able to add to route" : "Are you sure you want to disable this customer\\n All orders without route for this customer will not be able to add to route"
+  "Are you sure you want to disable this customer\\n All orders without route for this customer will not be able to add to route" : "Are you sure you want to disable this customer\\n All orders without route for this customer will not be able to add to route",
+  "customer_phone" : "customer_phone",
+  "Order Type": "Order Type",
+  "Pick-Up": "Pick-Up",
+  "On-Site": "On-Site",
+  "Order reference" : "Order reference",
+  "Place an order with new route": "Place an order with new route",
+  "pay_later": "Pay Later",
+  "Specific Date" : "Specific Date",
+  "Date": "Date",
+  "Select Date" : "Select Date"
 }

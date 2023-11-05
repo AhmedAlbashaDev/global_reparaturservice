@@ -226,10 +226,6 @@ void onStart(ServiceInstance service) async {
 
   DartPluginRegistrant.ensureInitialized(); // Only available for flutter 3.0.0 and later
 
-  /// OPTIONAL when use custom notification
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
-
   if (service is AndroidServiceInstance) {
     service.on('setAsForeground').listen((event) {
       service.setAsForegroundService();
@@ -342,7 +338,7 @@ class _MyAppState extends State<MyApp> {
                     borderSide: const BorderSide(color: Colors.red , width: 1.5)
                 ),
                 errorStyle: const TextStyle(height: .1),
-                counterStyle: const TextStyle(height: .1),
+                counterStyle: const TextStyle(height: .1,),
                 contentPadding: const EdgeInsets.all(10)
             )
         ),

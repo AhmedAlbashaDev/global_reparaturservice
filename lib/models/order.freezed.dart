@@ -28,6 +28,9 @@ mixin _$OrderModel {
   double get lat => throw _privateConstructorUsedError;
   double get lng => throw _privateConstructorUsedError;
   int get status => throw _privateConstructorUsedError;
+  int get type => throw _privateConstructorUsedError;
+  @JsonKey(name: 'type_name')
+  String get typeName => throw _privateConstructorUsedError;
   @JsonKey(name: 'maintenance_device')
   String get maintenanceDevice => throw _privateConstructorUsedError;
   String? get brand => throw _privateConstructorUsedError;
@@ -51,6 +54,8 @@ mixin _$OrderModel {
   String? get apartmentNumber => throw _privateConstructorUsedError;
   @JsonKey(name: 'additional_info')
   String? get additionalInfo => throw _privateConstructorUsedError;
+  @JsonKey(name: 'pdf_link')
+  String get pdfLink => throw _privateConstructorUsedError;
   UserModel? get customer => throw _privateConstructorUsedError;
   List<FilesModel>? get files => throw _privateConstructorUsedError;
   @JsonKey(name: 'road_id')
@@ -90,6 +95,8 @@ abstract class $OrderModelCopyWith<$Res> {
       double lat,
       double lng,
       int status,
+      int type,
+      @JsonKey(name: 'type_name') String typeName,
       @JsonKey(name: 'maintenance_device') String maintenanceDevice,
       String? brand,
       @JsonKey(name: 'block_no') String? blockNo,
@@ -103,6 +110,7 @@ abstract class $OrderModelCopyWith<$Res> {
       @JsonKey(name: 'floor_number') int? floorNumber,
       @JsonKey(name: 'apartment_number') String? apartmentNumber,
       @JsonKey(name: 'additional_info') String? additionalInfo,
+      @JsonKey(name: 'pdf_link') String pdfLink,
       UserModel? customer,
       List<FilesModel>? files,
       @JsonKey(name: 'road_id') int? roadId,
@@ -137,6 +145,8 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
     Object? lat = null,
     Object? lng = null,
     Object? status = null,
+    Object? type = null,
+    Object? typeName = null,
     Object? maintenanceDevice = null,
     Object? brand = freezed,
     Object? blockNo = freezed,
@@ -150,6 +160,7 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
     Object? floorNumber = freezed,
     Object? apartmentNumber = freezed,
     Object? additionalInfo = freezed,
+    Object? pdfLink = null,
     Object? customer = freezed,
     Object? files = freezed,
     Object? roadId = freezed,
@@ -190,6 +201,14 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
               as int,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as int,
+      typeName: null == typeName
+          ? _value.typeName
+          : typeName // ignore: cast_nullable_to_non_nullable
+              as String,
       maintenanceDevice: null == maintenanceDevice
           ? _value.maintenanceDevice
           : maintenanceDevice // ignore: cast_nullable_to_non_nullable
@@ -242,6 +261,10 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
           ? _value.additionalInfo
           : additionalInfo // ignore: cast_nullable_to_non_nullable
               as String?,
+      pdfLink: null == pdfLink
+          ? _value.pdfLink
+          : pdfLink // ignore: cast_nullable_to_non_nullable
+              as String,
       customer: freezed == customer
           ? _value.customer
           : customer // ignore: cast_nullable_to_non_nullable
@@ -314,6 +337,8 @@ abstract class _$$OrderModelImplCopyWith<$Res>
       double lat,
       double lng,
       int status,
+      int type,
+      @JsonKey(name: 'type_name') String typeName,
       @JsonKey(name: 'maintenance_device') String maintenanceDevice,
       String? brand,
       @JsonKey(name: 'block_no') String? blockNo,
@@ -327,6 +352,7 @@ abstract class _$$OrderModelImplCopyWith<$Res>
       @JsonKey(name: 'floor_number') int? floorNumber,
       @JsonKey(name: 'apartment_number') String? apartmentNumber,
       @JsonKey(name: 'additional_info') String? additionalInfo,
+      @JsonKey(name: 'pdf_link') String pdfLink,
       UserModel? customer,
       List<FilesModel>? files,
       @JsonKey(name: 'road_id') int? roadId,
@@ -360,6 +386,8 @@ class __$$OrderModelImplCopyWithImpl<$Res>
     Object? lat = null,
     Object? lng = null,
     Object? status = null,
+    Object? type = null,
+    Object? typeName = null,
     Object? maintenanceDevice = null,
     Object? brand = freezed,
     Object? blockNo = freezed,
@@ -373,6 +401,7 @@ class __$$OrderModelImplCopyWithImpl<$Res>
     Object? floorNumber = freezed,
     Object? apartmentNumber = freezed,
     Object? additionalInfo = freezed,
+    Object? pdfLink = null,
     Object? customer = freezed,
     Object? files = freezed,
     Object? roadId = freezed,
@@ -413,6 +442,14 @@ class __$$OrderModelImplCopyWithImpl<$Res>
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
               as int,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as int,
+      typeName: null == typeName
+          ? _value.typeName
+          : typeName // ignore: cast_nullable_to_non_nullable
+              as String,
       maintenanceDevice: null == maintenanceDevice
           ? _value.maintenanceDevice
           : maintenanceDevice // ignore: cast_nullable_to_non_nullable
@@ -465,6 +502,10 @@ class __$$OrderModelImplCopyWithImpl<$Res>
           ? _value.additionalInfo
           : additionalInfo // ignore: cast_nullable_to_non_nullable
               as String?,
+      pdfLink: null == pdfLink
+          ? _value.pdfLink
+          : pdfLink // ignore: cast_nullable_to_non_nullable
+              as String,
       customer: freezed == customer
           ? _value.customer
           : customer // ignore: cast_nullable_to_non_nullable
@@ -520,6 +561,8 @@ class _$OrderModelImpl implements _OrderModel {
       required this.lat,
       required this.lng,
       required this.status,
+      required this.type,
+      @JsonKey(name: 'type_name') required this.typeName,
       @JsonKey(name: 'maintenance_device') required this.maintenanceDevice,
       required this.brand,
       @JsonKey(name: 'block_no') required this.blockNo,
@@ -533,6 +576,7 @@ class _$OrderModelImpl implements _OrderModel {
       @JsonKey(name: 'floor_number') required this.floorNumber,
       @JsonKey(name: 'apartment_number') required this.apartmentNumber,
       @JsonKey(name: 'additional_info') required this.additionalInfo,
+      @JsonKey(name: 'pdf_link') required this.pdfLink,
       required this.customer,
       required final List<FilesModel>? files,
       @JsonKey(name: 'road_id') required this.roadId,
@@ -563,6 +607,11 @@ class _$OrderModelImpl implements _OrderModel {
   final double lng;
   @override
   final int status;
+  @override
+  final int type;
+  @override
+  @JsonKey(name: 'type_name')
+  final String typeName;
   @override
   @JsonKey(name: 'maintenance_device')
   final String maintenanceDevice;
@@ -599,6 +648,9 @@ class _$OrderModelImpl implements _OrderModel {
   @override
   @JsonKey(name: 'additional_info')
   final String? additionalInfo;
+  @override
+  @JsonKey(name: 'pdf_link')
+  final String pdfLink;
   @override
   final UserModel? customer;
   final List<FilesModel>? _files;
@@ -638,7 +690,7 @@ class _$OrderModelImpl implements _OrderModel {
 
   @override
   String toString() {
-    return 'OrderModel(id: $id, referenceNo: $referenceNo, address: $address, description: $description, lat: $lat, lng: $lng, status: $status, maintenanceDevice: $maintenanceDevice, brand: $brand, blockNo: $blockNo, isPaid: $isPaid, amount: $amount, report: $report, paymentId: $paymentId, paymentWay: $paymentWay, customerId: $customerId, orderPhoneNumber: $orderPhoneNumber, floorNumber: $floorNumber, apartmentNumber: $apartmentNumber, additionalInfo: $additionalInfo, customer: $customer, files: $files, roadId: $roadId, isVisit: $isVisit, orderId: $orderId, createBy: $createBy, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, statusName: $statusName)';
+    return 'OrderModel(id: $id, referenceNo: $referenceNo, address: $address, description: $description, lat: $lat, lng: $lng, status: $status, type: $type, typeName: $typeName, maintenanceDevice: $maintenanceDevice, brand: $brand, blockNo: $blockNo, isPaid: $isPaid, amount: $amount, report: $report, paymentId: $paymentId, paymentWay: $paymentWay, customerId: $customerId, orderPhoneNumber: $orderPhoneNumber, floorNumber: $floorNumber, apartmentNumber: $apartmentNumber, additionalInfo: $additionalInfo, pdfLink: $pdfLink, customer: $customer, files: $files, roadId: $roadId, isVisit: $isVisit, orderId: $orderId, createBy: $createBy, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, statusName: $statusName)';
   }
 
   @override
@@ -655,6 +707,9 @@ class _$OrderModelImpl implements _OrderModel {
             (identical(other.lat, lat) || other.lat == lat) &&
             (identical(other.lng, lng) || other.lng == lng) &&
             (identical(other.status, status) || other.status == status) &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.typeName, typeName) ||
+                other.typeName == typeName) &&
             (identical(other.maintenanceDevice, maintenanceDevice) ||
                 other.maintenanceDevice == maintenanceDevice) &&
             (identical(other.brand, brand) || other.brand == brand) &&
@@ -676,6 +731,7 @@ class _$OrderModelImpl implements _OrderModel {
                 other.apartmentNumber == apartmentNumber) &&
             (identical(other.additionalInfo, additionalInfo) ||
                 other.additionalInfo == additionalInfo) &&
+            (identical(other.pdfLink, pdfLink) || other.pdfLink == pdfLink) &&
             (identical(other.customer, customer) ||
                 other.customer == customer) &&
             const DeepCollectionEquality().equals(other._files, _files) &&
@@ -705,6 +761,8 @@ class _$OrderModelImpl implements _OrderModel {
         lat,
         lng,
         status,
+        type,
+        typeName,
         maintenanceDevice,
         brand,
         blockNo,
@@ -718,6 +776,7 @@ class _$OrderModelImpl implements _OrderModel {
         floorNumber,
         apartmentNumber,
         additionalInfo,
+        pdfLink,
         customer,
         const DeepCollectionEquality().hash(_files),
         roadId,
@@ -753,6 +812,8 @@ abstract class _OrderModel implements OrderModel {
       required final double lat,
       required final double lng,
       required final int status,
+      required final int type,
+      @JsonKey(name: 'type_name') required final String typeName,
       @JsonKey(name: 'maintenance_device')
       required final String maintenanceDevice,
       required final String? brand,
@@ -768,6 +829,7 @@ abstract class _OrderModel implements OrderModel {
       @JsonKey(name: 'floor_number') required final int? floorNumber,
       @JsonKey(name: 'apartment_number') required final String? apartmentNumber,
       @JsonKey(name: 'additional_info') required final String? additionalInfo,
+      @JsonKey(name: 'pdf_link') required final String pdfLink,
       required final UserModel? customer,
       required final List<FilesModel>? files,
       @JsonKey(name: 'road_id') required final int? roadId,
@@ -798,6 +860,11 @@ abstract class _OrderModel implements OrderModel {
   double get lng;
   @override
   int get status;
+  @override
+  int get type;
+  @override
+  @JsonKey(name: 'type_name')
+  String get typeName;
   @override
   @JsonKey(name: 'maintenance_device')
   String get maintenanceDevice;
@@ -834,6 +901,9 @@ abstract class _OrderModel implements OrderModel {
   @override
   @JsonKey(name: 'additional_info')
   String? get additionalInfo;
+  @override
+  @JsonKey(name: 'pdf_link')
+  String get pdfLink;
   @override
   UserModel? get customer;
   @override

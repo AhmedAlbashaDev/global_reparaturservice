@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +10,6 @@ import '../../../../models/response_state.dart';
 import '../../../../models/user.dart';
 import '../../../../view_model/users/admins/add_new_Admin_view_model.dart';
 import '../../../../view_model/users/admins/delete_admin_view_model.dart';
-import '../../../../view_model/users/get_users_view_model.dart';
 import '../../../../view_model/users/admins/update_Admin_view_model.dart';
 import '../../../widgets/custom_app_bar.dart';
 import '../../../widgets/custom_button.dart';
@@ -80,23 +80,6 @@ class _State extends ConsumerState<AddNewAdminScreen> {
           next.whenOrNull(
             data: (user) {
 
-              // final snackBar = SnackBar(
-              //   backgroundColor: Colors.transparent,
-              //   behavior: SnackBarBehavior.floating,
-              //   padding: EdgeInsets.zero,
-              //   content: CustomSnakeBarContent(
-              //     icon: Icon(
-              //       Icons.info,
-              //       color: Theme.of(context).primaryColor,
-              //       size: 25,
-              //     ),
-              //     message: 'Successfully created'.tr(),
-              //     bgColor: Colors.grey.shade400,
-              //     borderColor: Colors.green,
-              //   ),
-              // );
-              // ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
               Navigator.pop(context , 'update');
             },
             error: (error) {
@@ -104,23 +87,26 @@ class _State extends ConsumerState<AddNewAdminScreen> {
                 Navigator.pop(context);
               }
 
-              final snackBar = SnackBar(
-                backgroundColor: Theme.of(context).primaryColor,
-                showCloseIcon: true,
-                behavior: SnackBarBehavior.floating,
-                padding: EdgeInsets.zero,
-                content: CustomSnakeBarContent(
-                  icon: const Icon(
-                    Icons.error,
-                    color: Colors.red,
-                    size: 25,
+              AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.error,
+                  animType: AnimType.rightSlide,
+                  title: 'Error'.tr(),
+                  desc: error.errorMessage,
+                  autoDismiss: false,
+                  dialogBackgroundColor: Colors.white,
+                  btnCancel: CustomButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    radius: 10,
+                    text: 'Ok'.tr(),
+                    textColor: Colors.white,
+                    bgColor: const Color(0xffd63d46),
+                    height: 40,
                   ),
-                  message: error.errorMessage ?? '',
-                  bgColor: Colors.grey.shade600,
-                  borderColor: Colors.redAccent.shade200,
-                ),
-              );
-              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  onDismissCallback: (dismiss) {})
+                  .show();
             },
           );
         });
@@ -130,44 +116,30 @@ class _State extends ConsumerState<AddNewAdminScreen> {
           next.whenOrNull(
             data: (user) {
 
-                  // final snackBar = SnackBar(
-                  //   backgroundColor: Colors.transparent,
-                  //   behavior: SnackBarBehavior.floating,
-                  //   padding: EdgeInsets.zero,
-                  //   content: CustomSnakeBarContent(
-                  //     icon: Icon(
-                  //       Icons.info,
-                  //       color: Theme.of(context).primaryColor,
-                  //       size: 25,
-                  //     ),
-                  //     message: 'Successfully update'.tr(),
-                  //     bgColor: Colors.grey.shade400,
-                  //     borderColor: Colors.green,
-                  //   ),
-                  // );
-                  // ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
                   Navigator.pop(context , 'update');
             },
             error: (error) {
 
-              final snackBar = SnackBar(
-                backgroundColor: Theme.of(context).primaryColor,
-                showCloseIcon: true,
-                behavior: SnackBarBehavior.floating,
-                padding: EdgeInsets.zero,
-                content: CustomSnakeBarContent(
-                  icon: const Icon(
-                    Icons.error,
-                    color: Colors.red,
-                    size: 25,
+              AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.error,
+                  animType: AnimType.rightSlide,
+                  title: 'Error'.tr(),
+                  desc: error.errorMessage,
+                  autoDismiss: false,
+                  dialogBackgroundColor: Colors.white,
+                  btnCancel: CustomButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    radius: 10,
+                    text: 'Ok'.tr(),
+                    textColor: Colors.white,
+                    bgColor: const Color(0xffd63d46),
+                    height: 40,
                   ),
-                  message: error.errorMessage ?? '',
-                  bgColor: Colors.grey.shade600,
-                  borderColor: Colors.redAccent.shade200,
-                ),
-              );
-              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  onDismissCallback: (dismiss) {})
+                  .show();
             },
           );
         });
@@ -177,45 +149,31 @@ class _State extends ConsumerState<AddNewAdminScreen> {
           next.whenOrNull(
             data: (user) {
 
-              // final snackBar = SnackBar(
-              //   backgroundColor: Colors.transparent,
-              //   behavior: SnackBarBehavior.floating,
-              //   padding: EdgeInsets.zero,
-              //   content: CustomSnakeBarContent(
-              //     icon: Icon(
-              //       Icons.info,
-              //       color: Theme.of(context).primaryColor,
-              //       size: 25,
-              //     ),
-              //     message: 'Successfully delete'.tr(),
-              //     bgColor: Colors.grey.shade600,
-              //     borderColor: Theme.of(context).primaryColor,
-              //   ),
-              // );
-              // ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
               Navigator.pop(context , 'update');
 
             },
             error: (error) {
 
-              final snackBar = SnackBar(
-                backgroundColor: Theme.of(context).primaryColor,
-                showCloseIcon: true,
-                behavior: SnackBarBehavior.floating,
-                padding: EdgeInsets.zero,
-                content: CustomSnakeBarContent(
-                  icon: const Icon(
-                    Icons.error,
-                    color: Colors.red,
-                    size: 25,
+              AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.error,
+                  animType: AnimType.rightSlide,
+                  title: 'Error'.tr(),
+                  desc: error.errorMessage,
+                  autoDismiss: false,
+                  dialogBackgroundColor: Colors.white,
+                  btnCancel: CustomButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    radius: 10,
+                    text: 'Ok'.tr(),
+                    textColor: Colors.white,
+                    bgColor: const Color(0xffd63d46),
+                    height: 40,
                   ),
-                  message: error.errorMessage ?? '',
-                  bgColor: Colors.grey.shade600,
-                  borderColor: Colors.redAccent.shade200,
-                ),
-              );
-              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  onDismissCallback: (dismiss) {})
+                  .show();
             },
           );
         });

@@ -1,18 +1,15 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/core/globals.dart';
-import 'package:global_reparaturservice/models/order.dart';
 import 'package:global_reparaturservice/view/screens/bottom_menu/routes/route_details_technician_listview.dart';
 import 'package:global_reparaturservice/view/widgets/custom_button.dart';
 import 'package:global_reparaturservice/view/widgets/custsomer_card_new_order.dart';
 import 'package:global_reparaturservice/view_model/finish_route_view_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lottie/lottie.dart' as lottie;
-import 'package:maps_launcher/maps_launcher.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:swipeable_button_view/swipeable_button_view.dart';
 import 'package:url_launcher/url_launcher.dart';

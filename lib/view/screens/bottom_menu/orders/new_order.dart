@@ -1,8 +1,10 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:global_reparaturservice/core/providers/bottom_navigation_menu.dart';
 import 'package:global_reparaturservice/models/order.dart';
 import 'package:global_reparaturservice/view_model/order_view_model.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -12,7 +14,6 @@ import '../../../../core/globals.dart';
 import '../../../../models/response_state.dart';
 import '../../../widgets/custom_app_bar.dart';
 import '../../../widgets/custom_button.dart';
-import '../../../widgets/custom_snakbar.dart';
 import '../../../widgets/custom_text_form_field.dart';
 import '../../../widgets/custsomer_card_new_order.dart';
 import '../../../widgets/gradient_background.dart';
@@ -40,10 +41,13 @@ class _State extends ConsumerState<NewOrderScreen> with TickerProviderStateMixin
   late TextEditingController referenceNumber;
   late TextEditingController maintenanceDeviceController;
   late TextEditingController brand;
-  late TextEditingController phone;
-  late TextEditingController otherPhone;
+  late TextEditingController customerPhone;
+  late TextEditingController orderPhone;
   late TextEditingController description;
   late TextEditingController address;
+  late TextEditingController postalCode;
+  late TextEditingController city;
+  late TextEditingController zone;
   late TextEditingController floorNumber;
   late TextEditingController apartmentNumber;
   late TextEditingController additionalInfo;
@@ -70,10 +74,13 @@ class _State extends ConsumerState<NewOrderScreen> with TickerProviderStateMixin
     referenceNumber = TextEditingController();
     maintenanceDeviceController = TextEditingController();
     brand = TextEditingController();
-    phone = TextEditingController();
-    otherPhone = TextEditingController();
+    customerPhone = TextEditingController();
+    orderPhone = TextEditingController();
     description = TextEditingController();
     address = TextEditingController();
+    postalCode = TextEditingController();
+    city = TextEditingController();
+    zone = TextEditingController();
     floorNumber = TextEditingController();
     apartmentNumber = TextEditingController();
     additionalInfo = TextEditingController();
@@ -87,10 +94,13 @@ class _State extends ConsumerState<NewOrderScreen> with TickerProviderStateMixin
     referenceNumber.dispose();
     maintenanceDeviceController.dispose();
     brand.dispose();
-    phone.dispose();
-    otherPhone.dispose();
+    customerPhone.dispose();
+    orderPhone.dispose();
     description.dispose();
     address.dispose();
+    postalCode.dispose();
+    city.dispose();
+    zone.dispose();
     floorNumber.dispose();
     apartmentNumber.dispose();
     additionalInfo.dispose();
@@ -106,7 +116,13 @@ class _State extends ConsumerState<NewOrderScreen> with TickerProviderStateMixin
       next.whenOrNull(
         success: (order) {
 
-          Navigator.pop(context , 'update');
+          if(order?['with_route'] == true){
+            Navigator.pop(context , 'update');
+            ref.read(bottomNavigationMenuProvider.notifier).state = 0;
+          }
+          else{
+            Navigator.pop(context , 'update');
+          }
 
         },
         error: (error) {
@@ -115,25 +131,36 @@ class _State extends ConsumerState<NewOrderScreen> with TickerProviderStateMixin
             Navigator.pop(context);
           }
 
-          final snackBar = SnackBar(
-            backgroundColor: Theme.of(context).primaryColor,
-            showCloseIcon: true,
-            behavior: SnackBarBehavior.floating,
-            padding: EdgeInsets.zero,
-            content: CustomSnakeBarContent(
-              icon: const Icon(Icons.error, color: Colors.red , size: 25,),
-              message: error.errorMessage ?? '',
-              bgColor: Colors.grey.shade600,
-              borderColor: Colors.redAccent.shade200,
-            ),
-          );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          AwesomeDialog(
+              context: context,
+              dialogType: DialogType.error,
+              animType: AnimType.rightSlide,
+              title: 'Error'.tr(),
+              desc: error.errorMessage,
+              autoDismiss: false,
+              dialogBackgroundColor: Colors.white,
+              btnCancel: CustomButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                radius: 10,
+                text: 'Ok'.tr(),
+                textColor: Colors.white,
+                bgColor: const Color(0xffd63d46),
+                height: 40,
+              ),
+              onDismissCallback: (dismiss) {})
+              .show();
         },
       );
     });
 
-    address.text      = ref.watch(selectedAddressToNewOrder)?['address'] ?? ( ref.watch(selectedUserToNewOrder)?.address ?? '');
-    otherPhone.text   = ref.watch(selectedUserToNewOrder)?.phone ?? '';
+    address.text          = ref.watch(selectedAddressToNewOrder)?['address'] ?? ( ref.watch(selectedUserToNewOrder)?.address ?? '');
+    customerPhone.text    = ref.watch(selectedUserToNewOrder)?.phone ?? '';
+    postalCode.text       = '${ref.watch(selectedAddressToNewOrder)?['postal_code'] ?? ( ref.watch(selectedUserToNewOrder)?.postalCode ?? '')}';
+    city.text             = ref.watch(selectedAddressToNewOrder)?['city'] ?? ( ref.watch(selectedUserToNewOrder)?.city ?? '');
+    zone.text             = ref.watch(selectedAddressToNewOrder)?['zone_area'] ?? ( ref.watch(selectedUserToNewOrder)?.zoneArea ?? '');
+
 
     return Scaffold(
       body: SafeArea(
@@ -297,7 +324,7 @@ class _State extends ConsumerState<NewOrderScreen> with TickerProviderStateMixin
                                               height: 10,
                                             ),
                                             CustomTextFormField(
-                                              controller: otherPhone,
+                                              controller: customerPhone,
                                               readOnly: true,
                                               textInputType: TextInputType.number,
                                               validator: (String? text) {
@@ -311,14 +338,14 @@ class _State extends ConsumerState<NewOrderScreen> with TickerProviderStateMixin
                                               },
                                               maxLength: 12,
                                               height: 60,
-                                              hint: 'order_phone'.tr(),
-                                              label: 'order_phone'.tr(),
+                                              hint: 'customer_phone'.tr(),
+                                              label: 'customer_phone'.tr(),
                                             ),
                                             const SizedBox(
                                               height: 10,
                                             ),
                                             CustomTextFormField(
-                                              controller: phone,
+                                              controller: orderPhone,
                                               textInputType: TextInputType.number,
                                               validator: (String? text) {
                                                 if((text != null && text.isNotEmpty) && text.length < 12){
@@ -330,90 +357,144 @@ class _State extends ConsumerState<NewOrderScreen> with TickerProviderStateMixin
                                               height: 70,
 
                                               hint: 'Optional'.tr(),
-                                              label: 'Other phone number'.tr(),
-                                            ),
-                                            const SizedBox(
-                                              height: 10,
-                                            ),
-                                            CustomTextFormField(
-                                              controller: address,
-                                              height: 80,
-                                              validator: (text) {
-                                                if(text?.isEmpty ?? true){
-                                                  return 'this_filed_required'.tr();
-                                                }
-                                                return null;
-                                              },
-                                              readOnly: true,
-                                              label: 'address'.tr(),
+                                              label: 'order_phone'.tr(),
                                             ),
                                             const SizedBox(
                                               height: 5,
                                             ),
-                                            CustomButton(onPressed: () async {
-                                              Prediction? prediction =
-                                              await PlacesAutocomplete.show(
-                                                context: context,
-                                                apiKey: kGoogleApiKey,
-                                                onError: (error) {},
-                                                mode: Mode.fullscreen,
-                                                language: "de",
-                                                sessionToken: DateTime.now().timeZoneName,
-                                                types: [],
-                                                decoration: InputDecoration(
-                                                  hintText: 'Search',
-                                                  focusedBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(20),
-                                                    borderSide: const BorderSide(
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  enabledBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(20),
-                                                    borderSide: const BorderSide(
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  color: Theme.of(context).primaryColor,
+                                                  width: .5,
                                                 ),
-                                                strictbounds: false,
-                                                components: [Component(Component.country, "de")],
-                                              );
+                                                borderRadius: BorderRadius.circular(10)
+                                              ),
+                                              padding: const EdgeInsets.all(5),
+                                              child: Column(
+                                                children: [
+                                                  CustomTextFormField(
+                                                    controller: address,
+                                                    height: 80,
+                                                    validator: (text) {
+                                                      if(text?.isEmpty ?? true){
+                                                        return 'this_filed_required'.tr();
+                                                      }
+                                                      return null;
+                                                    },
+                                                    readOnly: true,
+                                                    label: 'address'.tr(),
+                                                  ),
+                                                  const SizedBox(height: 10,),
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: CustomTextFormField(
+                                                          controller: postalCode,
+                                                          validator: (text) {
+                                                            if(text?.isEmpty ?? true){
+                                                              return 'this_filed_required'.tr();
+                                                            }
+                                                            return null;
+                                                          },
+                                                          textInputType: TextInputType.number,
+                                                          label: 'Postal Code'.tr(),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(
+                                                        width: 5,
+                                                      ),
+                                                      Expanded(
+                                                        child: CustomTextFormField(
+                                                          controller: city,
+                                                          validator: (text) {
+                                                            if (text?.isEmpty ?? true) {
+                                                              return 'this_filed_required'.tr();
+                                                            }
+                                                            return null;
+                                                          },
+                                                          label: 'City'.tr(),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 10,),
+                                                  CustomTextFormField(
+                                                    controller: zone,
+                                                    validator: (String? text) {},
+                                                    label: 'zone_area'.tr(),
+                                                  ),
+                                                  const SizedBox(
+                                                    height: 5,
+                                                  ),
+                                                  CustomButton(onPressed: () async {
+                                                    Prediction? prediction =
+                                                    await PlacesAutocomplete.show(
+                                                      context: context,
+                                                      apiKey: kGoogleApiKey,
+                                                      onError: (error) {},
+                                                      mode: Mode.fullscreen,
+                                                      language: "de",
+                                                      sessionToken: DateTime.now().timeZoneName,
+                                                      types: [],
+                                                      decoration: InputDecoration(
+                                                        hintText: 'Search',
+                                                        focusedBorder: OutlineInputBorder(
+                                                          borderRadius: BorderRadius.circular(20),
+                                                          borderSide: const BorderSide(
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                        enabledBorder: OutlineInputBorder(
+                                                          borderRadius: BorderRadius.circular(20),
+                                                          borderSide: const BorderSide(
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      strictbounds: false,
+                                                      components: [Component(Component.country, "de")],
+                                                    );
 
-                                              if (prediction != null) {
-                                                GoogleMapsPlaces places =
-                                                GoogleMapsPlaces(apiKey: kGoogleApiKey);
-                                                PlacesDetailsResponse? detail =
-                                                await places.getDetailsByPlaceId(
-                                                    prediction.placeId ?? '');
+                                                    if (prediction != null) {
+                                                      GoogleMapsPlaces places =
+                                                      GoogleMapsPlaces(apiKey: kGoogleApiKey);
+                                                      PlacesDetailsResponse? detail =
+                                                      await places.getDetailsByPlaceId(
+                                                          prediction.placeId ?? '');
 
-                                                // print('Location name ${prediction.description}');
-                                                // print('detail.result.formattedAddress name ${detail.result.formattedAddress}');
+                                                      // print('Location name ${prediction.description}');
+                                                      // print('detail.result.formattedAddress name ${detail.result.formattedAddress}');
 
-                                                Map<String , dynamic> data = {};
+                                                      Map<String , dynamic> data = {};
 
-                                                for (var element in detail.result.addressComponents) {
-                                                  if(element.types[0] == 'postal_code'){
-                                                    data['postal_code'] = element.longName;
-                                                  }
-                                                  if(element.types[0] == 'administrative_area_level_1'){
-                                                    data['city'] = element.longName;
-                                                  }
-                                                  if(element.types[0] == 'administrative_area_level_3' || element.types[0] == 'administrative_area_level_2'){
-                                                    data['zone_area'] = element.longName;
-                                                  }
-                                                }
+                                                      for (var element in detail.result.addressComponents) {
+                                                        if(element.types[0] == 'postal_code'){
+                                                          data['postal_code'] = element.longName;
+                                                        }
+                                                        if(element.types[0] == 'administrative_area_level_1'){
+                                                          data['city'] = element.longName;
+                                                        }
+                                                        if(element.types[0] == 'administrative_area_level_3' || element.types[0] == 'administrative_area_level_2'){
+                                                          data['zone_area'] = element.longName;
+                                                        }
+                                                      }
 
-                                                data['address'] = detail.result.formattedAddress;
-                                                data['lat'] = detail.result.geometry?.location.lat;
-                                                data['lng'] = detail.result.geometry?.location.lng;
+                                                      data['address'] = detail.result.formattedAddress;
+                                                      data['lat'] = detail.result.geometry?.location.lat;
+                                                      data['lng'] = detail.result.geometry?.location.lng;
 
-                                                ref
-                                                    .read(selectedAddressToNewOrder.notifier)
-                                                    .state = data;
-                                              }
-                                            }, text: 'Update Address'.tr(), textColor: Colors.white, bgColor: Theme.of(context).primaryColor),
+                                                      ref
+                                                          .read(selectedAddressToNewOrder.notifier)
+                                                          .state = data;
+                                                    }
+                                                  }, text: 'Update Address'.tr(), textColor: Colors.white, bgColor: Theme.of(context).primaryColor),
+                                                ],
+                                              ),
+                                            ),
+
                                             const SizedBox(
-                                              height: 10,
+                                              height: 5,
                                             ),
                                             Row(
                                               children: [
@@ -462,7 +543,18 @@ class _State extends ConsumerState<NewOrderScreen> with TickerProviderStateMixin
                                             CustomButton(
                                                 onPressed: () {
                                                   if(_newOrderFormKey.currentState?.validate() ?? false){
-                                                    ref.read(orderViewModelProvider.notifier).create(maintenanceDevice: maintenanceDeviceController.text, brand: brand.text, description: description.text, address: address.text, floorNumber: floorNumber.text, apartmentNumber: apartmentNumber.text, additionalInfo: additionalInfo.text, customerId: ref.read(selectedUserToNewOrder)?.id, lat: ref.read(selectedAddressToNewOrder)?['lat'], lng: ref.read(selectedAddressToNewOrder)?['lng'] , phone: phone.text);
+                                                    ref.read(orderViewModelProvider.notifier).create(
+                                                        maintenanceDevice: maintenanceDeviceController.text, brand: brand.text,
+                                                        description: description.text, address: address.text, floorNumber: floorNumber.text,
+                                                        apartmentNumber: apartmentNumber.text, additionalInfo: additionalInfo.text,
+                                                        customerId: ref.read(selectedUserToNewOrder)?.id,
+                                                        lat: ref.read(selectedAddressToNewOrder)?['lat'],
+                                                        lng: ref.read(selectedAddressToNewOrder)?['lng'],
+                                                        postalCode: postalCode.text,
+                                                        city: city.text,
+                                                        zone:  zone.text,
+                                                        phone: orderPhone.text
+                                                    );
                                                   }
                                                 },
                                                 text: 'place_an_order'.tr(),
@@ -512,10 +604,22 @@ class _State extends ConsumerState<NewOrderScreen> with TickerProviderStateMixin
                                             CustomButton(
                                                 onPressed: () {
                                                   if(_dropOffFormKey.currentState?.validate() ?? false){
-                                                    // ref.read(orderViewModelProvider.notifier).create(maintenanceDevice: maintenanceDeviceController.text, brand: brand.text, description: description.text, address: address.text, floorNumber: floorNumber.text, apartmentNumber: apartmentNumber.text, additionalInfo: additionalInfo.text, customerId: ref.read(selectedUserToNewOrder)?.id, lat: ref.read(selectedAddressToNewOrder)?['lat'], lng: ref.read(selectedAddressToNewOrder)?['lng'] , phone: phone.text);
+                                                    ref.read(orderViewModelProvider.notifier).dropOffOrder(referenceNumber: referenceNumber.text, withRoute: false);
                                                   }
                                                 },
                                                 text: 'place_an_order'.tr(),
+                                                textColor: Colors.white,
+                                                bgColor: Theme.of(context).primaryColor),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            CustomButton(
+                                                onPressed: () {
+                                                  if(_dropOffFormKey.currentState?.validate() ?? false){
+                                                    ref.read(orderViewModelProvider.notifier).dropOffOrder(referenceNumber: referenceNumber.text, withRoute: true);
+                                                  }
+                                                },
+                                                text: 'Place an order with new route'.tr(),
                                                 textColor: Colors.white,
                                                 bgColor: Theme.of(context).primaryColor),
                                             const SizedBox(

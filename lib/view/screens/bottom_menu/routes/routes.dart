@@ -235,7 +235,7 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> with TickerProvider
                                             enablePullDown: true,
                                             enablePullUp: false,
                                             onRefresh: () async {
-                                              ref.read(todayRoutesViewModelProvider.notifier).loadAll();
+                                              ref.read(todayRoutesViewModelProvider.notifier).loadAll(today: true);
                                             },
                                             header: const WaterDropHeader(),
                                             footer: const PaginationFooter(),
@@ -270,14 +270,14 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> with TickerProvider
                                   error: (error) => CustomError(
                                     message: error.errorMessage ?? '',
                                     onRetry: (){
-                                      ref.read(todayRoutesViewModelProvider.notifier).loadAll();
+                                      ref.read(todayRoutesViewModelProvider.notifier).loadAll(today: true);
                                     },
                                   ),
                                   orElse: () => Center(
                                     child: CustomError(
                                       message: 'unknown_error_please_try_again'.tr(),
                                       onRetry: (){
-                                        ref.read(todayRoutesViewModelProvider.notifier).loadAll();
+                                        ref.read(todayRoutesViewModelProvider.notifier).loadAll(today: true);
                                       },
                                     ),
                                   ),
@@ -448,6 +448,9 @@ class _RoutesScreenState extends ConsumerState<RoutesScreen> with TickerProvider
                 ref
                     .read(routesViewModelProvider.notifier)
                     .loadAll();
+                ref
+                    .read(todayRoutesViewModelProvider.notifier)
+                    .loadAll(today: true);
               }
             });
           },

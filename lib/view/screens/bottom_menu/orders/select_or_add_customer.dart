@@ -37,11 +37,10 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
   @override
   void initState() {
     super.initState();
-
-    Future.microtask(() {
-      ref.read(selectedUserToNewOrder.notifier).state = null;
-      ref.read(usersCustomersViewModelProvider.notifier).loadAll(endPoint: 'customers');
-    }
+      Future.microtask(() {
+        ref.read(selectedUserToNewOrder.notifier).state = null;
+        ref.read(usersCustomersViewModelProvider.notifier).loadAll(endPoint: 'customers?active=true');
+      }
     );
   }
 

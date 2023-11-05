@@ -15,6 +15,8 @@ _$OrderModelImpl _$$OrderModelImplFromJson(Map<String, dynamic> json) =>
       lat: (json['lat'] as num).toDouble(),
       lng: (json['lng'] as num).toDouble(),
       status: json['status'] as int,
+      type: json['type'] as int,
+      typeName: json['type_name'] as String,
       maintenanceDevice: json['maintenance_device'] as String,
       brand: json['brand'] as String?,
       blockNo: json['block_no'] as String?,
@@ -28,6 +30,7 @@ _$OrderModelImpl _$$OrderModelImplFromJson(Map<String, dynamic> json) =>
       floorNumber: json['floor_number'] as int?,
       apartmentNumber: json['apartment_number'] as String?,
       additionalInfo: json['additional_info'] as String?,
+      pdfLink: json['pdf_link'] as String,
       customer: json['customer'] == null
           ? null
           : UserModel.fromJson(json['customer'] as Map<String, dynamic>),
@@ -55,6 +58,8 @@ Map<String, dynamic> _$$OrderModelImplToJson(_$OrderModelImpl instance) =>
       'lat': instance.lat,
       'lng': instance.lng,
       'status': instance.status,
+      'type': instance.type,
+      'type_name': instance.typeName,
       'maintenance_device': instance.maintenanceDevice,
       'brand': instance.brand,
       'block_no': instance.blockNo,
@@ -68,6 +73,7 @@ Map<String, dynamic> _$$OrderModelImplToJson(_$OrderModelImpl instance) =>
       'floor_number': instance.floorNumber,
       'apartment_number': instance.apartmentNumber,
       'additional_info': instance.additionalInfo,
+      'pdf_link': instance.pdfLink,
       'customer': instance.customer,
       'files': instance.files,
       'road_id': instance.roadId,

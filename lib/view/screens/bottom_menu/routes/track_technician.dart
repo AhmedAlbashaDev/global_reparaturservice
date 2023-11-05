@@ -10,12 +10,6 @@ import 'package:lottie/lottie.dart' as lottie;
 
 import '../../../widgets/custom_app_bar.dart';
 
-// class TrackTechnician extends ConsumerWidget {
-//   TrackTechnician({super.key ,required this.routesModel});
-//
-//
-// }
-
 class TrackTechnician extends ConsumerStatefulWidget {
   const TrackTechnician({super.key ,this.routesModel , this.techniciansList});
 

@@ -18,7 +18,6 @@ import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_snakbar.dart';
 import '../../../widgets/custom_text_form_field.dart';
 import '../../../widgets/gradient_background.dart';
-import '../../../widgets/loading_dialog.dart';
 
 
 final selectedAddressToNewCustomer =
@@ -105,44 +104,29 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
       next.whenOrNull(
         data: (user) {
 
-          // final snackBar = SnackBar(
-          //   backgroundColor: Colors.transparent,
-          //   behavior: SnackBarBehavior.floating,
-          //   padding: EdgeInsets.zero,
-          //   content: CustomSnakeBarContent(
-          //     icon: Icon(
-          //       Icons.info,
-          //       color: Theme.of(context).primaryColor,
-          //       size: 25,
-          //     ),
-          //     message: 'Successfully created'.tr(),
-          //     bgColor: Colors.grey.shade400,
-          //     borderColor: Colors.green,
-          //   ),
-          // );
-          // ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
           Navigator.pop(context , 'update');
         },
         error: (error) {
-
-          final snackBar = SnackBar(
-            backgroundColor: Theme.of(context).primaryColor,
-            showCloseIcon: true,
-            behavior: SnackBarBehavior.floating,
-            padding: EdgeInsets.zero,
-            content: CustomSnakeBarContent(
-              icon: const Icon(
-                Icons.error,
-                color: Colors.red,
-                size: 25,
+          AwesomeDialog(
+              context: context,
+              dialogType: DialogType.error,
+              animType: AnimType.rightSlide,
+              title: 'Error'.tr(),
+              desc: error.errorMessage,
+              autoDismiss: false,
+              dialogBackgroundColor: Colors.white,
+              btnCancel: CustomButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                radius: 10,
+                text: 'Ok'.tr(),
+                textColor: Colors.white,
+                bgColor: const Color(0xffd63d46),
+                height: 40,
               ),
-              message: error.errorMessage ?? '',
-              bgColor: Colors.grey.shade600,
-              borderColor: Colors.redAccent.shade200,
-            ),
-          );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              onDismissCallback: (dismiss) {})
+              .show();
         },
       );
     });
@@ -152,44 +136,29 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
           next.whenOrNull(
             data: (user) {
 
-              // final snackBar = SnackBar(
-              //   backgroundColor: Colors.transparent,
-              //   behavior: SnackBarBehavior.floating,
-              //   padding: EdgeInsets.zero,
-              //   content: CustomSnakeBarContent(
-              //     icon: Icon(
-              //       Icons.info,
-              //       color: Theme.of(context).primaryColor,
-              //       size: 25,
-              //     ),
-              //     message: 'Successfully update'.tr(),
-              //     bgColor: Colors.grey.shade400,
-              //     borderColor: Colors.green,
-              //   ),
-              // );
-              // ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
               Navigator.pop(context , 'update');
             },
             error: (error) {
-
-              final snackBar = SnackBar(
-                backgroundColor: Theme.of(context).primaryColor,
-                showCloseIcon: true,
-                behavior: SnackBarBehavior.floating,
-                padding: EdgeInsets.zero,
-                content: CustomSnakeBarContent(
-                  icon: const Icon(
-                    Icons.error,
-                    color: Colors.red,
-                    size: 25,
+              AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.error,
+                  animType: AnimType.rightSlide,
+                  title: 'Error'.tr(),
+                  desc: error.errorMessage,
+                  autoDismiss: false,
+                  dialogBackgroundColor: Colors.white,
+                  btnCancel: CustomButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    radius: 10,
+                    text: 'Ok'.tr(),
+                    textColor: Colors.white,
+                    bgColor: const Color(0xffd63d46),
+                    height: 40,
                   ),
-                  message: error.errorMessage ?? '',
-                  bgColor: Colors.grey.shade600,
-                  borderColor: Colors.redAccent.shade200,
-                ),
-              );
-              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  onDismissCallback: (dismiss) {})
+                  .show();
             },
           );
         });
@@ -202,23 +171,26 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
               Navigator.pop(context , 'update');
             },
             error: (error) {
-              final snackBar = SnackBar(
-                backgroundColor: Theme.of(context).primaryColor,
-                showCloseIcon: true,
-                behavior: SnackBarBehavior.floating,
-                padding: EdgeInsets.zero,
-                content: CustomSnakeBarContent(
-                  icon: const Icon(
-                    Icons.error,
-                    color: Colors.red,
-                    size: 25,
+              AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.error,
+                  animType: AnimType.rightSlide,
+                  title: 'Error'.tr(),
+                  desc: error.errorMessage,
+                  autoDismiss: false,
+                  dialogBackgroundColor: Colors.white,
+                  btnCancel: CustomButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    radius: 10,
+                    text: 'Ok'.tr(),
+                    textColor: Colors.white,
+                    bgColor: const Color(0xffd63d46),
+                    height: 40,
                   ),
-                  message: error.errorMessage ?? '',
-                  bgColor: Colors.grey.shade600,
-                  borderColor: Colors.redAccent.shade200,
-                ),
-              );
-              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  onDismissCallback: (dismiss) {})
+                  .show();
             },
           );
         });

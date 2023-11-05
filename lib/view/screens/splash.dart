@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,7 @@ import 'package:lottie/lottie.dart';
 import '../../core/globals.dart';
 import '../../core/providers/app_mode.dart';
 import '../../models/response_state.dart';
+import '../widgets/custom_button.dart';
 import '../widgets/custom_snakbar.dart';
 import '../widgets/loading_dialog.dart';
 import '../widgets/version_widget.dart';
@@ -72,21 +74,29 @@ class _SplashState extends ConsumerState<Splash> {
             Navigator.pop(context);
           }
 
-          final snackBar = SnackBar(
-            backgroundColor: Theme.of(context).primaryColor,
-            showCloseIcon: true,
-            behavior: SnackBarBehavior.floating,
-            padding: EdgeInsets.zero,
-            content: CustomSnakeBarContent(
-              icon: const Icon(Icons.error, color: Colors.red , size: 25,),
-              message: 'unable_to_load_local_user_make_please_sign_in_again'.tr(),
-              bgColor: Colors.grey.shade600,
-              borderColor: Colors.redAccent.shade200,
-            ),
-          );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          AwesomeDialog(
+              context: context,
+              dialogType: DialogType.error,
+              animType: AnimType.rightSlide,
+              title: 'Error'.tr(),
+              desc: 'unable_to_load_local_user_make_please_sign_in_again'.tr(),
+              autoDismiss: false,
+              dialogBackgroundColor: Colors.white,
+              btnCancel: CustomButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OnBoarding()));
 
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OnBoarding()));
+                },
+                radius: 10,
+                text: 'Ok'.tr(),
+                textColor: Colors.white,
+                bgColor: const Color(0xffd63d46),
+                height: 40,
+              ),
+              onDismissCallback: (dismiss) {})
+              .show();
+
         },
       );
     });

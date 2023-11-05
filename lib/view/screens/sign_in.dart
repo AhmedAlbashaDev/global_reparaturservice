@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,7 +15,6 @@ import '../../models/user.dart';
 import '../../view_model/auth_view_model.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_snakbar.dart';
-import '../widgets/loading_dialog.dart';
 import '../widgets/sign_in_top_view.dart';
 import 'home.dart';
 
@@ -41,13 +41,14 @@ class _SignInState extends ConsumerState<SignIn> {
     super.initState();
 
     Future.microtask(() => ref.read(bottomNavigationMenuProvider.notifier).state = 0);
-    email = TextEditingController(text: 'ahmedmohammedkhier@gmail.com');
-    password = TextEditingController(text: 'cw0Mh4hF');
-    // email = TextEditingController(text: 'admin@admin.com');
-    // password = TextEditingController(text: '123admin');
+    // email = TextEditingController(text: 'ahmedmohammedkhier@gmail.com');
+    // password = TextEditingController(text: 'cw0Mh4hF');
+    email = TextEditingController(text: 'admin@admin.com');
+    password = TextEditingController(text: '123admin');
 
     //sahlowle@gmail.com
     //q6eXUJrN
+
   }
 
   @override
@@ -63,18 +64,7 @@ class _SignInState extends ConsumerState<SignIn> {
 
     ref.listen<ResponseState<UserModel>>(authViewModelProvider, (previous, next) {
       next.whenOrNull(
-        // loading: (){
-        //   showDialog(
-        //     context: context,
-        //     barrierDismissible: false,
-        //     builder: (_) => const LoadingDialog(),
-        //   );
-        // },
         data: (user) {
-
-          // if(ModalRoute.of(context)?.isCurrent != true){
-          //   Navigator.pop(context);
-          // }
 
           if(user.role == 'admin'){
             ref.read(currentAppModeProvider.notifier).state = AppMode.admins;
@@ -94,19 +84,27 @@ class _SignInState extends ConsumerState<SignIn> {
             Navigator.pop(context);
           }
 
-          final snackBar = SnackBar(
-            backgroundColor: Theme.of(context).primaryColor,
-            showCloseIcon: true,
-            behavior: SnackBarBehavior.floating,
-            padding: EdgeInsets.zero,
-            content: CustomSnakeBarContent(
-              icon: const Icon(Icons.error, color: Colors.red , size: 25,),
-              message: error.errorMessage ?? '',
-              bgColor: Colors.grey.shade600,
-              borderColor: Colors.redAccent.shade200,
-            ),
-          );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          AwesomeDialog(
+              context: context,
+              dialogType: DialogType.error,
+              animType: AnimType.rightSlide,
+              title: 'Error'.tr(),
+              desc: error.errorMessage,
+              autoDismiss: false,
+              dialogBackgroundColor: Colors.white,
+              btnCancel: CustomButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                radius: 10,
+                text: 'Ok'.tr(),
+                textColor: Colors.white,
+                bgColor: const Color(0xffd63d46),
+                height: 40,
+              ),
+              onDismissCallback: (dismiss) {})
+              .show();
+
         },
       );
     });

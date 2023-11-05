@@ -32,16 +32,54 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
     });
   }
 
-  Future<void> create({required String maintenanceDevice ,required String brand ,required String description ,required String address ,required String floorNumber ,required String apartmentNumber ,required String additionalInfo ,required int? customerId , required double? lat , required double? lng , required String? phone}) async{
+  Future<void> create({required String maintenanceDevice ,required String brand ,required String description ,required String address ,required String floorNumber ,required String apartmentNumber ,required String additionalInfo ,required int? customerId , required double? lat , required double? lng , required String? phone , required String? postalCode , required String? city , required String? zone}) async{
 
     setState(const ResponseState<OrderModel>.loading());
 
     await Future.delayed(const Duration(seconds: 1));
 
-    final response = await ordersRepository.create(maintenanceDevice: maintenanceDevice, brand: brand, description: description, address: address, floorNumber: floorNumber, apartmentNumber: apartmentNumber, additionalInfo: additionalInfo, customerId: customerId, lat: lat, lng: lng , phone: phone);
+    Map data = {
+      'maintenance_device' : maintenanceDevice,
+      'brand' : brand,
+      'description' : description,
+      'address' : address,
+      'customer_id' : customerId,
+      'lat' : lat,
+      'lng' : lng,
+      'city' : city,
+      'postal_code' : postalCode,
+      'zone' : zone,
+      'floor_number' : floorNumber,
+      'apartment_number' : apartmentNumber,
+      'order_phone_number' : phone,
+      'additional_info' : additionalInfo,
+    };
+
+    final response = await ordersRepository.create(endPoint: 'orders', data: data);
 
     response.whenOrNull(success: (data) {
       setState(ResponseState<OrderModel>.success(data: data));
+    }, error: (error) {
+      setState(ResponseState<OrderModel>.error(error: error));
+    });
+  }
+
+  Future<void> dropOffOrder({required String referenceNumber ,required bool withRoute}) async{
+
+    setState(const ResponseState<OrderModel>.loading());
+
+    await Future.delayed(const Duration(seconds: 1));
+
+
+    print('WithRoute $withRoute');
+
+    final response = await ordersRepository.create(endPoint: 'orders/add-drop-off' ,data: {
+      'reference_no' : referenceNumber,
+      'with_route' : withRoute,
+    });
+
+    response.whenOrNull(success: (data) {
+      setState(ResponseState<OrderModel>.success(data: {'with_route' : withRoute}));
     }, error: (error) {
       setState(ResponseState<OrderModel>.error(error: error));
     });
@@ -98,7 +136,7 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
     });
   }
 
-  Future<void> finishOrder({required int orderId ,required String report}) async{
+  Future<void> finishOrder({required int orderId ,required String report , required bool isPayLater}) async{
 
     setState(const ResponseState<OrderModel>.loading());
 
@@ -108,7 +146,8 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
         orderId: orderId,
         data: {
           "report" : report,
-          "status" : 3
+          "status" : 3,
+          "is_pay_later" : isPayLater
         },
     );
 

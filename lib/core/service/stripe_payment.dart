@@ -15,7 +15,7 @@ class StripePaymentService {
 
   static late WidgetRef ref;
 
-  static Future<String?> makePayment(
+  static Future<void> makePayment(
       {required String amount,
       required String currency,
       required OrderModel? order,
@@ -56,8 +56,8 @@ class StripePaymentService {
         }
       });
     } catch (err) {
-      throw Exception(err);
       ref.read(paymentLoadingProvider.notifier).state = false;
+      throw Exception(err);
     }
   }
 
@@ -79,8 +79,8 @@ class StripePaymentService {
 
       return response.data;
     } catch (err) {
-      throw Exception(err.toString());
       ref.read(paymentLoadingProvider.notifier).state = false;
+      throw Exception(err.toString());
     }
   }
 

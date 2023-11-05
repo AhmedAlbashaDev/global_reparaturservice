@@ -7,7 +7,6 @@ import 'package:page_transition/page_transition.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../../../core/globals.dart';
-import '../../../../core/providers/search_field_status.dart';
 import '../../../../view_model/users/get_users_view_model.dart';
 import '../../../widgets/custom_error.dart';
 import '../../../widgets/custom_shimmer.dart';
@@ -16,7 +15,6 @@ import '../../../widgets/empty_widget.dart';
 import '../../../widgets/pagination_footer.dart';
 import '../../../widgets/customer_card.dart';
 import '../../search.dart';
-import 'add_new_customer.dart';
 
 class UsersCustomersTab extends ConsumerWidget {
   UsersCustomersTab({super.key,});

@@ -34,6 +34,7 @@ class CustomTextFormField extends StatelessWidget {
         expands: true,
         style: TextStyle(color: Theme.of(context).primaryColor),
         decoration: InputDecoration(
+          counterText: "",
           filled: true,
           fillColor: Colors.white,
           labelText: label,

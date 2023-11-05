@@ -218,7 +218,6 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
               }
               else {
                 Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewCustomerScreen())).then((value) {
-                  print('Added new Cus update');
                   if(value == 'update'){
                     ref
                         .read(usersCustomersViewModelProvider.notifier)

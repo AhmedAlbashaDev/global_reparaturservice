@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,6 +25,7 @@ import '../../../widgets/empty_widget.dart';
 import '../../../widgets/gradient_background.dart';
 import '../../../widgets/order_card.dart';
 import '../../search.dart';
+import '../orders/order_details_admin.dart';
 import 'new_route.dart';
 import '../../../widgets/pagination_footer.dart';
 
@@ -43,7 +45,6 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
   final int routeId;
 
   late AnimationController animationTech;
-  late Animation<double> _fadeInFadeOutTech;
   late TextEditingController searchControllerTech;
 
 
@@ -68,7 +69,6 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
-    _fadeInFadeOutTech = Tween<double>(begin: 0.0, end: 1.0).animate(animationTech);
   }
 
   @override
@@ -99,19 +99,26 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
             Navigator.pop(context);
           }
 
-          final snackBar = SnackBar(
-            backgroundColor: Theme.of(context).primaryColor,
-            showCloseIcon: true,
-            behavior: SnackBarBehavior.floating,
-            padding: EdgeInsets.zero,
-            content: CustomSnakeBarContent(
-              icon: const Icon(Icons.error, color: Colors.red , size: 25,),
-              message: error.errorMessage ?? '',
-              bgColor: Colors.grey.shade600,
-              borderColor: Colors.redAccent.shade200,
-            ),
-          );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          AwesomeDialog(
+              context: context,
+              dialogType: DialogType.error,
+              animType: AnimType.rightSlide,
+              title: 'Error'.tr(),
+              desc: error.errorMessage,
+              autoDismiss: false,
+              dialogBackgroundColor: Colors.white,
+              btnCancel: CustomButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                radius: 10,
+                text: 'Ok'.tr(),
+                textColor: Colors.white,
+                bgColor: const Color(0xffd63d46),
+                height: 40,
+              ),
+              onDismissCallback: (dismiss) {})
+              .show();
         },
       );
     });
@@ -224,7 +231,9 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
                                   return OrderCard(
                                       scaffoldContext: _scaffoldKey.currentContext,
                                       orderModel: routeDetails.orders?[index],
-                                      onPressed: null,
+                                      onPressed: (){
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => OrderDetailsAdmin(orderId: routeDetails.orders![index].id,)));
+                                      },
                                       showOrderStatus: true,
                                       showOrderCheckBox: false,
                                       showOrderPaymentStatus: true,

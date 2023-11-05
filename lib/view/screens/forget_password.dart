@@ -1,6 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/models/user.dart';
@@ -11,7 +11,6 @@ import '../../core/globals.dart';
 import '../../models/response_state.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_button.dart';
-import '../widgets/custom_snakbar.dart';
 import '../widgets/custom_text_form_field.dart';
 import '../widgets/gradient_background.dart';
 
@@ -47,35 +46,49 @@ class _ForgetPasswordScreenState extends ConsumerState<ForgetPasswordScreen> {
     ref.listen<ResponseState<UserModel>>(forgetEmailViewModelProvider, (previous, next) {
       next.whenOrNull(
         success: (order) {
-          final snackBar = SnackBar(
-            backgroundColor: Theme.of(context).primaryColor,
-            showCloseIcon: true,
-            behavior: SnackBarBehavior.floating,
-            padding: EdgeInsets.zero,
-            content: CustomSnakeBarContent(
-              icon: Icon(Icons.email, color: Theme.of(context).primaryColor , size: 25,),
-              message: 'password_sent_to_your_email'.tr(),
-              bgColor: Colors.grey.shade600 ,
-              borderColor: Theme.of(context).primaryColor,
-            ),
-          );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          AwesomeDialog(
+              context: context,
+              dialogType: DialogType.success,
+              animType: AnimType.rightSlide,
+              title: 'Password'.tr(),
+              desc: 'password_sent_to_your_email'.tr(),
+              autoDismiss: false,
+              dialogBackgroundColor: Colors.white,
+              btnOk: CustomButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                radius: 10,
+                text: 'Ok'.tr(),
+                textColor: Colors.white,
+                bgColor: Theme.of(context).primaryColor,
+                height: 40,
+              ),
+              onDismissCallback: (dismiss) {})
+              .show();
         },
         error: (error) {
 
-          final snackBar = SnackBar(
-            backgroundColor: Theme.of(context).primaryColor,
-            showCloseIcon: true,
-            behavior: SnackBarBehavior.floating,
-            padding: EdgeInsets.zero,
-            content: CustomSnakeBarContent(
-              icon: const Icon(Icons.error, color: Colors.red , size: 25,),
-              message: error.errorMessage ?? '',
-              bgColor: Colors.grey.shade600,
-              borderColor: Colors.redAccent.shade200,
-            ),
-          );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          AwesomeDialog(
+              context: context,
+              dialogType: DialogType.error,
+              animType: AnimType.rightSlide,
+              title: 'Error'.tr(),
+              desc: error.errorMessage,
+              autoDismiss: false,
+              dialogBackgroundColor: Colors.white,
+              btnCancel: CustomButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                radius: 10,
+                text: 'Ok'.tr(),
+                textColor: Colors.white,
+                bgColor: const Color(0xffd63d46),
+                height: 40,
+              ),
+              onDismissCallback: (dismiss) {})
+              .show();
         },
       );
     });

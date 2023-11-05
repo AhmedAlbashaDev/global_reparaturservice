@@ -188,7 +188,7 @@ class CustomerCardNewOrder extends StatelessWidget {
                           ),
                         )
                             :  Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
                               height: 40,
@@ -210,25 +210,30 @@ class CustomerCardNewOrder extends StatelessWidget {
                                 ),
                             ),
                             if(orderPhone != null)
-                              Container(
-                              height: 40,
-                              width: 90,
-                              decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(20)
-                              ),
-                              child: IconButton(
-                                onPressed: () async {
-                                  final Uri launchUri = Uri(
-                                    scheme: 'tel',
-                                    path: '$orderPhone',
-                                  );
-                                  await launchUrl(launchUri);
-                                },
-                                color: Theme.of(context).primaryColor,
-                                icon: const Icon(Icons.call_rounded),
-                              ),
-                            ),
+                              Column(
+                                children: [
+                                  const SizedBox(height: 5,),
+                                  Container(
+                                    height: 40,
+                                    width: 90,
+                                    decoration: BoxDecoration(
+                                        color: Colors.grey.shade100,
+                                        borderRadius: BorderRadius.circular(20)
+                                    ),
+                                    child: IconButton(
+                                      onPressed: () async {
+                                        final Uri launchUri = Uri(
+                                          scheme: 'tel',
+                                          path: '$orderPhone',
+                                        );
+                                        await launchUrl(launchUri);
+                                      },
+                                      color: Theme.of(context).primaryColor,
+                                      icon: const Icon(Icons.call_rounded),
+                                    ),
+                                  ),
+                                ],
+                              )
                           ],
                         ),
                       )

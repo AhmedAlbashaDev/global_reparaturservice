@@ -18,7 +18,7 @@ import '../../models/order.dart';
 import '../../models/pagination_model.dart';
 import '../../models/routes.dart';
 import '../../models/user.dart';
-import '../../view_model/searchViewModel.dart';
+import '../../view_model/search_view_model.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_shimmer.dart';
 import '../widgets/custom_snakbar.dart';
@@ -29,11 +29,11 @@ import '../widgets/order_card.dart';
 import '../widgets/pagination_footer.dart';
 import 'bottom_menu/orders/order_details_admin.dart';
 import 'bottom_menu/orders/select_or_add_customer.dart';
-import 'bottom_menu/routes/route_details_admin.dart';
 import 'bottom_menu/routes/track_technician.dart';
 import 'bottom_menu/users/add_new_admin.dart';
 
 final searchOrdersFilterProvider = StateProvider.autoDispose<String?>((ref) => 'all'.tr());
+final searchRoutesFilterProvider = StateProvider.autoDispose<String?>((ref) => 'all'.tr());
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key, required this.endPoint, required this.title , this.callback = false});
@@ -57,12 +57,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   late TextEditingController searchController;
 
-  final RefreshController _routesRefreshController =
-      RefreshController(initialRefresh: false);
-  final RefreshController _ordersRefreshController =
-      RefreshController(initialRefresh: false);
-  final RefreshController _usersRefreshController =
-      RefreshController(initialRefresh: false);
+  final RefreshController _routesRefreshController = RefreshController(initialRefresh: false);
+  final RefreshController _ordersRefreshController = RefreshController(initialRefresh: false);
+  final RefreshController _usersRefreshController = RefreshController(initialRefresh: false);
 
   static final GlobalKey<FormState> _searchKey = GlobalKey<FormState>();
 
@@ -139,8 +136,15 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           child: CustomTextFormField(
                             controller: searchController,
                             validator: (String? text) {
-                              if (text?.isEmpty ?? true) {
-                                return 'this_filed_required'.tr();
+                              if(endPoint.contains('roads')){
+                                if ((text?.isEmpty ?? true) && (ref.watch(searchRoutesFilterProvider) == 'all'.tr())) {
+                                  return 'this_filed_required'.tr();
+                                }
+                              }
+                              else if (endPoint.contains('orders')){
+                                if ((text?.isEmpty ?? true) && (ref.watch(searchOrdersFilterProvider) == 'all'.tr())) {
+                                  return 'this_filed_required'.tr();
+                                }
                               }
                               return null;
                             },
@@ -149,7 +153,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                               margin: const EdgeInsets.all(10),
                               child: MaterialButton(
                                 onPressed: () {
-                                  if (searchController.text.isNotEmpty) {
+                                  if (_searchKey.currentState?.validate() ?? false) {
                                     if(endPoint.contains('orders') && ref.watch(searchOrdersFilterProvider.notifier).state == 'Specific Period'.tr()){
                                       if(fromDate != null && toDate != null){
                                         ref
@@ -159,6 +163,34 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                           searchText: searchController.text,
                                           dateFrom: Jiffy.parse(fromDate?.toString() ?? '').format(pattern: 'yyyy-MM-dd'),
                                           dateTo: Jiffy.parse(toDate?.toString() ?? '').format(pattern: 'yyyy-MM-dd'),
+                                        );
+                                      }
+                                      else{
+                                        final snackBar = SnackBar(
+                                          backgroundColor: Theme.of(context).primaryColor,
+                                          showCloseIcon: true,
+                                          behavior: SnackBarBehavior.floating,
+                                          padding: EdgeInsets.zero,
+                                          duration: const Duration(milliseconds: 1000),
+                                          content: CustomSnakeBarContent(
+                                            icon: const Icon(Icons.error, color: Colors.red , size: 25,),
+                                            message: 'Select Dates First'.tr(),
+                                            bgColor: Colors.grey.shade600,
+                                            borderColor: Colors.redAccent.shade200,
+                                          ),
+                                        );
+                                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                      }
+                                    }
+                                    else if(endPoint.contains('roads') && ref.watch(searchRoutesFilterProvider.notifier).state == 'Specific Date'.tr()){
+                                      if(fromDate != null){
+                                        ref
+                                            .read(searchViewModelProvider.notifier)
+                                            .search(
+                                          endPoint: endPoint,
+                                          searchText: searchController.text,
+                                          dateFrom: Jiffy.parse(fromDate?.toString() ?? '').format(pattern: 'yyyy-MM-dd'),
+                                          dateTo: Jiffy.parse(fromDate?.toString() ?? '').format(pattern: 'yyyy-MM-dd'),
                                         );
                                       }
                                       else{
@@ -320,6 +352,83 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                         ),
                                       ),
                                     ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                            ],
+                          )
+                        else if (endPoint.contains('roads') && callback == false)
+                          Column(
+                            children: [
+                              const SizedBox(height: 5,),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                                child: DropdownButton<String>(
+                                  value: ref.watch(searchRoutesFilterProvider),
+                                  icon: Image.asset(
+                                    'assets/images/filter.png',
+                                    height: 15,
+                                  ),
+                                  isExpanded: true,
+                                  items: <String>['all'.tr(), 'Specific Date'.tr()]
+                                      .map<DropdownMenuItem<String>>((String value) {
+                                    return DropdownMenuItem(
+                                      value: value,
+                                      child: AutoSizeText(
+                                        value,
+                                        style: const TextStyle(fontSize: 15),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    ref.read(searchRoutesFilterProvider.notifier).state = value;
+                                  },
+                                ),
+                              ),
+                              Visibility(
+                                visible: ref.watch(searchRoutesFilterProvider.notifier).state == 'Specific Date'.tr(),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: InkWell(
+                                    onTap: (){
+                                      _selectFromDate(context);
+                                    },
+                                    child: Container(
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color:  const Color(0xffDCDCDC))),
+                                      padding:  const EdgeInsets.all(6),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                        children: [
+                                          AutoSizeText(
+                                            'Date'.tr(),
+                                            style:  TextStyle(
+                                              fontSize: 11,
+                                              color: Theme.of(context).primaryColor,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                          AutoSizeText(
+                                            fromDate == null ? 'Select Date'.tr() : Jiffy.parse(fromDate.toString()).format(pattern: 'dd-MM-yyyy'),
+                                            style:  TextStyle(
+                                              color: Theme.of(context).primaryColor,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),

@@ -1,14 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/models/order.dart';
 import 'package:global_reparaturservice/view/widgets/order_card.dart';
-import 'package:maps_launcher/maps_launcher.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../core/globals.dart';
 import '../../../widgets/custom_app_bar.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/gradient_background.dart';

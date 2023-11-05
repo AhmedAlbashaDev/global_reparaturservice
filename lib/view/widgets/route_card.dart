@@ -73,7 +73,7 @@ class RouteCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8,),
                     AutoSizeText(
-                      Jiffy.parse(routesModel!.createdAt.toString()).format(pattern: 'dd/MM/yyyy'),
+                      Jiffy.parse(routesModel!.createdAt.toString()).format(pattern: 'dd/MM/yyyy hh:mm a'),
                       style: TextStyle(
                           color:
                           Theme.of(context).primaryColor,

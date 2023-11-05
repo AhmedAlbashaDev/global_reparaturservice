@@ -119,7 +119,7 @@ class OrderCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 5,),
                     AutoSizeText(
-                      Jiffy.parse('${orderModel?.createdAt}').format(pattern: 'dd/MM/yyyy'),
+                      Jiffy.parse('${orderModel?.createdAt}').format(pattern: 'dd/MM/yyyy hh:mm a'),
                       style: TextStyle(
                           color:
                           Theme.of(context).primaryColor,

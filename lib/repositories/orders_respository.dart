@@ -97,25 +97,10 @@ class OrdersRepository {
     }
   }
 
-  Future<ResponseState<OrderModel>> create({required String maintenanceDevice ,required String brand ,required String description ,required String address ,required String floorNumber ,required String apartmentNumber ,required String additionalInfo ,required int? customerId , required double? lat , required double? lng , required String? phone}) async {
+  Future<ResponseState<OrderModel>> create({required String endPoint , required Map data}) async {
     try {
 
-      FormData data = FormData.fromMap({
-        'maintenance_device' : maintenanceDevice,
-        'brand' : brand,
-        'description' : description,
-        'address' : address,
-        'customer_id' : customerId,
-        'lat' : lat,
-        'lng' : lng,
-        'city' : '',
-        'floor_number' : floorNumber,
-        'apartment_number' : apartmentNumber,
-        'order_phone_number' : phone,
-        'additional_info' : additionalInfo,
-      });
-
-      final response = await dioClient.post('orders' , data: data);
+      final response = await dioClient.post(endPoint, data: data);
 
       if(response.data['success'] == false){
         return ResponseState<OrderModel>.error(
@@ -340,10 +325,6 @@ class OrdersRepository {
 
   Future<ResponseState<OrderModel>> deleteFile({required int id, required int? fileId,}) async {
     try {
-
-      FormData data = FormData.fromMap({
-        'file_id' : fileId
-      });
 
       final response = await dioClient.delete(
           'orders/delete-files/$id',

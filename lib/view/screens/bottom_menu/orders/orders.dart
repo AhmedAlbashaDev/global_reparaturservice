@@ -269,7 +269,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
                                           enablePullDown: true,
                                           enablePullUp: false,
                                           onRefresh: () async {
-                                            ref.read(todayOrdersViewModelProvider.notifier).loadAll();
+                                            ref.read(todayOrdersViewModelProvider.notifier).loadAll(today: true);
                                           },
                                           header: const WaterDropHeader(),
                                           footer: const PaginationFooter(),
@@ -310,14 +310,14 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
                                 error: (error) => CustomError(
                                   message: error.errorMessage ?? '',
                                   onRetry: (){
-                                    ref.read(todayOrdersViewModelProvider.notifier).loadAll();
+                                    ref.read(todayOrdersViewModelProvider.notifier).loadAll(today: true);
                                   },
                                 ),
                                 orElse: () => Center(
                                   child: CustomError(
                                     message: 'Unknown Error Please Try Again',
                                     onRetry: (){
-                                      ref.read(todayOrdersViewModelProvider.notifier).loadAll();
+                                      ref.read(todayOrdersViewModelProvider.notifier).loadAll(today: true);
                                     },
                                   ),
                                 ),
@@ -520,11 +520,13 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
       floatingActionButton: FloatingAddButton(
         onPresses: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const NewOrderScreen())).then((value) {
-            print('Added new orders update');
             if(value == 'update'){
               ref
                   .read(ordersViewModelProvider.notifier)
                   .loadAll();
+              ref
+                  .read(todayOrdersViewModelProvider.notifier)
+                  .loadAll(today: true);
             }
           });
         },

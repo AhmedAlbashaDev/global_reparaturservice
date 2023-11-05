@@ -15,7 +15,6 @@ import '../../../../models/response_state.dart';
 import '../../../../view_model/order_view_model.dart';
 import '../../../widgets/custom_app_bar.dart';
 import '../../../widgets/custom_error.dart';
-import '../../../widgets/custom_snakbar.dart';
 import '../../../widgets/custom_text_form_field.dart';
 import '../../../widgets/custsomer_card_new_order.dart';
 import '../../../widgets/empty_widget.dart';
@@ -92,28 +91,6 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
             ref.read(orderViewModelProvider.notifier).loadOne(orderId: orderId);
           }
         },
-        // error: (error) {
-        //
-        //   if(ModalRoute.of(context)?.isCurrent != true){
-        //     Navigator.pop(context);
-        //   }
-        //
-        //   amount.clear();
-        //
-        //   final snackBar = SnackBar(
-        //     backgroundColor: Theme.of(context).primaryColor,
-        //     showCloseIcon: true,
-        //     behavior: SnackBarBehavior.floating,
-        //     padding: EdgeInsets.zero,
-        //     content: CustomSnakeBarContent(
-        //       icon: const Icon(Icons.error, color: Colors.red , size: 25,),
-        //       message: error.errorMessage ?? '',
-        //       bgColor: Colors.grey.shade600,
-        //       borderColor: Colors.redAccent.shade200,
-        //     ),
-        //   );
-        //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-        // },
       );
     });
 
@@ -179,7 +156,49 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             AutoSizeText(
-                                              'visit'.tr(),
+                                              'Order reference'.tr(),
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: Theme.of(context)
+                                                    .primaryColor,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                            SelectionArea(
+                                              child: AutoSizeText(
+                                                orderModel.referenceNo,
+                                                style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .primaryColor,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Container(
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                            BorderRadius.circular(8),
+                                            border: Border.all(
+                                                color:
+                                                const Color(0xffDCDCDC))),
+                                        padding: const EdgeInsets.all(12),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            AutoSizeText(
+                                              'Order Type'.tr(),
                                               style: TextStyle(
                                                 fontSize: 11,
                                                 color: Theme.of(context)
@@ -188,9 +207,7 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                               ),
                                             ),
                                             AutoSizeText(
-                                              orderModel.isVisit
-                                                  ? 'second_visit'.tr()
-                                                  : 'first_visit'.tr(),
+                                              orderModel.typeName,
                                               style: TextStyle(
                                                 color: Theme.of(context)
                                                     .primaryColor,
@@ -596,8 +613,7 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                                       color: Theme.of(context)
                                                           .primaryColor,
                                                       fontSize: 15,
-                                                      fontWeight:
-                                                          FontWeight.w600,
+                                                      fontWeight: FontWeight.w600,
                                                     ),
                                                   )
                                                 ],
@@ -606,7 +622,7 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                             const SizedBox(
                                               height: 5,
                                             ),
-                                            if (orderModel.isPaid == false)
+                                            if (orderModel.isPaid == false && orderModel.status != 3)
                                               Column(
                                                 children: [
                                                   CustomTextFormField(
@@ -815,7 +831,7 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                                               Expanded(
                                                 child: CustomButton(
                                                   onPressed: () async {
-                                                    Uri url = Uri.parse('https://flutter.dev/exapmle.pdf');//order pdf file
+                                                    Uri url = Uri.parse(orderModel.pdfLink);//order pdf file
                                                     if (await canLaunchUrl(url)) {
                                                     await launchUrl(url);
                                                     } else {
