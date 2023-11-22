@@ -23,6 +23,7 @@ import 'select_or_add_customer.dart';
 
 final selectedVisitDateToNewOrder = StateProvider<String?>((ref) => null);
 final selectedVisitToNewOrder = StateProvider<String?>((ref) => null);
+final isCustomDate = StateProvider<bool>((ref) => false);
 
 final selectedAddressToNewOrder = StateProvider<Map<String, dynamic>?>((ref) => null);
 
@@ -67,26 +68,12 @@ class _State extends ConsumerState<NewOrderScreen>
         firstDate: DateTime(2023, 1),
         lastDate: DateTime(2101)).then((picked) {
           if(picked != null){
+            ref.read(isCustomDate.notifier).state = true;
             ref.read(selectedVisitDateToNewOrder.notifier).state = Jiffy.parseFromDateTime(picked).format(pattern: 'yyyy-MM-dd');
-            ref.read(orderGetCustomAvailableTimesViewModelProvider.notifier).getAvailableTimes(selectedDate: ref.watch(selectedVisitDateToNewOrder));
+            ref.read(selectedVisitToNewOrder.notifier).state = null;
+            ref.read(orderGetAvailableTimesViewModelProvider.notifier).getAvailableTimes(selectedDate: ref.watch(selectedVisitDateToNewOrder));
           }
     });
-  }
-
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? pickedS = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-        builder: (BuildContext context, Widget? child) {
-          return MediaQuery(
-            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-            child: child!,
-          );
-        });
-
-    if (pickedS != null ) {
-      ref.read(selectedVisitToNewOrder.notifier).state = '${ref.read(selectedVisitDateToNewOrder.notifier).state} ${pickedS.hour}:${pickedS.minute}';
-    }
   }
 
   @override
@@ -94,6 +81,7 @@ class _State extends ConsumerState<NewOrderScreen>
     super.initState();
 
     Future.microtask(() {
+      ref.read(isCustomDate.notifier).state = false;
       ref.read(selectedVisitDateToNewOrder.notifier).state = null;
       ref.read(selectedVisitToNewOrder.notifier).state = null;
       ref.read(selectedAddressToNewOrder.notifier).state = null;
@@ -153,6 +141,9 @@ class _State extends ConsumerState<NewOrderScreen>
           if (ModalRoute.of(context)?.isCurrent != true) {
             Navigator.pop(context);
           }
+
+          ref.read(selectedVisitDateToNewOrder.notifier).state = null;
+          ref.read(selectedVisitToNewOrder.notifier).state = null;
 
           AwesomeDialog(
                   context: context,
@@ -770,14 +761,15 @@ class _State extends ConsumerState<NewOrderScreen>
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context , index) {
                     bool isSelected = Jiffy.parseFromDateTime(DateTime.now().add(Duration(days: index))).format(pattern: 'yyyy-MM-dd') == ref.watch(selectedVisitDateToNewOrder);
-                    return Center(
-                      child: Container(
+                      return Center(
+                        child: Container(
                           height: 60,
                           width: 90,
                           margin: const EdgeInsets.all(3),
                           padding: EdgeInsets.zero,
                           child:  MaterialButton(
                             onPressed: (){
+                              ref.read(isCustomDate.notifier).state = false;
                               ref.read(selectedVisitDateToNewOrder.notifier).state = Jiffy.parseFromDateTime(DateTime.now().add(Duration(days: index))).format(pattern: 'yyyy-MM-dd');
                               ref.read(selectedVisitToNewOrder.notifier).state = null;
                               ref.read(orderGetAvailableTimesViewModelProvider.notifier).getAvailableTimes(selectedDate: ref.watch(selectedVisitDateToNewOrder));
@@ -793,9 +785,9 @@ class _State extends ConsumerState<NewOrderScreen>
                                 AutoSizeText(
                                   '${DateTime.now().add(Duration(days: index)).day}',
                                   style:  TextStyle(
-                                      color: isSelected ? Colors.white : Theme.of(context).primaryColor,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
+                                    color: isSelected ? Colors.white : Theme.of(context).primaryColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
 
                                   ),
                                   overflow: TextOverflow.ellipsis,
@@ -812,11 +804,54 @@ class _State extends ConsumerState<NewOrderScreen>
                               ],
                             ),
                           ),
-                      ),
-                    );
+                        ),
+                      );
                   },
                 ),
               ),
+              const SizedBox(height: 5,),
+              if(ref.watch(isCustomDate))
+                Container(
+                  height: 60,
+                  width: 90,
+                  margin: const EdgeInsets.all(3),
+                  padding: EdgeInsets.zero,
+                  child:  MaterialButton(
+                    onPressed: (){
+                      ref.read(selectedVisitToNewOrder.notifier).state = null;
+                      ref.read(orderGetAvailableTimesViewModelProvider.notifier).getAvailableTimes(selectedDate: ref.watch(selectedVisitDateToNewOrder));
+                    },
+                    color: Theme.of(context).primaryColor,
+                    disabledColor: Colors.grey.shade500,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)
+                    ),
+                    child:  Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        AutoSizeText(
+                          '${Jiffy.parse('${ref.watch(selectedVisitDateToNewOrder)}').date}',
+                          style:  const TextStyle(
+                            color: Colors.white ,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        ),
+                        AutoSizeText(
+                          '${Jiffy.parse('${ref.watch(selectedVisitDateToNewOrder)}').MMM} ${Jiffy.parse('${ref.watch(selectedVisitDateToNewOrder)}').year}',
+                          style:  const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               const SizedBox(height: 5,),
               AutoSizeText(
                 'Which Time'.tr(),
@@ -889,175 +924,7 @@ class _State extends ConsumerState<NewOrderScreen>
               const SizedBox(height: 5,),
               CustomButton(
                   onPressed: (){
-                    AwesomeDialog(
-                        context: context,
-                        dialogType: DialogType.noHeader,
-                        animType: AnimType.rightSlide,
-                        autoDismiss: false,
-                        dialogBackgroundColor: Colors.white,
-                        body: Padding(
-                          padding: const EdgeInsets.all(6),
-                          child: SingleChildScrollView(
-                            child: Consumer(
-                                builder: (context, dialogRef, child) {
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          AutoSizeText(
-                                            'Select Custom Visit Time'.tr(),
-                                            style: TextStyle(
-                                                color: Theme.of(context).primaryColor,
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w600,
-                                                overflow: TextOverflow.ellipsis
-                                            ),
-                                          ),
-                                          IconButton(onPressed: (){Navigator.pop(context);}, icon: Icon(Icons.close , size: 30 , color: Colors.grey.shade900,))
-                                        ],
-                                      ),
-                                      const SizedBox(height: 5,),
-                                      InkWell(
-                                        onTap: (){
-                                          _selectCustomVisitDate(context);
-                                        },
-                                        child: Container(
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(8),
-                                              border: Border.all(
-                                                  color:  const Color(0xffDCDCDC))),
-                                          padding:  const EdgeInsets.all(6),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            children: [
-                                              AutoSizeText(
-                                                'Click to select or change the date'.tr(),
-                                                style:  TextStyle(
-                                                  fontSize: 11,
-                                                  color: Theme.of(context).primaryColor,
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                              ),
-                                              AutoSizeText(
-                                                ref.watch(selectedVisitDateToNewOrder) ?? '',
-                                                style:  TextStyle(
-                                                  color: Theme.of(context).primaryColor,
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 15,),
-                                      dialogRef.watch(orderGetCustomAvailableTimesViewModelProvider).maybeWhen(
-                                          loading: () => Center(
-                                            child: Lottie.asset(
-                                                'assets/images/global_loader.json',
-                                                height: 50),
-                                          ),
-                                          data: (availableTimes){
-                                            return availableTimes.isNotEmpty
-                                                ? Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                AutoSizeText(
-                                                  'Which Time'.tr(),
-                                                  style: TextStyle(
-                                                      color: Theme.of(context).primaryColor,
-                                                      fontSize: 15,
-                                                      fontWeight: FontWeight.bold),
-                                                ),
-                                                GridView.builder(
-                                                  shrinkWrap: true,
-                                                  physics: const NeverScrollableScrollPhysics(),
-                                                  itemCount: availableTimes.length,
-                                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4 , childAspectRatio: 10 / 5),
-                                                  itemBuilder:
-                                                      (context,
-                                                      index) {
-                                                    return Container(
-                                                      margin: const EdgeInsets.all(3),
-                                                      child: CustomButton(
-                                                        onPressed: () {
-                                                          dialogRef.read(selectedVisitToNewOrder.notifier).state = '${dialogRef.read(selectedVisitDateToNewOrder.notifier).state} ${availableTimes[index]}';
-                                                          // ref.read(selectedCustomVisitToNewOrder.notifier).state = availableTimes[index];
-                                                        },
-                                                        text: availableTimes[index],
-                                                        // text: Jiffy.parse(availableTimes[index]).format(pattern: 'HH:mm'),
-                                                        textColor: dialogRef.watch(selectedVisitToNewOrder)?.split(' ').last == availableTimes[index] ? Colors.white : Theme.of(context).primaryColor,
-                                                        radius: 10,
-                                                        height: 40,
-                                                        bgColor: dialogRef.watch(selectedVisitToNewOrder)?.split(' ').last == availableTimes[index] ? Theme.of(context).primaryColor :Colors.white,
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                                const SizedBox(height: 10,),
-                                              ],
-                                            )
-                                                :  Center(
-                                                  child: AutoSizeText(
-                                                    'No Times Available'.tr(),
-                                                    style: TextStyle(
-                                                        color: Theme.of(context).primaryColor,
-                                                        fontSize: 16,
-                                                        fontWeight: FontWeight.w600),
-                                                  ),
-                                                );
-                                          },
-                                          error: (error) {
-                                            return CustomButton(
-                                                onPressed: () {
-                                                  dialogRef
-                                                      .read(orderGetCustomAvailableTimesViewModelProvider
-                                                      .notifier)
-                                                      .getAvailableTimes(selectedDate: dialogRef.watch(selectedVisitDateToNewOrder));
-                                                },
-                                                radius: 10,
-                                                text:
-                                                'Retry'.tr(),
-                                                height: 45,
-                                                textColor:
-                                                Colors
-                                                    .white,
-                                                bgColor: Colors.redAccent
-                                            );
-                                          },
-                                          orElse: () => Container()
-                                      ),
-                                      if(ref.watch(selectedVisitToNewOrder) != null)
-                                        Column(
-                                          children: [
-                                            const SizedBox(height: 10,),
-                                            CustomButton(
-                                              onPressed: (){
-                                                Navigator.pop(context);
-                                              },
-                                              text: 'Confirm'.tr(),
-                                              textColor: Colors.white,
-                                              height: 45,
-                                              bgColor: Theme.of(context).primaryColor,
-                                            ),
-                                            const SizedBox(height: 10,),
-                                          ],
-                                        )
-
-                                    ],
-                                  );
-                                },
-                              )),
-                        ),
-                        onDismissCallback: (dismiss) {})
-                        .show();
+                    _selectCustomVisitDate(context);
                   },
                   text: 'Set Custom Visit Time'.tr(),
                   textColor: Colors.white,

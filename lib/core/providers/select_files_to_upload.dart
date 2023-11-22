@@ -1,9 +1,9 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
-final selectedFilesToUpload = StateNotifierProvider.autoDispose<SelectedFilesToUpload , List<PlatformFile?>>((ref) => SelectedFilesToUpload());
+final selectedFilesToUpload = StateNotifierProvider.autoDispose<SelectedFilesToUpload , List<XFile?>>((ref) => SelectedFilesToUpload());
 
-class SelectedFilesToUpload extends StateNotifier<List<PlatformFile>> {
+class SelectedFilesToUpload extends StateNotifier<List<XFile>> {
   SelectedFilesToUpload() : super([]);
 
 
@@ -11,15 +11,15 @@ class SelectedFilesToUpload extends StateNotifier<List<PlatformFile>> {
     return state.length;
   }
 
-  addFiles (PlatformFile? platformFile){
-    if(platformFile != null){
-      state = [...state, platformFile];
+  addFiles (XFile? xFile){
+    if(xFile != null){
+      state = [...state, xFile];
     }
   }
 
-  removeFiles (PlatformFile? platformFile){
-    if(platformFile != null){
-      state = state.where((file) => file.path != platformFile.path).toList();
+  removeFiles (XFile? xFile){
+    if(xFile != null){
+      state = state.where((file) => file.path != xFile.path).toList();
     }
   }
 

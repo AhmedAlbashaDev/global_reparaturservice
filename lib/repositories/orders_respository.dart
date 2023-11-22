@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/models/order.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../core/custom_exception.dart';
 import '../core/providers/request_sending_progress.dart';
@@ -248,7 +248,7 @@ class OrdersRepository {
     }
   }
 
-  Future<ResponseState<OrderModel>> addFiles({required int id, required List<PlatformFile?> files,}) async {
+  Future<ResponseState<OrderModel>> addFiles({required int id, required List<XFile?> files,}) async {
     try {
 
       FormData data = FormData();

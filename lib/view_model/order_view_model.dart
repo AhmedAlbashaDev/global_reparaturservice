@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../core/providers/dio_network_provider.dart';
 import '../models/order.dart';
@@ -159,7 +159,7 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
     });
   }
 
-  Future<void> addFiles({required int id ,required List<PlatformFile?> files}) async{
+  Future<void> addFiles({required int id ,required List<XFile?> files}) async{
 
     setState(const ResponseState<OrderModel>.loading());
 

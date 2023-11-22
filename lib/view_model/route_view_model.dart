@@ -31,9 +31,9 @@ class RouteViewModel extends StateNotifier<ResponseState<RoutesModel>> {
     final response = await routesRepository.loadOne(endPoint: 'roads/$routeId');
 
     response.whenOrNull(data: (data) {
-      state = ResponseState<RoutesModel>.data(data: data);
+      setState(ResponseState<RoutesModel>.data(data: data));
     }, error: (error) {
-      state = ResponseState<RoutesModel>.error(error: error);
+      setState(ResponseState<RoutesModel>.error(error: error));
     });
 
     response.whenOrNull(data: (data) {
@@ -122,9 +122,9 @@ class RouteViewModel extends StateNotifier<ResponseState<RoutesModel>> {
   }
 
   setState(ResponseState<RoutesModel> newState){
-    // if(mounted) {
+    if(mounted) {
       state = newState;
-    // }
+    }
   }
 
 }

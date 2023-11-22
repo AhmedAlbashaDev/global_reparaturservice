@@ -32,3 +32,7 @@ const kGoogleApiKey = "AIzaSyBrfjwqJ1lK61Q_SpHjz4aIjjdh9Oh96eA";
 ///
 String centerLat = '52.5200';
 String centerLng = '13.4050';
+
+
+//Maximum File Size
+int maxFileSize = 30 * 1048576;

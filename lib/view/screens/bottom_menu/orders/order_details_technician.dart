@@ -1,7 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/core/globals.dart';
@@ -10,6 +9,7 @@ import 'package:global_reparaturservice/core/providers/select_files_to_upload.da
 import 'package:global_reparaturservice/view/widgets/custom_button.dart';
 import 'package:global_reparaturservice/view/widgets/custom_text_form_field.dart';
 import 'package:global_reparaturservice/view_model/route_view_model.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -588,101 +588,445 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                             )
                           ],
                         ),
-                        IconButton(
-                          onPressed: orderModel.status == 3
-                              ? null
-                              : () async {
-                            FilePickerResult? result =
-                            await FilePicker
-                                .platform
-                                .pickFiles(
-                              type: FileType.any,
-                              allowCompression: true,
-                            );
+                        Row(
+                          children: [
+                            IconButton(
+                              onPressed: orderModel.status == 3
+                                  ? null
+                                  : () {
+                                AwesomeDialog(
+                                    context: context,
+                                    dialogType: DialogType.noHeader,
+                                    animType: AnimType.rightSlide,
+                                    autoDismiss: false,
+                                    dialogBackgroundColor: Colors.white,
+                                    body: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6 , vertical:12),
+                                      child: SingleChildScrollView(
+                                        child: Form(
+                                          key: reportFormKey,
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  AutoSizeText(
+                                                    'Add Video From'.tr(),
+                                                    style: TextStyle(
+                                                        color: Theme.of(context).primaryColor,
+                                                        fontSize: 17,
+                                                        fontWeight: FontWeight.bold,
+                                                        overflow: TextOverflow.ellipsis
+                                                    ),
+                                                  ),
+                                                  IconButton(onPressed: (){Navigator.pop(context);}, icon: Icon(Icons.close , color: Colors.grey.shade800,size: 30,))
+                                                ],
+                                              ),
+                                              const SizedBox(height: 20,),
+                                              CustomButton(
+                                                height: 45,
+                                                  onPressed: ()async{
+                                                Navigator.pop(context);
+                                                XFile? result =  await ImagePicker().pickVideo(source: ImageSource.camera);
 
-                            if (result != null) {
-                              if (result.files.single.size > ((1e+6 * 10))) {
-                                final snackBar =
-                                SnackBar(
-                                  backgroundColor:
-                                  Theme.of(context)
-                                      .primaryColor,
-                                  showCloseIcon: true,
-                                  behavior:
-                                  SnackBarBehavior
-                                      .floating,
-                                  padding:
-                                  EdgeInsets.zero,
-                                  content:
-                                  CustomSnakeBarContent(
-                                    icon: const Icon(
-                                      Icons.error,
-                                      color: Colors.red,
-                                      size: 25,
-                                    ),
-                                    message:
-                                    'image_file_is_large_max_size_is_3_mega_for_each_file'
-                                        .tr(),
-                                    bgColor: Colors
-                                        .grey.shade600,
-                                    borderColor: Colors
-                                        .redAccent
-                                        .shade200,
-                                  ),
-                                );
-                                ScaffoldMessenger.of(
-                                    context)
-                                    .showSnackBar(
-                                    snackBar);
-                              }
-                              else {
-                                if (ref.watch(addedFiles) < 4) {
-                                  ref
-                                      .read(addedFiles
-                                      .notifier)
-                                      .state++;
-                                  ref.read(selectedFilesToUpload.notifier).addFiles(result.files.first);
-                                }
-                                else {
-                                  final snackBar =
-                                  SnackBar(
-                                    backgroundColor:
-                                    Theme.of(
-                                        context)
-                                        .primaryColor,
-                                    showCloseIcon:
-                                    true,
-                                    behavior:
-                                    SnackBarBehavior
-                                        .floating,
-                                    padding:
-                                    EdgeInsets
-                                        .zero,
-                                    content:
-                                    CustomSnakeBarContent(
-                                      icon:
-                                      const Icon(
-                                        Icons.error,
-                                        color: Colors
-                                            .red,
-                                        size: 25,
+                                                if (result != null) {
+                                                  int size = await result.length();
+                                                  if (await result.length() > maxFileSize) {
+                                                    final snackBar =
+                                                    SnackBar(
+                                                      backgroundColor:
+                                                      Theme.of(context)
+                                                          .primaryColor,
+                                                      showCloseIcon: true,
+                                                      behavior:
+                                                      SnackBarBehavior
+                                                          .floating,
+                                                      padding:
+                                                      EdgeInsets.zero,
+                                                      content:
+                                                      CustomSnakeBarContent(
+                                                        icon: const Icon(
+                                                          Icons.error,
+                                                          color: Colors.red,
+                                                          size: 25,
+                                                        ),
+                                                        message:
+                                                        'File Size Must Be 10 MB Maximum'
+                                                            .tr(),
+                                                        bgColor: Colors
+                                                            .grey.shade600,
+                                                        borderColor: Colors
+                                                            .redAccent
+                                                            .shade200,
+                                                      ),
+                                                    );
+                                                    ScaffoldMessenger.of(
+                                                        context)
+                                                        .showSnackBar(
+                                                        snackBar);
+                                                  }
+                                                  else {
+                                                    if (ref.watch(addedFiles) < 4) {
+                                                      ref
+                                                          .read(addedFiles
+                                                          .notifier)
+                                                          .state++;
+                                                      ref.read(selectedFilesToUpload.notifier).addFiles(result);
+                                                    }
+                                                    else {
+                                                      final snackBar =
+                                                      SnackBar(
+                                                        backgroundColor:
+                                                        Theme.of(
+                                                            context)
+                                                            .primaryColor,
+                                                        showCloseIcon:
+                                                        true,
+                                                        behavior:
+                                                        SnackBarBehavior
+                                                            .floating,
+                                                        padding:
+                                                        EdgeInsets
+                                                            .zero,
+                                                        content:
+                                                        CustomSnakeBarContent(
+                                                          icon:
+                                                          const Icon(
+                                                            Icons.error,
+                                                            color: Colors
+                                                                .red,
+                                                            size: 25,
+                                                          ),
+                                                          message: 'files_maximum'.tr(),
+                                                          bgColor: Colors.grey.shade600,
+                                                          borderColor: Colors.redAccent.shade200,
+                                                        ),
+                                                      );
+                                                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                                  text: 'Camera'.tr(), textColor: Colors.white, bgColor: Theme.of(context).primaryColor),
+                                              const SizedBox(height: 20,),
+                                              CustomButton(
+                                                  height: 45,
+                                                  onPressed: ()async{
+                                                Navigator.pop(context);
+                                                XFile? result =  await ImagePicker().pickVideo(source: ImageSource.gallery);
+
+                                                if (result != null) {
+                                                  if (await result.length() > maxFileSize) {
+                                                    final snackBar =
+                                                    SnackBar(
+                                                      backgroundColor:
+                                                      Theme.of(context)
+                                                          .primaryColor,
+                                                      showCloseIcon: true,
+                                                      behavior:
+                                                      SnackBarBehavior
+                                                          .floating,
+                                                      padding:
+                                                      EdgeInsets.zero,
+                                                      content:
+                                                      CustomSnakeBarContent(
+                                                        icon: const Icon(
+                                                          Icons.error,
+                                                          color: Colors.red,
+                                                          size: 25,
+                                                        ),
+                                                        message:
+                                                        'File Size Must Be 10 MB Maximum'
+                                                            .tr(),
+                                                        bgColor: Colors
+                                                            .grey.shade600,
+                                                        borderColor: Colors
+                                                            .redAccent
+                                                            .shade200,
+                                                      ),
+                                                    );
+                                                    ScaffoldMessenger.of(
+                                                        context)
+                                                        .showSnackBar(
+                                                        snackBar);
+                                                  }
+                                                  else {
+                                                    if (ref.watch(addedFiles) < 4) {
+                                                      ref
+                                                          .read(addedFiles
+                                                          .notifier)
+                                                          .state++;
+                                                      ref.read(selectedFilesToUpload.notifier).addFiles(result);
+                                                    }
+                                                    else {
+                                                      final snackBar =
+                                                      SnackBar(
+                                                        backgroundColor:
+                                                        Theme.of(
+                                                            context)
+                                                            .primaryColor,
+                                                        showCloseIcon:
+                                                        true,
+                                                        behavior:
+                                                        SnackBarBehavior
+                                                            .floating,
+                                                        padding:
+                                                        EdgeInsets
+                                                            .zero,
+                                                        content:
+                                                        CustomSnakeBarContent(
+                                                          icon:
+                                                          const Icon(
+                                                            Icons.error,
+                                                            color: Colors
+                                                                .red,
+                                                            size: 25,
+                                                          ),
+                                                          message: 'files_maximum'.tr(),
+                                                          bgColor: Colors.grey.shade600,
+                                                          borderColor: Colors.redAccent.shade200,
+                                                        ),
+                                                      );
+                                                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                                    }
+                                                  }
+                                                }
+                                              }, text: 'Gallery'.tr(), textColor: Colors.white, bgColor: Theme.of(context).primaryColor),
+                                              const SizedBox(height: 20,),
+                                            ],
+                                          ),
+                                        ),
                                       ),
-                                      message: 'files_maximum'.tr(),
-                                      bgColor: Colors.grey.shade600,
-                                      borderColor: Colors.redAccent.shade200,
                                     ),
-                                  );
-                                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                                }
-                              }
-                            }
-                          },
-                          icon: Icon(
-                            Icons.add_box_rounded,
-                            color: Theme.of(context)
-                                .primaryColor,
-                            size: 30,
-                          ),
+                                    onDismissCallback: (dismiss) {})
+                                    .show();
+                              },
+                              icon: Icon(
+                                Icons.video_call_rounded,
+                                color: Theme.of(context)
+                                    .primaryColor,
+                                size: 35,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: orderModel.status == 3
+                                  ? null
+                                  : () {
+                                AwesomeDialog(
+                                    context: context,
+                                    dialogType: DialogType.noHeader,
+                                    animType: AnimType.rightSlide,
+                                    autoDismiss: false,
+                                    dialogBackgroundColor: Colors.white,
+                                    body: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6 , vertical:12),
+                                      child: SingleChildScrollView(
+                                        child: Form(
+                                          key: reportFormKey,
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  AutoSizeText(
+                                                    'Add Image From'.tr(),
+                                                    style: TextStyle(
+                                                        color: Theme.of(context).primaryColor,
+                                                        fontSize: 17,
+                                                        fontWeight: FontWeight.bold,
+                                                        overflow: TextOverflow.ellipsis
+                                                    ),
+                                                  ),
+                                                  IconButton(onPressed: (){Navigator.pop(context);}, icon: Icon(Icons.close , color: Colors.grey.shade800,size: 30,))
+                                                ],
+                                              ),
+                                              const SizedBox(height: 20,),
+                                              CustomButton(
+                                                  height: 45,
+                                                  onPressed: ()async{
+                                                Navigator.pop(context);
+                                                XFile? result =  await ImagePicker().pickImage(source: ImageSource.camera);
+
+                                                if (result != null) {
+                                                  if (await result.length() > maxFileSize) {
+                                                    final snackBar =
+                                                    SnackBar(
+                                                      backgroundColor:
+                                                      Theme.of(context)
+                                                          .primaryColor,
+                                                      showCloseIcon: true,
+                                                      behavior:
+                                                      SnackBarBehavior
+                                                          .floating,
+                                                      padding:
+                                                      EdgeInsets.zero,
+                                                      content:
+                                                      CustomSnakeBarContent(
+                                                        icon: const Icon(
+                                                          Icons.error,
+                                                          color: Colors.red,
+                                                          size: 25,
+                                                        ),
+                                                        message:
+                                                        'File Size Must Be 10 MB Maximum'
+                                                            .tr(),
+                                                        bgColor: Colors
+                                                            .grey.shade600,
+                                                        borderColor: Colors
+                                                            .redAccent
+                                                            .shade200,
+                                                      ),
+                                                    );
+                                                    ScaffoldMessenger.of(
+                                                        context)
+                                                        .showSnackBar(
+                                                        snackBar);
+                                                  }
+                                                  else {
+                                                    if (ref.watch(addedFiles) < 4) {
+                                                      ref
+                                                          .read(addedFiles
+                                                          .notifier)
+                                                          .state++;
+                                                      ref.read(selectedFilesToUpload.notifier).addFiles(result);
+                                                    }
+                                                    else {
+                                                      final snackBar =
+                                                      SnackBar(
+                                                        backgroundColor:
+                                                        Theme.of(
+                                                            context)
+                                                            .primaryColor,
+                                                        showCloseIcon:
+                                                        true,
+                                                        behavior:
+                                                        SnackBarBehavior
+                                                            .floating,
+                                                        padding:
+                                                        EdgeInsets
+                                                            .zero,
+                                                        content:
+                                                        CustomSnakeBarContent(
+                                                          icon:
+                                                          const Icon(
+                                                            Icons.error,
+                                                            color: Colors
+                                                                .red,
+                                                            size: 25,
+                                                          ),
+                                                          message: 'files_maximum'.tr(),
+                                                          bgColor: Colors.grey.shade600,
+                                                          borderColor: Colors.redAccent.shade200,
+                                                        ),
+                                                      );
+                                                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                                    }
+                                                  }
+                                                }
+                                              }, text: 'Camera'.tr(), textColor: Colors.white, bgColor: Theme.of(context).primaryColor),
+                                              const SizedBox(height: 20,),
+                                              CustomButton(
+                                                  height: 45,
+                                                  onPressed: ()async{
+                                                Navigator.pop(context);
+                                                XFile? result =  await ImagePicker().pickImage(source: ImageSource.gallery);
+
+                                                if (result != null) {
+                                                  if (await result.length() > maxFileSize) {
+                                                    final snackBar =
+                                                    SnackBar(
+                                                      backgroundColor:
+                                                      Theme.of(context)
+                                                          .primaryColor,
+                                                      showCloseIcon: true,
+                                                      behavior:
+                                                      SnackBarBehavior
+                                                          .floating,
+                                                      padding:
+                                                      EdgeInsets.zero,
+                                                      content:
+                                                      CustomSnakeBarContent(
+                                                        icon: const Icon(
+                                                          Icons.error,
+                                                          color: Colors.red,
+                                                          size: 25,
+                                                        ),
+                                                        message:
+                                                        'File Size Must Be 10 MB Maximum'
+                                                            .tr(),
+                                                        bgColor: Colors
+                                                            .grey.shade600,
+                                                        borderColor: Colors
+                                                            .redAccent
+                                                            .shade200,
+                                                      ),
+                                                    );
+                                                    ScaffoldMessenger.of(
+                                                        context)
+                                                        .showSnackBar(
+                                                        snackBar);
+                                                  }
+                                                  else {
+                                                    if (ref.watch(addedFiles) < 4) {
+                                                      ref
+                                                          .read(addedFiles
+                                                          .notifier)
+                                                          .state++;
+                                                      ref.read(selectedFilesToUpload.notifier).addFiles(result);
+                                                    }
+                                                    else {
+                                                      final snackBar =
+                                                      SnackBar(
+                                                        backgroundColor:
+                                                        Theme.of(
+                                                            context)
+                                                            .primaryColor,
+                                                        showCloseIcon:
+                                                        true,
+                                                        behavior:
+                                                        SnackBarBehavior
+                                                            .floating,
+                                                        padding:
+                                                        EdgeInsets
+                                                            .zero,
+                                                        content:
+                                                        CustomSnakeBarContent(
+                                                          icon:
+                                                          const Icon(
+                                                            Icons.error,
+                                                            color: Colors
+                                                                .red,
+                                                            size: 25,
+                                                          ),
+                                                          message: 'files_maximum'.tr(),
+                                                          bgColor: Colors.grey.shade600,
+                                                          borderColor: Colors.redAccent.shade200,
+                                                        ),
+                                                      );
+                                                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                                    }
+                                                  }
+                                                }
+                                              }, text: 'Gallery'.tr(), textColor: Colors.white, bgColor: Theme.of(context).primaryColor),
+                                              const SizedBox(height: 20,),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    onDismissCallback: (dismiss) {})
+                                    .show();
+                              },
+                              icon: Icon(
+                                Icons.image,
+                                color: Theme.of(context)
+                                    .primaryColor,
+                                size: 30,
+                              ),
+                            )
+                          ],
                         )
                       ],
                     ),

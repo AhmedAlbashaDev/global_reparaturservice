@@ -11,12 +11,6 @@ final orderGetAvailableTimesViewModelProvider = StateNotifierProvider.autoDispos
   return OrderAvailableTimesViewModel(OrdersRepository(dioClient: ref.read(dioClientNetworkProvider) , ref: ref));
 });
 
-final orderGetCustomAvailableTimesViewModelProvider = StateNotifierProvider.autoDispose<OrderAvailableTimesViewModel,ResponseState<List<String>>>((ref) {
-  final cancelToken = CancelToken();
-  ref.onDispose(cancelToken.cancel);
-  return OrderAvailableTimesViewModel(OrdersRepository(dioClient: ref.read(dioClientNetworkProvider) , ref: ref));
-});
-
 class OrderAvailableTimesViewModel extends StateNotifier<ResponseState<List<String>>> {
   final OrdersRepository ordersRepository;
   OrderAvailableTimesViewModel(this.ordersRepository) : super(const ResponseState<List<String>>.idle());
