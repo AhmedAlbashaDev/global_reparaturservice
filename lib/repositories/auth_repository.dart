@@ -14,10 +14,10 @@ class AuthRepository {
   final Dio dioClient;
   final Ref ref;
 
-  Future<ResponseState<UserModel>> login({required FormData data}) async {
+  Future<ResponseState<UserModel>> login({required String endPoint, required FormData data}) async {
     try {
 
-      final response = await dioClient.post('login', data: data);
+      final response = await dioClient.post(endPoint, data: data);
 
       if(response.data['success'] == false){
         return ResponseState<UserModel>.error(
@@ -32,7 +32,6 @@ class AuthRepository {
       final token = response.data['data']['token'];
 
       ref.read(tokenProvider.notifier).state = token;
-
 
       UserModel userModel = UserModel.fromJson(response.data['data']['user']);
 
@@ -145,7 +144,9 @@ class AuthRepository {
         );
       }
 
-      SharedPref.clear();
+      await SharedPref.remove('userToken');
+      await SharedPref.remove('userType');
+      await SharedPref.clear();
 
       return const ResponseState<UserModel>.success(data: {});
 

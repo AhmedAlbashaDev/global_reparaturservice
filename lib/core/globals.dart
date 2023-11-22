@@ -13,6 +13,14 @@ bool isValidEmail({String? text}) {
   return regExp.hasMatch(text ?? '');
 }
 
+// Validate Phone Number
+bool isNumeric(String? s) {
+  if(s == null) {
+    return false;
+  }
+  return double.tryParse(s) != null;
+}
+
 // Google Map API Key
 
 const kGoogleApiKey = "AIzaSyBrfjwqJ1lK61Q_SpHjz4aIjjdh9Oh96eA";

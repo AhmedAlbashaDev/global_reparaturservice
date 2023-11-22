@@ -270,6 +270,7 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                           ),
                           CustomTextFormField(
                             controller: email,
+                            textInputType: TextInputType.emailAddress,
                             validator: (String? text) {
                               if (text?.isEmpty ?? true) {
                                 return 'this_filed_required'.tr();
@@ -287,7 +288,6 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                             controller: phone,
                             textInputType: TextInputType.phone,
                             maxLength: 12,
-                            height: 60,
                             readOnly: isUpdate,
                             validator: (String? text) {
                               if (text?.isEmpty ?? true) {

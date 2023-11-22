@@ -38,7 +38,10 @@ class StripePaymentService {
                   paymentIntentClientSecret: paymentIntent?['client_secret'], //Gotten from payment intent
                   style: ThemeMode.light,
                   merchantDisplayName: 'Ikay'))
-          .then((value) {});
+          .then(
+              (value) {
+
+              });
 
       //STEP 3: Display Payment sheet
       displayPaymentSheet().then((value) async {

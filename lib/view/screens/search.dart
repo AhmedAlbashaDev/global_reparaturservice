@@ -36,23 +36,25 @@ final searchOrdersFilterProvider = StateProvider.autoDispose<String?>((ref) => '
 final searchRoutesFilterProvider = StateProvider.autoDispose<String?>((ref) => 'all'.tr());
 
 class SearchScreen extends ConsumerStatefulWidget {
-  const SearchScreen({super.key, required this.endPoint, required this.title , this.callback = false});
+  const SearchScreen({super.key, required this.endPoint, required this.title , this.callback = false , this.active = false});
 
   final String endPoint;
   final String title;
   final bool callback;
+  final bool active;
 
   @override
   ConsumerState createState() =>
-      _SearchScreenState(endPoint: endPoint, title: title , callback: callback);
+      _SearchScreenState(endPoint: endPoint, title: title , callback: callback , active: active);
 }
 
 class _SearchScreenState extends ConsumerState<SearchScreen> {
-  _SearchScreenState({required this.endPoint, required this.title , this.callback});
+  _SearchScreenState({required this.endPoint, required this.title , this.callback ,required this.active});
 
   final String endPoint;
   final String title;
   final bool? callback;
+  final bool active;
 
 
   late TextEditingController searchController;
@@ -133,8 +135,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         ),
                         Form(
                           key: _searchKey,//
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           child: CustomTextFormField(
                             controller: searchController,
+                            height: 60,
                             validator: (String? text) {
                               if(endPoint.contains('roads')){
                                 if ((text?.isEmpty ?? true) && (ref.watch(searchRoutesFilterProvider) == 'all'.tr())) {
@@ -150,7 +154,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             },
                             label: '${'Search in'.tr()} $title',
                             searchSuffix: Container(
-                              margin: const EdgeInsets.all(10),
+                              margin: const EdgeInsets.all(8),
                               child: MaterialButton(
                                 onPressed: () {
                                   if (_searchKey.currentState?.validate() ?? false) {
@@ -211,24 +215,28 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                       }
                                     }
                                     else{
+                                      print('Active value is $active');
                                       ref
                                       .read(searchViewModelProvider.notifier)
                                           .search(
                                           endPoint: endPoint,
+                                          active: active,
                                           searchText: searchController.text,
                                           withoutRoute: callback ?? false
                                       );
                                     }
                                   }
                                 },
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
+                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 padding: EdgeInsets.zero,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
                                 color: Colors.grey[100],
                                 child: AutoSizeText(
                                   'Search'.tr(),
                                   style: TextStyle(
-                                      fontSize: 15,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w600,
                                       color: Theme.of(context).primaryColor),
                                 ),
@@ -784,10 +792,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                                     verticalOffset: 50.0,
                                                     child: FadeInAnimation(
                                                         child: OrderCard(
+                                                          orderIndex: index + 1,
                                                       showOrderStatus: false,
                                                       showOrderPaymentStatus:
                                                           true,
-                                                      showOrderCheckBox: true,
+                                                      showOrderCheckBox: callback ?? false,
                                                           onPressed: callback ?? false ? null : (){
                                                             Navigator.push(context, MaterialPageRoute(builder: (context) => OrderDetailsAdmin(orderId: orders?.data[index].id ?? 0,)));
                                                           },
@@ -879,7 +888,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                                               elevation: .5,
                                                               color: Colors.white,
                                                               child: Container(
-                                                                height: 100,
                                                                 decoration:
                                                                     BoxDecoration(
                                                                   borderRadius:
@@ -921,17 +929,23 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                                                             height:
                                                                                 10,
                                                                           ),
-                                                                          AutoSizeText(
-                                                                            '${users?.data[index].phone}',
-                                                                            style: TextStyle(
-                                                                                color: Theme.of(context).primaryColor,
-                                                                                fontSize: 10,
-                                                                                fontWeight: FontWeight.w500),
+                                                                          if(users?.data[index].phone != null)
+                                                                          Column(
+                                                                            children: [
+                                                                              AutoSizeText(
+                                                                                '${users?.data[index].phone}',
+                                                                                style: TextStyle(
+                                                                                    color: Theme.of(context).primaryColor,
+                                                                                    fontSize: 10,
+                                                                                    fontWeight: FontWeight.w500),
+                                                                              ),
+                                                                              const SizedBox(
+                                                                                height:
+                                                                                10,
+                                                                              ),
+                                                                            ],
                                                                           ),
-                                                                          const SizedBox(
-                                                                            height:
-                                                                            10,
-                                                                          ),
+                                                                          if(users?.data[index].email != null)
                                                                           AutoSizeText(
                                                                             '${users?.data[index].email}',
                                                                             style: TextStyle(
@@ -939,6 +953,30 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                                                                 fontSize: 10,
                                                                                 fontWeight: FontWeight.w500),
                                                                           ),
+                                                                          if(endPoint.contains('customers'))
+                                                                            Column(
+                                                                              children: [
+                                                                                const SizedBox(height: 10,),
+                                                                                Row(
+                                                                                  children: [
+                                                                                    CircleAvatar(
+                                                                                      radius: 7,
+                                                                                      backgroundColor: users?.data[index].isDisabled ?? false ? Colors.red : Colors.green,
+                                                                                    ),
+                                                                                    const SizedBox(width: 10,),
+                                                                                    AutoSizeText(
+                                                                                      users?.data[index].isDisabled ?? false ? 'Disabled'.tr() : 'Active'.tr(),
+                                                                                      style: TextStyle(
+                                                                                          color: Theme.of(context).primaryColor,
+                                                                                          fontSize: 14,
+                                                                                          fontWeight: FontWeight.bold),
+                                                                                      maxLines: 2,
+                                                                                      overflow: TextOverflow.ellipsis,
+                                                                                    ),
+                                                                                  ],
+                                                                                )
+                                                                              ],
+                                                                            ),
                                                                         ],
                                                                       ),
                                                                       if(callback == false)

@@ -39,7 +39,9 @@ mixin _$OrderModel {
   @JsonKey(name: 'is_paid')
   bool get isPaid => throw _privateConstructorUsedError;
   int? get amount => throw _privateConstructorUsedError;
-  String? get report => throw _privateConstructorUsedError;
+  List<Reports>? get reports => throw _privateConstructorUsedError;
+  @JsonKey(name: 'visit_time')
+  String? get visitTime => throw _privateConstructorUsedError;
   @JsonKey(name: 'payment_id')
   String? get paymentId => throw _privateConstructorUsedError;
   @JsonKey(name: 'payment_way')
@@ -102,7 +104,8 @@ abstract class $OrderModelCopyWith<$Res> {
       @JsonKey(name: 'block_no') String? blockNo,
       @JsonKey(name: 'is_paid') bool isPaid,
       int? amount,
-      String? report,
+      List<Reports>? reports,
+      @JsonKey(name: 'visit_time') String? visitTime,
       @JsonKey(name: 'payment_id') String? paymentId,
       @JsonKey(name: 'payment_way') dynamic paymentWay,
       @JsonKey(name: 'customer_id') int customerId,
@@ -152,7 +155,8 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
     Object? blockNo = freezed,
     Object? isPaid = null,
     Object? amount = freezed,
-    Object? report = freezed,
+    Object? reports = freezed,
+    Object? visitTime = freezed,
     Object? paymentId = freezed,
     Object? paymentWay = freezed,
     Object? customerId = null,
@@ -229,9 +233,13 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
               as int?,
-      report: freezed == report
-          ? _value.report
-          : report // ignore: cast_nullable_to_non_nullable
+      reports: freezed == reports
+          ? _value.reports
+          : reports // ignore: cast_nullable_to_non_nullable
+              as List<Reports>?,
+      visitTime: freezed == visitTime
+          ? _value.visitTime
+          : visitTime // ignore: cast_nullable_to_non_nullable
               as String?,
       paymentId: freezed == paymentId
           ? _value.paymentId
@@ -344,7 +352,8 @@ abstract class _$$OrderModelImplCopyWith<$Res>
       @JsonKey(name: 'block_no') String? blockNo,
       @JsonKey(name: 'is_paid') bool isPaid,
       int? amount,
-      String? report,
+      List<Reports>? reports,
+      @JsonKey(name: 'visit_time') String? visitTime,
       @JsonKey(name: 'payment_id') String? paymentId,
       @JsonKey(name: 'payment_way') dynamic paymentWay,
       @JsonKey(name: 'customer_id') int customerId,
@@ -393,7 +402,8 @@ class __$$OrderModelImplCopyWithImpl<$Res>
     Object? blockNo = freezed,
     Object? isPaid = null,
     Object? amount = freezed,
-    Object? report = freezed,
+    Object? reports = freezed,
+    Object? visitTime = freezed,
     Object? paymentId = freezed,
     Object? paymentWay = freezed,
     Object? customerId = null,
@@ -470,9 +480,13 @@ class __$$OrderModelImplCopyWithImpl<$Res>
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
               as int?,
-      report: freezed == report
-          ? _value.report
-          : report // ignore: cast_nullable_to_non_nullable
+      reports: freezed == reports
+          ? _value._reports
+          : reports // ignore: cast_nullable_to_non_nullable
+              as List<Reports>?,
+      visitTime: freezed == visitTime
+          ? _value.visitTime
+          : visitTime // ignore: cast_nullable_to_non_nullable
               as String?,
       paymentId: freezed == paymentId
           ? _value.paymentId
@@ -568,7 +582,8 @@ class _$OrderModelImpl implements _OrderModel {
       @JsonKey(name: 'block_no') required this.blockNo,
       @JsonKey(name: 'is_paid') required this.isPaid,
       required this.amount,
-      required this.report,
+      required final List<Reports>? reports,
+      @JsonKey(name: 'visit_time') required this.visitTime,
       @JsonKey(name: 'payment_id') required this.paymentId,
       @JsonKey(name: 'payment_way') required this.paymentWay,
       @JsonKey(name: 'customer_id') required this.customerId,
@@ -587,7 +602,8 @@ class _$OrderModelImpl implements _OrderModel {
       @JsonKey(name: 'updated_at') required this.updatedAt,
       @JsonKey(name: 'deleted_at') required this.deletedAt,
       @JsonKey(name: 'status_name') required this.statusName})
-      : _files = files;
+      : _reports = reports,
+        _files = files;
 
   factory _$OrderModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$OrderModelImplFromJson(json);
@@ -625,8 +641,19 @@ class _$OrderModelImpl implements _OrderModel {
   final bool isPaid;
   @override
   final int? amount;
+  final List<Reports>? _reports;
   @override
-  final String? report;
+  List<Reports>? get reports {
+    final value = _reports;
+    if (value == null) return null;
+    if (_reports is EqualUnmodifiableListView) return _reports;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  @override
+  @JsonKey(name: 'visit_time')
+  final String? visitTime;
   @override
   @JsonKey(name: 'payment_id')
   final String? paymentId;
@@ -690,7 +717,7 @@ class _$OrderModelImpl implements _OrderModel {
 
   @override
   String toString() {
-    return 'OrderModel(id: $id, referenceNo: $referenceNo, address: $address, description: $description, lat: $lat, lng: $lng, status: $status, type: $type, typeName: $typeName, maintenanceDevice: $maintenanceDevice, brand: $brand, blockNo: $blockNo, isPaid: $isPaid, amount: $amount, report: $report, paymentId: $paymentId, paymentWay: $paymentWay, customerId: $customerId, orderPhoneNumber: $orderPhoneNumber, floorNumber: $floorNumber, apartmentNumber: $apartmentNumber, additionalInfo: $additionalInfo, pdfLink: $pdfLink, customer: $customer, files: $files, roadId: $roadId, isVisit: $isVisit, orderId: $orderId, createBy: $createBy, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, statusName: $statusName)';
+    return 'OrderModel(id: $id, referenceNo: $referenceNo, address: $address, description: $description, lat: $lat, lng: $lng, status: $status, type: $type, typeName: $typeName, maintenanceDevice: $maintenanceDevice, brand: $brand, blockNo: $blockNo, isPaid: $isPaid, amount: $amount, reports: $reports, visitTime: $visitTime, paymentId: $paymentId, paymentWay: $paymentWay, customerId: $customerId, orderPhoneNumber: $orderPhoneNumber, floorNumber: $floorNumber, apartmentNumber: $apartmentNumber, additionalInfo: $additionalInfo, pdfLink: $pdfLink, customer: $customer, files: $files, roadId: $roadId, isVisit: $isVisit, orderId: $orderId, createBy: $createBy, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, statusName: $statusName)';
   }
 
   @override
@@ -716,7 +743,9 @@ class _$OrderModelImpl implements _OrderModel {
             (identical(other.blockNo, blockNo) || other.blockNo == blockNo) &&
             (identical(other.isPaid, isPaid) || other.isPaid == isPaid) &&
             (identical(other.amount, amount) || other.amount == amount) &&
-            (identical(other.report, report) || other.report == report) &&
+            const DeepCollectionEquality().equals(other._reports, _reports) &&
+            (identical(other.visitTime, visitTime) ||
+                other.visitTime == visitTime) &&
             (identical(other.paymentId, paymentId) ||
                 other.paymentId == paymentId) &&
             const DeepCollectionEquality()
@@ -768,7 +797,8 @@ class _$OrderModelImpl implements _OrderModel {
         blockNo,
         isPaid,
         amount,
-        report,
+        const DeepCollectionEquality().hash(_reports),
+        visitTime,
         paymentId,
         const DeepCollectionEquality().hash(paymentWay),
         customerId,
@@ -820,7 +850,8 @@ abstract class _OrderModel implements OrderModel {
       @JsonKey(name: 'block_no') required final String? blockNo,
       @JsonKey(name: 'is_paid') required final bool isPaid,
       required final int? amount,
-      required final String? report,
+      required final List<Reports>? reports,
+      @JsonKey(name: 'visit_time') required final String? visitTime,
       @JsonKey(name: 'payment_id') required final String? paymentId,
       @JsonKey(name: 'payment_way') required final dynamic paymentWay,
       @JsonKey(name: 'customer_id') required final int customerId,
@@ -879,7 +910,10 @@ abstract class _OrderModel implements OrderModel {
   @override
   int? get amount;
   @override
-  String? get report;
+  List<Reports>? get reports;
+  @override
+  @JsonKey(name: 'visit_time')
+  String? get visitTime;
   @override
   @JsonKey(name: 'payment_id')
   String? get paymentId;
@@ -935,5 +969,194 @@ abstract class _OrderModel implements OrderModel {
   @override
   @JsonKey(ignore: true)
   _$$OrderModelImplCopyWith<_$OrderModelImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+Reports _$ReportsFromJson(Map<String, dynamic> json) {
+  return _Reports.fromJson(json);
+}
+
+/// @nodoc
+mixin _$Reports {
+  int get id => throw _privateConstructorUsedError;
+  String get title => throw _privateConstructorUsedError;
+  String get description => throw _privateConstructorUsedError;
+  String get price => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $ReportsCopyWith<Reports> get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ReportsCopyWith<$Res> {
+  factory $ReportsCopyWith(Reports value, $Res Function(Reports) then) =
+      _$ReportsCopyWithImpl<$Res, Reports>;
+  @useResult
+  $Res call({int id, String title, String description, String price});
+}
+
+/// @nodoc
+class _$ReportsCopyWithImpl<$Res, $Val extends Reports>
+    implements $ReportsCopyWith<$Res> {
+  _$ReportsCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? title = null,
+    Object? description = null,
+    Object? price = null,
+  }) {
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      title: null == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
+      description: null == description
+          ? _value.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String,
+      price: null == price
+          ? _value.price
+          : price // ignore: cast_nullable_to_non_nullable
+              as String,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$ReportsImplCopyWith<$Res> implements $ReportsCopyWith<$Res> {
+  factory _$$ReportsImplCopyWith(
+          _$ReportsImpl value, $Res Function(_$ReportsImpl) then) =
+      __$$ReportsImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({int id, String title, String description, String price});
+}
+
+/// @nodoc
+class __$$ReportsImplCopyWithImpl<$Res>
+    extends _$ReportsCopyWithImpl<$Res, _$ReportsImpl>
+    implements _$$ReportsImplCopyWith<$Res> {
+  __$$ReportsImplCopyWithImpl(
+      _$ReportsImpl _value, $Res Function(_$ReportsImpl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? title = null,
+    Object? description = null,
+    Object? price = null,
+  }) {
+    return _then(_$ReportsImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      title: null == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
+      description: null == description
+          ? _value.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String,
+      price: null == price
+          ? _value.price
+          : price // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ReportsImpl implements _Reports {
+  const _$ReportsImpl(
+      {required this.id,
+      required this.title,
+      required this.description,
+      required this.price});
+
+  factory _$ReportsImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ReportsImplFromJson(json);
+
+  @override
+  final int id;
+  @override
+  final String title;
+  @override
+  final String description;
+  @override
+  final String price;
+
+  @override
+  String toString() {
+    return 'Reports(id: $id, title: $title, description: $description, price: $price)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ReportsImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.title, title) || other.title == title) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
+            (identical(other.price, price) || other.price == price));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(runtimeType, id, title, description, price);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ReportsImplCopyWith<_$ReportsImpl> get copyWith =>
+      __$$ReportsImplCopyWithImpl<_$ReportsImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ReportsImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _Reports implements Reports {
+  const factory _Reports(
+      {required final int id,
+      required final String title,
+      required final String description,
+      required final String price}) = _$ReportsImpl;
+
+  factory _Reports.fromJson(Map<String, dynamic> json) = _$ReportsImpl.fromJson;
+
+  @override
+  int get id;
+  @override
+  String get title;
+  @override
+  String get description;
+  @override
+  String get price;
+  @override
+  @JsonKey(ignore: true)
+  _$$ReportsImplCopyWith<_$ReportsImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

@@ -23,7 +23,7 @@ mixin _$UserModel {
   int get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String? get image => throw _privateConstructorUsedError;
-  String get email => throw _privateConstructorUsedError;
+  String? get email => throw _privateConstructorUsedError;
   @JsonKey(name: 'email_verified_at')
   DateTime? get emailVerifiedAt => throw _privateConstructorUsedError;
   int? get type => throw _privateConstructorUsedError;
@@ -63,7 +63,7 @@ abstract class $UserModelCopyWith<$Res> {
       {int id,
       String name,
       String? image,
-      String email,
+      String? email,
       @JsonKey(name: 'email_verified_at') DateTime? emailVerifiedAt,
       int? type,
       String? address,
@@ -97,7 +97,7 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? id = null,
     Object? name = null,
     Object? image = freezed,
-    Object? email = null,
+    Object? email = freezed,
     Object? emailVerifiedAt = freezed,
     Object? type = freezed,
     Object? address = freezed,
@@ -127,10 +127,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
-      email: null == email
+      email: freezed == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       emailVerifiedAt: freezed == emailVerifiedAt
           ? _value.emailVerifiedAt
           : emailVerifiedAt // ignore: cast_nullable_to_non_nullable
@@ -207,7 +207,7 @@ abstract class _$$UserModelImplCopyWith<$Res>
       {int id,
       String name,
       String? image,
-      String email,
+      String? email,
       @JsonKey(name: 'email_verified_at') DateTime? emailVerifiedAt,
       int? type,
       String? address,
@@ -239,7 +239,7 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? name = null,
     Object? image = freezed,
-    Object? email = null,
+    Object? email = freezed,
     Object? emailVerifiedAt = freezed,
     Object? type = freezed,
     Object? address = freezed,
@@ -269,10 +269,10 @@ class __$$UserModelImplCopyWithImpl<$Res>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
-      email: null == email
+      email: freezed == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       emailVerifiedAt: freezed == emailVerifiedAt
           ? _value.emailVerifiedAt
           : emailVerifiedAt // ignore: cast_nullable_to_non_nullable
@@ -371,7 +371,7 @@ class _$UserModelImpl implements _UserModel {
   @override
   final String? image;
   @override
-  final String email;
+  final String? email;
   @override
   @JsonKey(name: 'email_verified_at')
   final DateTime? emailVerifiedAt;
@@ -494,7 +494,7 @@ abstract class _UserModel implements UserModel {
       {required final int id,
       required final String name,
       required final String? image,
-      required final String email,
+      required final String? email,
       @JsonKey(name: 'email_verified_at')
       required final DateTime? emailVerifiedAt,
       required final int? type,
@@ -522,7 +522,7 @@ abstract class _UserModel implements UserModel {
   @override
   String? get image;
   @override
-  String get email;
+  String? get email;
   @override
   @JsonKey(name: 'email_verified_at')
   DateTime? get emailVerifiedAt;

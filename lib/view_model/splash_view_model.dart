@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/repositories/users_repository.dart';
+import 'package:global_reparaturservice/view_model/language_view_model.dart';
 
 import '../core/providers/dio_network_provider.dart';
 import '../core/providers/token_provider.dart';
@@ -20,12 +22,13 @@ class SplashViewModel extends StateNotifier<ResponseState<UserModel>>{
 
   SplashViewModel(this.ref) : super(const ResponseState<UserModel>.idle());
 
-  Future<void> checkAndGetLocalUser() async{
-
+  Future<String> checkAndGetLocalUser() async{
 
     final token  = await SharedPref.get('userToken');
 
     ref.read(tokenProvider.notifier).state = token;
+
+    final savesLanguage = await ref.read(languageViewModelProvider.notifier).getLanguage();
     
     usersRepository = UsersRepository(dioClient: ref.read(dioClientNetworkProvider) , ref: ref);
 
@@ -50,6 +53,8 @@ class SplashViewModel extends StateNotifier<ResponseState<UserModel>>{
     else{
       state = const ResponseState<UserModel>.success(data: {});
     }
+
+    return savesLanguage;
   }
 
   setState(ResponseState<UserModel> newState){

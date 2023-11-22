@@ -22,7 +22,10 @@ _$OrderModelImpl _$$OrderModelImplFromJson(Map<String, dynamic> json) =>
       blockNo: json['block_no'] as String?,
       isPaid: json['is_paid'] as bool,
       amount: json['amount'] as int?,
-      report: json['report'] as String?,
+      reports: (json['reports'] as List<dynamic>?)
+          ?.map((e) => Reports.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      visitTime: json['visit_time'] as String?,
       paymentId: json['payment_id'] as String?,
       paymentWay: json['payment_way'],
       customerId: json['customer_id'] as int,
@@ -65,7 +68,8 @@ Map<String, dynamic> _$$OrderModelImplToJson(_$OrderModelImpl instance) =>
       'block_no': instance.blockNo,
       'is_paid': instance.isPaid,
       'amount': instance.amount,
-      'report': instance.report,
+      'reports': instance.reports,
+      'visit_time': instance.visitTime,
       'payment_id': instance.paymentId,
       'payment_way': instance.paymentWay,
       'customer_id': instance.customerId,
@@ -84,4 +88,20 @@ Map<String, dynamic> _$$OrderModelImplToJson(_$OrderModelImpl instance) =>
       'updated_at': instance.updatedAt.toIso8601String(),
       'deleted_at': instance.deletedAt?.toIso8601String(),
       'status_name': instance.statusName,
+    };
+
+_$ReportsImpl _$$ReportsImplFromJson(Map<String, dynamic> json) =>
+    _$ReportsImpl(
+      id: json['id'] as int,
+      title: json['title'] as String,
+      description: json['description'] as String,
+      price: json['price'] as String,
+    );
+
+Map<String, dynamic> _$$ReportsImplToJson(_$ReportsImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'title': instance.title,
+      'description': instance.description,
+      'price': instance.price,
     };

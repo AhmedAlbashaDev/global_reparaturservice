@@ -17,6 +17,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/service/stripe_payment.dart';
 import '../../../../models/order.dart';
 import '../../../../models/response_state.dart';
+import '../../../../view_model/load_one_order_view_model.dart';
 import '../../../../view_model/order_view_model.dart';
 import '../../../widgets/custom_app_bar.dart';
 import '../../../widgets/custom_error.dart';
@@ -27,7 +28,7 @@ import '../../../widgets/gradient_background.dart';
 final selectPayCash = StateProvider.autoDispose<bool?>((ref) => null);
 final selectPayLater = StateProvider.autoDispose<bool>((ref) => false);
 final addedFiles = StateProvider<int>((ref) => 0);
-final orderType = StateProvider<int>((ref) => 0);
+final orderType = StateProvider.autoDispose<int>((ref) => 1);
 
 class OrderDetailsTechnician extends ConsumerStatefulWidget {
   const OrderDetailsTechnician(
@@ -48,7 +49,6 @@ class _OrderDetailsTechnicianState
   final int orderId;
   final int routeId;
 
-  late TextEditingController report;
   late TextEditingController amount;
 
   static final GlobalKey<FormState> _reportFormKey = GlobalKey<FormState>();
@@ -63,118 +63,132 @@ class _OrderDetailsTechnicianState
     super.initState();
 
     Future.microtask(() {
-      ref.read(orderViewModelProvider.notifier).loadOne(orderId: orderId);
+      ref.read(loadOrderViewModelProvider.notifier).loadOne(orderId: orderId);
       ref.read(addedFiles.notifier).state = 0;
     });
 
-    report = TextEditingController();
     amount = TextEditingController();
   }
 
   @override
   void dispose() {
-    report.dispose();
     amount.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+
     ref.listen<ResponseState<OrderModel>>(orderViewModelProvider,
-        (previous, next) {
-      next.whenOrNull(
-        success: (order) {
+            (previous, next) {
+          next.whenOrNull(
+            success: (order) {
 
-          if(order?['send_invoice'] == true){
-            AwesomeDialog(
-                context: context,
-                dialogType: DialogType.info,
-                animType: AnimType.rightSlide,
-                title: 'Invoice'.tr(),
-                desc: 'Successfully send invoice to customer'.tr(),
-                autoDismiss: false,
-                dialogBackgroundColor: Colors.white,
-                btnOk: CustomButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  radius: 10,
-                  text: 'Ok'.tr(),
-                  textColor: Colors.white,
-                  bgColor: Theme.of(context).primaryColor,
-                  height: 40,
-                ),
-                onDismissCallback: (dismiss) {})
-                .show();
-          }
-          else if(order?['finish_order'] == true){
-            AwesomeDialog(
-                context: context,
-                dialogType: DialogType.success,
-                animType: AnimType.rightSlide,
-                title: 'Order'.tr(),
-                desc: 'Successfully finished this order \n Check other orders'.tr(),
-                autoDismiss: false,
-                dialogBackgroundColor: Colors.white,
-                btnOk: CustomButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    ref.read(selectedFilesToUpload).clear();
-                    amount.clear();
-                    ref
-                        .read(routeViewModelProvider.notifier)
-                        .loadOne(routeId: routeId);
-                    Navigator.of(context).pop();
-                  },
-                  radius: 10,
-                  text: 'Ok'.tr(),
-                  textColor: Colors.white,
-                  bgColor: Theme.of(context).primaryColor,
-                  height: 40,
-                ),
-                onDismissCallback: (dismiss) {})
-                .show();
-          }
-          else{
-            ref.read(selectedFilesToUpload).clear();
-            amount.clear();
-            ref.read(orderViewModelProvider.notifier).loadOne(orderId: orderId);
-          }
-        },
-        data: (orderModel){
-          ref.read(orderType.notifier).state = orderModel.type;
-          if(orderModel.type == 3){
-            report.text = orderModel.report ?? '';
-          }
-        },
-        error: (error) {
-          if (ModalRoute.of(context)?.isCurrent != true) {
-            Navigator.pop(context);
-          }
+              if(order?['send_invoice'] == true){
+                AwesomeDialog(
+                    context: context,
+                    dialogType: DialogType.info,
+                    animType: AnimType.rightSlide,
+                    title: 'Invoice'.tr(),
+                    desc: 'Successfully send Invoice to customer'.tr(),
+                    autoDismiss: false,
+                    dialogBackgroundColor: Colors.white,
+                    btnOk: CustomButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      radius: 10,
+                      text: 'Ok'.tr(),
+                      textColor: Colors.white,
+                      bgColor: Theme.of(context).primaryColor,
+                      height: 40,
+                    ),
+                    onDismissCallback: (dismiss) {})
+                    .show();
+              }
+              else if(order?['finish_order'] == true){
+                AwesomeDialog(
+                    context: context,
+                    dialogType: DialogType.success,
+                    animType: AnimType.rightSlide,
+                    title: 'Order'.tr(),
+                    desc: 'Successfully finished this order \n Check other orders'.tr(),
+                    autoDismiss: false,
+                    dialogBackgroundColor: Colors.white,
+                    btnOk: CustomButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        ref.read(selectedFilesToUpload).clear();
+                        amount.clear();
+                        ref
+                            .read(routeViewModelProvider.notifier)
+                            .loadOne(routeId: routeId);
+                        Navigator.of(context).pop();
+                      },
+                      radius: 10,
+                      text: 'Ok'.tr(),
+                      textColor: Colors.white,
+                      bgColor: Theme.of(context).primaryColor,
+                      height: 40,
+                    ),
+                    onDismissCallback: (dismiss) {})
+                    .show();
+              }
+              else{
+                ref.read(selectedFilesToUpload).clear();
+                amount.clear();
+                ref.read(loadOrderViewModelProvider.notifier).loadOne(orderId: orderId);
+              }
+            },
+            data: (orderModel){
+              ref.read(orderType.notifier).state = orderModel.type;
+              //::TODO Conver Report To Table
+              // if(orderModel.type == 3){
+              //
+              //   report.text = orderModel.report ?? '';
+              // }
+            },
+            error: (error) {
+              if (ModalRoute.of(context)?.isCurrent != true) {
+                Navigator.pop(context);
+              }
 
-          AwesomeDialog(
-              context: context,
-              dialogType: DialogType.error,
-              animType: AnimType.rightSlide,
-              title: 'Error'.tr(),
-              desc: error.errorMessage,
-              autoDismiss: false,
-              dialogBackgroundColor: Colors.white,
-              btnCancel: CustomButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                radius: 10,
-                text: 'Ok'.tr(),
-                textColor: Colors.white,
-                bgColor: const Color(0xffd63d46),
-                height: 40,
-              ),
-              onDismissCallback: (dismiss) {})
-              .show();
-        },
-      );
-    });
+              AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.error,
+                  animType: AnimType.rightSlide,
+                  title: 'Error'.tr(),
+                  desc: error.errorMessage,
+                  autoDismiss: false,
+                  dialogBackgroundColor: Colors.white,
+                  btnCancel: CustomButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    radius: 10,
+                    text: 'Ok'.tr(),
+                    textColor: Colors.white,
+                    bgColor: const Color(0xffd63d46),
+                    height: 40,
+                  ),
+                  onDismissCallback: (dismiss) {})
+                  .show();
+            },
+          );
+        });
+
+    ref.listen<ResponseState<OrderModel>>(loadOrderViewModelProvider,
+            (previous, next) {
+          next.whenOrNull(
+            data: (orderModel){
+              ref.read(orderType.notifier).state = orderModel.type;
+              //::TODO Conver Report To Table
+              // if(orderModel.type == 3){
+              //   report.text = orderModel.report ?? '';
+              // }
+            },
+          );
+        });
 
     return Scaffold(
       body: SafeArea(
@@ -192,7 +206,7 @@ class _OrderDetailsTechnicianState
                     Navigator.pop(context);
                   },
                 ),
-                ref.watch(orderViewModelProvider).maybeWhen(
+                ref.watch(loadOrderViewModelProvider).maybeWhen(
                       loading: () => Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -219,9 +233,11 @@ class _OrderDetailsTechnicianState
                       ),
                       data: (orderModel) {
 
-                        if (orderModel.status == 3) {
-                          report.text = orderModel.report ?? '';
-                        }
+                        Future.microtask(() => ref.read(orderType.notifier).state = orderModel.type);
+                        //::TODO Conver Report To Table
+                        // if(orderModel.type == 3){
+                        //   report.text = orderModel.report ?? '';
+                        // }
 
                         if(_refreshController.isRefresh){
                           _refreshController.refreshCompleted();
@@ -229,16 +245,44 @@ class _OrderDetailsTechnicianState
 
                         globalOrderModel = orderModel;
 
-                        return OrderDetailsTechnicianView(orderModel: orderModel, reportFormKey: _reportFormKey, refreshController: _refreshController, report: report, amount: amount);
+                        return ref.watch(orderViewModelProvider).maybeWhen(
+                          loading: ()=> Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Lottie.asset('assets/images/global_loader.json',
+                                    height: 50),
+                                if (ref.watch(sendingRequestProgress) > 0)
+                                  Column(
+                                    children: [
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      AutoSizeText(
+                                        '${ref.watch(sendingRequestProgress)}%',
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w600,
+                                            color: Theme.of(context).primaryColor),
+                                      )
+                                    ],
+                                  )
+                              ],
+                            ),
+                          ),
+                          orElse: (){
+                            return OrderDetailsTechnicianView(orderModel: globalOrderModel!, reportFormKey: _reportFormKey, refreshController: _refreshController, amount: amount);
+                          }
+                        );
                       },
                       success: (data) {
-                          return OrderDetailsTechnicianView(orderModel: globalOrderModel!, reportFormKey: _reportFormKey, refreshController: _refreshController, report: report, amount: amount);
+                          return OrderDetailsTechnicianView(orderModel: globalOrderModel!, reportFormKey: _reportFormKey, refreshController: _refreshController, amount: amount);
                       },
                       error: (error) => CustomError(
                         message: error.errorMessage ?? '',
                         onRetry: () {
                           ref
-                              .read(orderViewModelProvider.notifier)
+                              .read(loadOrderViewModelProvider.notifier)
                               .loadOne(orderId: orderId);
                         },
                       ),
@@ -247,7 +291,7 @@ class _OrderDetailsTechnicianState
                           message: 'unknown_error_please_try_again'.tr(),
                           onRetry: () {
                             ref
-                                .read(orderViewModelProvider.notifier)
+                                .read(loadOrderViewModelProvider.notifier)
                                 .loadOne(orderId: orderId);
                           },
                         ),
@@ -263,11 +307,13 @@ class _OrderDetailsTechnicianState
 }
 
 class OrderDetailsTechnicianView extends ConsumerWidget {
-  const OrderDetailsTechnicianView({super.key ,required this.orderModel,required this.reportFormKey,required this.refreshController ,required this.report,required this.amount,});
+  OrderDetailsTechnicianView({super.key ,required this.orderModel,required this.reportFormKey,required this.refreshController ,required this.amount,});
 
   final OrderModel orderModel;
 
-  final TextEditingController report;
+  final TextEditingController title = TextEditingController();
+  final TextEditingController description = TextEditingController();
+  final TextEditingController price = TextEditingController();
   final TextEditingController amount;
 
   final GlobalKey<FormState> reportFormKey;
@@ -287,7 +333,7 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
             enablePullUp: false,
             onRefresh: () async {
               ref
-                  .read(orderViewModelProvider.notifier)
+                  .read(loadOrderViewModelProvider.notifier)
                   .loadOne(orderId: orderModel.id);
             },
             child: SingleChildScrollView(
@@ -488,7 +534,7 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                           ),
                         ),
                         AutoSizeText(
-                          orderModel.statusName.tr(),
+                          orderModel.statusName,
                           style: TextStyle(
                             color: Theme.of(context)
                                 .primaryColor,
@@ -621,21 +667,12 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                                             .red,
                                         size: 25,
                                       ),
-                                      message:
-                                      'images_maximum'
-                                          .tr(),
-                                      bgColor: Colors
-                                          .grey
-                                          .shade600,
-                                      borderColor: Colors
-                                          .redAccent
-                                          .shade200,
+                                      message: 'files_maximum'.tr(),
+                                      bgColor: Colors.grey.shade600,
+                                      borderColor: Colors.redAccent.shade200,
                                     ),
                                   );
-                                  ScaffoldMessenger
-                                      .of(context)
-                                      .showSnackBar(
-                                      snackBar);
+                                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
                                 }
                               }
                             }
@@ -686,90 +723,39 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                                 children: [
                                   IconButton(
                                       onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          barrierDismissible:
-                                          false,
-                                          builder: (_) =>
-                                              Center(
-                                                child: Container(
-                                                  height:
-                                                  screenHeight *
-                                                      20,
-                                                  width:
-                                                  screenWidth *
-                                                      90,
-                                                  margin:
-                                                  const EdgeInsets
-                                                      .all(
-                                                      24),
-                                                  decoration: BoxDecoration(
-                                                      color: Colors
-                                                          .white,
-                                                      borderRadius:
-                                                      BorderRadius.circular(
-                                                          12)),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                    CrossAxisAlignment
-                                                        .center,
-                                                    mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                    children: [
-                                                      Material(
-                                                        child:
-                                                        AutoSizeText(
-                                                          'are_you_sure_you_want_to_delete'
-                                                              .tr(),
-                                                          style: TextStyle(
-                                                              color: Theme.of(context)
-                                                                  .primaryColor,
-                                                              fontSize:
-                                                              17,
-                                                              fontWeight:
-                                                              FontWeight.bold),
-                                                        ),
-                                                      ),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceEvenly,
-                                                        children: [
-                                                          CustomButton(
-                                                            onPressed:
-                                                                () {
-                                                              Navigator.pop(context);
-                                                            },
-                                                            text:
-                                                            'no'.tr(),
-                                                            textColor:
-                                                            Theme.of(context).primaryColor,
-                                                            bgColor:
-                                                            Colors.white,
-                                                          ),
-                                                          CustomButton(
-                                                            onPressed:
-                                                                () {
-                                                              Navigator.pop(context);
-                                                              ref.read(orderViewModelProvider.notifier).deleteFile(
-                                                                  id: orderModel.id,
-                                                                  fileId: orderModel.files?[index].id);
-                                                            },
-                                                            text:
-                                                            'yes'.tr(),
-                                                            textColor:
-                                                            Colors.white,
-                                                            bgColor:
-                                                            Colors.red,
-                                                          )
-                                                        ],
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                        );
+                                        AwesomeDialog(
+                                            context: context,
+                                            dialogType: DialogType.question,
+                                            animType: AnimType.rightSlide,
+                                            title: 'Delete'.tr(),
+                                            desc: 'are_you_sure_you_want_to_delete'.tr(),
+                                            autoDismiss: false,
+                                            dialogBackgroundColor: Colors.white,
+                                            btnCancel: CustomButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              radius: 10,
+                                              text: 'No'.tr(),
+                                              textColor: Colors.white,
+                                              bgColor: const Color(0xffd63d46),
+                                              height: 40,
+                                            ),
+                                            btnOk: CustomButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                ref.read(orderViewModelProvider.notifier).deleteFile(
+                                                    id: orderModel.id,
+                                                    fileId: orderModel.files?[index].id);
+                                              },
+                                              radius: 10,
+                                              text: 'Yes'.tr(),
+                                              textColor: Colors.white,
+                                              bgColor: Theme.of(context).primaryColor,
+                                              height: 40,
+                                            ),
+                                            onDismissCallback: (dismiss) {})
+                                            .show();
                                       },
                                       icon: Icon(
                                         Icons.delete_rounded,
@@ -861,7 +847,6 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                       ],
                     ),
                   const SizedBox(height: 5,),
-                  //Order Type
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
@@ -869,8 +854,7 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                         borderRadius:
                         BorderRadius.circular(8),
                         border: Border.all(
-                            color:
-                            const Color(0xffDCDCDC))),
+                            color: const Color(0xffDCDCDC))),
                     padding: const EdgeInsets.all(12),
                     child: Column(
                       mainAxisAlignment:
@@ -881,94 +865,359 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                         AutoSizeText(
                           'Order Type'.tr(),
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 11,
                             color: Theme.of(context)
                                 .primaryColor,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
-                        if(orderModel.type != 3)
-                          Column(
-                            children: [
-                              RadioListTile(
-                                  value: 1,
-                                  groupValue: ref.watch(orderType),
-                                  onChanged: (value) {
-                                    if(orderModel.status != 3){
-                                      ref.read(orderType.notifier).state = value ?? 1;
-                                    }
-                                  },
-                                  activeColor: Theme.of(context).primaryColor,
-                                  title: AutoSizeText(
-                                    'Pick-Up'.tr(),
-                                    style: TextStyle(
-                                      color: Theme.of(context)
-                                          .primaryColor,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  )
-                              ),
-                              RadioListTile(
-                                  value: 2,
-                                  groupValue: ref.watch(orderType),
-                                  onChanged: (value) {
-                                    if(orderModel.status != 3){
-                                      ref.read(orderType.notifier).state = value ?? 2;
-                                    }
-                                  },
-                                  activeColor: Theme.of(context).primaryColor,
-                                  title: AutoSizeText(
-                                    'On-Site'.tr(),
-                                    style: TextStyle(
-                                      color: Theme.of(context)
-                                          .primaryColor,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  )
-                              ),
-                            ],
-                          )
-                        else
-                          RadioListTile(
-                              value: 3,
-                              groupValue: orderModel.type,
-                              onChanged: (value) {},
-                              activeColor: Theme.of(context).primaryColor,
-                              title: AutoSizeText(
-                                'Drop-Off'.tr(),
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .primaryColor,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              )
+                        AutoSizeText(
+                          orderModel.type == 1 ? 'Pick-Up'.tr() : (orderModel.type == 2 ? 'On-Site'.tr() : 'Drop-Off'.tr()),
+                          style: TextStyle(color: Theme.of(context).primaryColor,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
                           ),
+                        )
                       ],
                     ),
                   ),
+                  if(orderModel.type != 3 && !orderModel.isPaid)
+                    Column(
+                      children: [
+                        const SizedBox(height: 5,),
+                        //Order Type
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                              BorderRadius.circular(8),
+                              border: Border.all(
+                                  color:
+                                  const Color(0xffDCDCDC))),
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            mainAxisAlignment:
+                            MainAxisAlignment.start,
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                            children: [
+                              AutoSizeText(
+                                'Change Order Type'.tr(),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Theme.of(context)
+                                      .primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Column(
+                                children: [
+                                  RadioListTile(
+                                      value: 1,
+                                      groupValue: ref.watch(orderType),
+                                      onChanged: (value) {
+                                        if(orderModel.status != 3){
+                                          ref.read(orderType.notifier).state = value ?? 1;
+                                        }
+                                      },
+                                      activeColor: Theme.of(context).primaryColor,
+                                      title: AutoSizeText(
+                                        'Pick-Up'.tr(),
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .primaryColor,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      )
+                                  ),
+                                  RadioListTile(
+                                      value: 2,
+                                      groupValue: ref.watch(orderType),
+                                      onChanged: (value) {
+                                        if(orderModel.status != 3){
+                                          ref.read(orderType.notifier).state = value ?? 2;
+                                        }
+                                      },
+                                      activeColor: Theme.of(context).primaryColor,
+                                      title: AutoSizeText(
+                                        'On-Site'.tr(),
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .primaryColor,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      )
+                                  ),
+                                  const SizedBox(height: 5,),
+                                  SizedBox(
+                                    width: screenWidth * 70,
+                                    height: 45,
+                                    child: CustomButton(
+                                      onPressed: (){
+                                        AwesomeDialog(
+                                            context: context,
+                                            dialogType: DialogType.question,
+                                            animType: AnimType.rightSlide,
+                                            title: 'Order Type'.tr(),
+                                            desc: ref.watch(orderType) == 1
+                                                ? 'Are you sure you want to update order type to be Pick-Up order'.tr()
+                                                : 'Are you sure you want to update order type to be On-Site order you will need to complete payment process to finish this order'.tr(),
+                                            autoDismiss: false,
+                                            dialogBackgroundColor: Colors.white,
+                                            btnCancel: CustomButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              radius: 10,
+                                              text: 'No'.tr(),
+                                              textColor: Colors.white,
+                                              bgColor: const Color(0xffd63d46),
+                                              height: 40,
+                                            ),
+                                            btnOk: CustomButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                ref.read(orderViewModelProvider.notifier).updateOrderType(orderId: orderModel.id, type: ref.read(orderType));
+                                              },
+                                              radius: 10,
+                                              text: 'Yes'.tr(),
+                                              textColor: Colors.white,
+                                              bgColor: Theme.of(context).primaryColor,
+                                              height: 40,
+                                            ),
+                                            onDismissCallback: (dismiss) {})
+                                            .show();
+                                      },
+                                      text: 'Update Order Type'.tr(),
+                                      textColor: Colors.white,
+                                      bgColor: Theme.of(context).primaryColor,
+                                      radius: 10,
+                                    ),
+                                  )
+                                ],
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
                   const SizedBox(
                     height: 10,
                   ),
-                  Form(
-                    key: reportFormKey,
-                    child: CustomTextFormField(
-                      label: 'order_report'.tr(),
-                      controller: report,
-                      textInputType: TextInputType.multiline,
-                      height: 115,
-                      validator: (text) {
-                        if (text?.isEmpty ?? true) {
-                          return 'this_filed_required'.tr();
-                        }
-                        return null;
-                      },
-                      readOnly: orderModel.status == 3
-                          ? true
-                          : false,
-                    ),
+                  Column(
+                    children: [
+                      if((orderModel.reports ?? []).isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AutoSizeText(
+                              'Reports'.tr(),
+                              style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                  overflow: TextOverflow.ellipsis
+                              ),
+                            ),
+                            const SizedBox(height: 10,),
+                            Table(
+                              border: TableBorder.all(),
+                              children: [
+                                TableRow(
+                                  children: <Widget>[
+                                    TableCell(
+                                      verticalAlignment: TableCellVerticalAlignment.top,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(10),
+                                        color: Colors.grey[200],
+                                        child: AutoSizeText(
+                                          'Title'.tr(),
+                                          style: TextStyle(
+                                              color: Theme.of(context).primaryColor,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                              overflow: TextOverflow.ellipsis
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    TableCell(
+                                      verticalAlignment: TableCellVerticalAlignment.top,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(10),
+                                        color: Colors.grey[200],
+                                        child: AutoSizeText(
+                                          'Description'.tr(),
+                                          style: TextStyle(
+                                              color: Theme.of(context).primaryColor,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                              overflow: TextOverflow.ellipsis
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    TableCell(
+                                      verticalAlignment: TableCellVerticalAlignment.top,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(10),
+                                        color: Colors.grey[200],
+                                        child: AutoSizeText(
+                                          'Price'.tr(),
+                                          style: TextStyle(
+                                              color: Theme.of(context).primaryColor,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                              overflow: TextOverflow.ellipsis
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Table(
+                              border: TableBorder.all(),
+                              children: orderModel.reports?.map((e) {
+                                return TableRow(
+                                  children: <Widget>[
+                                    TableCell(
+                                      verticalAlignment: TableCellVerticalAlignment.top,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(10),
+                                        child: AutoSizeText(
+                                          e.title,
+                                          style: TextStyle(
+                                              color: Theme.of(context).primaryColor,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    TableCell(
+                                      verticalAlignment: TableCellVerticalAlignment.top,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(10),
+                                        child: AutoSizeText(
+                                          e.description,
+                                          style: TextStyle(
+                                              color: Theme.of(context).primaryColor,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    TableCell(
+                                      verticalAlignment: TableCellVerticalAlignment.top,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(10),
+                                        child: AutoSizeText(
+                                          e.price,
+                                          style: TextStyle(
+                                              color: Theme.of(context).primaryColor,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              overflow: TextOverflow.ellipsis
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }).toList() ?? [],
+                            ),
+                            const SizedBox(height: 10,),
+                          ],
+                        ),
+                      if(orderModel.status != 3)
+                      CustomButton(
+                          onPressed: (){
+                            AwesomeDialog(
+                                context: context,
+                                dialogType: DialogType.noHeader,
+                                animType: AnimType.rightSlide,
+                                autoDismiss: false,
+                                dialogBackgroundColor: Colors.white,
+                                body: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6 , vertical:12),
+                                  child: SingleChildScrollView(
+                                    child: Form(
+                                      key: reportFormKey,
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          AutoSizeText(
+                                            'Add New Report'.tr(),
+                                            style: TextStyle(
+                                                color: Theme.of(context).primaryColor,
+                                                fontSize: 17,
+                                                fontWeight: FontWeight.bold,
+                                                overflow: TextOverflow.ellipsis
+                                            ),
+                                          ),
+                                          const SizedBox(height: 20,),
+                                          CustomTextFormField(
+                                              controller: title,
+                                              label: 'Title'.tr(),
+                                              height: 60,
+                                              validator: (text){
+                                                if(text?.isEmpty ?? true){
+                                                  return 'this_filed_required'.tr();
+                                                }
+                                                return null;
+                                              }),
+                                          const SizedBox(height: 10,),
+                                          CustomTextFormField(
+                                              controller: description,
+                                              label: 'Description'.tr(),
+                                              height: 100,
+                                              validator: (text){
+                                                if(text?.isEmpty ?? true){
+                                                  return 'this_filed_required'.tr();
+                                                }
+                                                return null;
+                                              }),
+                                          const SizedBox(height: 10,),
+                                          CustomTextFormField(
+                                              controller: price,
+                                              textInputType: TextInputType.number,
+                                              label: 'Price'.tr(),
+                                              height: 60,
+                                              validator: (text){
+                                                if(text?.isEmpty ?? true){
+                                                  return 'this_filed_required'.tr();
+                                                }
+                                                return null;
+                                              }),
+                                          const SizedBox(height: 20,),
+                                          CustomButton(onPressed: (){
+                                            if(reportFormKey.currentState?.validate() ?? false){
+                                              Navigator.pop(context);
+                                              ref.read(orderViewModelProvider.notifier).addReports(id: orderModel.id, title: title.text, description: description.text, price: price.text);
+                                            }
+                                          }, text: "Add".tr(),radius: 10, height: 50, textColor: Colors.white, bgColor: Theme.of(context).primaryColor)
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                onDismissCallback: (dismiss) {})
+                                .show();
+                          },
+                          text: 'Add Report',
+                          textColor: Colors.white,
+                          radius: 10,
+                          height: 45,
+                          bgColor: Theme.of(context).primaryColor
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10,),
                   if (orderModel.amount == 0)
@@ -976,7 +1225,8 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                       children: [
                         CustomTextFormField(
                           label: 'New amount'.tr(),
-                          validator: (text) {},
+                          validator: (text) {
+                          },
                           controller: amount,
                           textInputType: TextInputType.number,
                         ),
@@ -1174,73 +1424,43 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                         ),
                       ],
                     ),
-                  if(orderModel.type != 3)
-                    if((ref.watch(orderType) == 1 && orderModel.amount != 0))
-                      if(orderModel.status != 3)
-                        Column(
-                          children: [
-                            SizedBox(
-                              height: 50,
-                              child: CustomButton(
-                                onPressed: () async {
-                                  if (reportFormKey.currentState?.validate() ?? false) {
-                                    ref.read(orderViewModelProvider.notifier).finishOrder(orderId: orderModel.id, report: report.text , isPayLater: false);
-                                  }
-                                },
-                                text: 'finish_order'.tr(),
-                                textColor: Colors.white,
-                                bgColor: Theme.of(context).primaryColor,
-                                radius: 10,
+                  (() {
+                    if(orderModel.status == 3 && orderModel.isPaid){
+                      return Container();
+                    }
+                    else{
+                      if((orderModel.type == 1 && orderModel.amount != 0 && orderModel.status != 3))
+                        {
+                          return Column(
+                            children: [
+                              SizedBox(
+                                height: 50,
+                                child: CustomButton(
+                                  onPressed: () async {
+                                      ref.read(orderViewModelProvider.notifier).finishOrder(orderId: orderModel.id, isPayLater: false);
+                                  },
+                                  text: 'finish_order'.tr(),
+                                  textColor: Colors.white,
+                                  bgColor: Theme.of(context).primaryColor,
+                                  radius: 10,
+                                ),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                          ],
-                        )
-                      else
-                        Container()
-                    else if (ref.watch(orderType) == 2 && orderModel.amount != 0)
-                      Column(
-                        children: [
-                          SizedBox(
-                            height: 50,
-                            child: CheckboxListTile(
-                              value: ref.watch(selectPayLater),
-                              activeColor: Theme.of(context)
-                                  .primaryColor,
-                              onChanged: (value) {
-                                ref
-                                    .read(
-                                    selectPayLater.notifier)
-                                    .state = value ?? false;
-                              },
-                              controlAffinity:
-                              ListTileControlAffinity
-                                  .leading,
-                              title: AutoSizeText(
-                                'pay_later'.tr(),
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .primaryColor,
-                                    fontWeight:
-                                    FontWeight.bold),
+                              const SizedBox(
+                                height: 10,
                               ),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          if(ref.watch(selectPayLater))
-                            Column(
+                            ],
+                          );
+                        }
+                      else if ((orderModel.type == 2 || orderModel.type == 3) && orderModel.amount != 0)
+                        {
+                          if(orderModel.isPaid){
+                            return Column(
                               children: [
                                 SizedBox(
                                   height: 50,
                                   child: CustomButton(
                                     onPressed: () async {
-                                      if (reportFormKey.currentState?.validate() ?? false) {
-                                        ref.read(orderViewModelProvider.notifier).finishOrder(orderId: orderModel.id, report: report.text , isPayLater: true);
-                                      }
+                                        ref.read(orderViewModelProvider.notifier).finishOrder(orderId: orderModel.id, isPayLater: false);
                                     },
                                     text: 'finish_order'.tr(),
                                     textColor: Colors.white,
@@ -1252,28 +1472,31 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                                   height: 10,
                                 ),
                               ],
-                            )
-                          else
-                            Column(
+                            );
+                          }
+                          else if (!orderModel.isPaid && orderModel.status == 3){
+                            return Container();
+                          }
+                          else{
+                            return Column(
                               children: [
                                 SizedBox(
                                   height: 50,
                                   child: CheckboxListTile(
-                                    value: ref.watch(selectPayCash) ??
-                                        false,
+                                    value: ref.watch(selectPayLater),
                                     activeColor: Theme.of(context)
                                         .primaryColor,
                                     onChanged: (value) {
                                       ref
                                           .read(
-                                          selectPayCash.notifier)
-                                          .state = value;
+                                          selectPayLater.notifier)
+                                          .state = value ?? false;
                                     },
                                     controlAffinity:
                                     ListTileControlAffinity
                                         .leading,
                                     title: AutoSizeText(
-                                      'pay_cash'.tr(),
+                                      'pay_later'.tr(),
                                       style: TextStyle(
                                           color: Theme.of(context)
                                               .primaryColor,
@@ -1285,253 +1508,144 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                SizedBox(
-                                  height: orderModel.status == 3 ? 0 : 45,
-                                  child: ref.watch(paymentLoadingProvider)
-                                      ? Lottie.asset(
-                                      'assets/images/global_loader.json',
-                                      height: 45)
-                                      : CustomButton(
-                                    onPressed:
-                                    orderModel.amount != null
-                                        ? () async {
-                                      if (orderModel
-                                          .isPaid) {
-                                        if (reportFormKey
-                                            .currentState
-                                            ?.validate() ??
-                                            false) {
-                                          ref
-                                              .read(orderViewModelProvider
-                                              .notifier)
-                                              .finishOrder(
-                                              orderId:
-                                              orderModel.id,
-                                              report: report
-                                                  .text,
-                                              isPayLater: false);
-                                        }
-                                      } else {
-                                        if (ref.watch(selectPayCash) == true) {//sure_you_get_the_payment_cash
-                                          AwesomeDialog(
-                                              context: context,
-                                              dialogType: DialogType.question,
-                                              animType: AnimType.rightSlide,
-                                              title: 'Payment'.tr(),
-                                              desc: 'sure_you_get_the_payment_cash'.tr(),
-                                              autoDismiss: false,
-                                              dialogBackgroundColor: Colors.white,
-                                              btnCancel: CustomButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                radius: 10,
-                                                text: 'No'.tr(),
-                                                textColor: Colors.white,
-                                                bgColor: const Color(0xffd63d46),
-                                                height: 40,
-                                              ),
-                                              btnOk: CustomButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                  ref.read(orderViewModelProvider.notifier).updatePayment(orderId: orderModel.id, paymentId: null, paymentWay: 1);
-                                                },
-                                                radius: 10,
-                                                text: 'Yes'.tr(),
-                                                textColor: Colors.white,
-                                                bgColor: Theme.of(context).primaryColor,
-                                                height: 40,
-                                              ),
-                                              onDismissCallback: (dismiss) {})
-                                              .show();
-                                        } else {
-                                          await StripePaymentService.makePayment(amount: '${orderModel.amount}', currency: 'USD', refProvider: ref , order: orderModel);
-                                        }
-                                      }
-                                    }
-                                        : null,
-                                    text: (orderModel.isPaid
-                                        ? 'finish_order'.tr()
-                                        : 'pay'.tr()),
-                                    textColor: Colors.white,
-                                    bgColor: Theme.of(context)
-                                        .primaryColor,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                              ],
-                            )
-                        ],
-                      )
-                    else
-                      Container()
-                  else
-                    Column(
-                          children: [
-                            SizedBox(
-                              height: 50,
-                              child: CheckboxListTile(
-                                value: ref.watch(selectPayLater),
-                                activeColor: Theme.of(context)
-                                    .primaryColor,
-                                onChanged: (value) {
-                                  ref
-                                      .read(
-                                      selectPayLater.notifier)
-                                      .state = value ?? false;
-                                },
-                                controlAffinity:
-                                ListTileControlAffinity
-                                    .leading,
-                                title: AutoSizeText(
-                                  'pay_later'.tr(),
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .primaryColor,
-                                      fontWeight:
-                                      FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            if(ref.watch(selectPayLater))
-                              Column(
-                                children: [
-                                  SizedBox(
-                                    height: 50,
-                                    child: CustomButton(
-                                      onPressed: () async {
-                                        if (reportFormKey.currentState?.validate() ?? false) {
-                                          ref.read(orderViewModelProvider.notifier).finishOrder(orderId: orderModel.id, report: report.text , isPayLater: true);
-                                        }
-                                      },
-                                      text: 'finish_order'.tr(),
-                                      textColor: Colors.white,
-                                      bgColor: Theme.of(context).primaryColor,
-                                      radius: 10,
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                ],
-                              )
-                            else
-                              Column(
-                                children: [
-                                  SizedBox(
-                                    height: 50,
-                                    child: CheckboxListTile(
-                                      value: ref.watch(selectPayCash) ??
-                                          false,
-                                      activeColor: Theme.of(context)
-                                          .primaryColor,
-                                      onChanged: (value) {
-                                        ref
-                                            .read(
-                                            selectPayCash.notifier)
-                                            .state = value;
-                                      },
-                                      controlAffinity:
-                                      ListTileControlAffinity
-                                          .leading,
-                                      title: AutoSizeText(
-                                        'pay_cash'.tr(),
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .primaryColor,
-                                            fontWeight:
-                                            FontWeight.bold),
+                                if(ref.watch(selectPayLater))
+                                  Column(
+                                    children: [
+                                      SizedBox(
+                                        height: 50,
+                                        child: CustomButton(
+                                          onPressed: () async {
+                                              ref.read(orderViewModelProvider.notifier).finishOrder(orderId: orderModel.id, isPayLater: true);
+                                          },
+                                          text: 'finish_order'.tr(),
+                                          textColor: Colors.white,
+                                          bgColor: Theme.of(context).primaryColor,
+                                          radius: 10,
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  SizedBox(
-                                    height: orderModel.status == 3 ? 0 : 45,
-                                    child: ref.watch(paymentLoadingProvider)
-                                        ? Lottie.asset(
-                                        'assets/images/global_loader.json',
-                                        height: 45)
-                                        : CustomButton(
-                                      onPressed:
-                                      orderModel.amount != null
-                                          ? () async {
-                                        if (orderModel
-                                            .isPaid) {
-                                          if (reportFormKey
-                                              .currentState
-                                              ?.validate() ??
-                                              false) {
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                    ],
+                                  )
+                                else
+                                  Column(
+                                    children: [
+                                      SizedBox(
+                                        height: 50,
+                                        child: CheckboxListTile(
+                                          value: ref.watch(selectPayCash) ??
+                                              false,
+                                          activeColor: Theme.of(context)
+                                              .primaryColor,
+                                          onChanged: (value) {
                                             ref
-                                                .read(orderViewModelProvider
-                                                .notifier)
-                                                .finishOrder(
-                                                orderId:
-                                                orderModel.id,
-                                                report: report
-                                                    .text,
-                                                isPayLater: false);
+                                                .read(
+                                                selectPayCash.notifier)
+                                                .state = value;
+                                          },
+                                          controlAffinity:
+                                          ListTileControlAffinity
+                                              .leading,
+                                          title: AutoSizeText(
+                                            'pay_cash'.tr(),
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .primaryColor,
+                                                fontWeight:
+                                                FontWeight.bold),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      SizedBox(
+                                        height: orderModel.status == 3 ? 0 : 45,
+                                        child: ref.watch(paymentLoadingProvider)
+                                            ? Lottie.asset(
+                                            'assets/images/global_loader.json',
+                                            height: 45)
+                                            : CustomButton(
+                                          onPressed:
+                                          orderModel.amount != null
+                                              ? () async {
+                                            if (orderModel
+                                                .isPaid) {
+                                              if (reportFormKey
+                                                  .currentState
+                                                  ?.validate() ??
+                                                  false) {
+                                                ref
+                                                    .read(orderViewModelProvider
+                                                    .notifier)
+                                                    .finishOrder(
+                                                    orderId:
+                                                    orderModel.id,
+                                                    isPayLater: false);
+                                              }
+                                            } else {
+                                              if (ref.watch(selectPayCash) == true) {//sure_you_get_the_payment_cash
+                                                AwesomeDialog(
+                                                    context: context,
+                                                    dialogType: DialogType.question,
+                                                    animType: AnimType.rightSlide,
+                                                    title: 'Payment'.tr(),
+                                                    desc: 'sure_you_get_the_payment_cash'.tr(),
+                                                    autoDismiss: false,
+                                                    dialogBackgroundColor: Colors.white,
+                                                    btnCancel: CustomButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                      radius: 10,
+                                                      text: 'No'.tr(),
+                                                      textColor: Colors.white,
+                                                      bgColor: const Color(0xffd63d46),
+                                                      height: 40,
+                                                    ),
+                                                    btnOk: CustomButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context).pop();
+                                                        ref.read(orderViewModelProvider.notifier).updatePayment(orderId: orderModel.id, paymentId: null, paymentWay: 1);
+                                                      },
+                                                      radius: 10,
+                                                      text: 'Yes'.tr(),
+                                                      textColor: Colors.white,
+                                                      bgColor: Theme.of(context).primaryColor,
+                                                      height: 40,
+                                                    ),
+                                                    onDismissCallback: (dismiss) {})
+                                                    .show();
+                                              } else {
+                                                await StripePaymentService.makePayment(amount: '${orderModel.amount}', currency: 'USD', refProvider: ref , order: orderModel);
+                                              }
+                                            }
                                           }
-                                        } else {
-                                          if (ref.watch(selectPayCash) == true) {//sure_you_get_the_payment_cash
-                                            AwesomeDialog(
-                                                context: context,
-                                                dialogType: DialogType.question,
-                                                animType: AnimType.rightSlide,
-                                                title: 'Payment'.tr(),
-                                                desc: 'sure_you_get_the_payment_cash'.tr(),
-                                                autoDismiss: false,
-                                                dialogBackgroundColor: Colors.white,
-                                                btnCancel: CustomButton(
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                  radius: 10,
-                                                  text: 'No'.tr(),
-                                                  textColor: Colors.white,
-                                                  bgColor: const Color(0xffd63d46),
-                                                  height: 40,
-                                                ),
-                                                btnOk: CustomButton(
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                    ref.read(orderViewModelProvider.notifier).updatePayment(orderId: orderModel.id, paymentId: null, paymentWay: 1);
-                                                  },
-                                                  radius: 10,
-                                                  text: 'Yes'.tr(),
-                                                  textColor: Colors.white,
-                                                  bgColor: Theme.of(context).primaryColor,
-                                                  height: 40,
-                                                ),
-                                                onDismissCallback: (dismiss) {})
-                                                .show();
-                                          } else {
-                                            await StripePaymentService.makePayment(amount: '${orderModel.amount}', currency: 'USD', refProvider: ref , order: orderModel);
-                                          }
-                                        }
-                                      }
-                                          : null,
-                                      text: (orderModel.isPaid
-                                          ? 'finish_order'.tr()
-                                          : 'pay'.tr()),
-                                      textColor: Colors.white,
-                                      bgColor: Theme.of(context)
-                                          .primaryColor,
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                ],
-                              )
-                          ],
-                        )
+                                              : null,
+                                          text: (orderModel.isPaid
+                                              ? 'finish_order'.tr()
+                                              : 'pay'.tr()),
+                                          textColor: Colors.white,
+                                          bgColor: Theme.of(context)
+                                              .primaryColor,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                    ],
+                                  )
+                              ],
+                            );
+                          }
+                        }
+                      else
+                        {
+                          return Container();
+                        }
+                    }
+                  }()),
                 ],
               ),
             ),

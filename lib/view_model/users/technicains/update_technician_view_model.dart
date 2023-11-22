@@ -17,7 +17,7 @@ class UpdateTechnicianViewModel extends StateNotifier<ResponseState<UserModel>>{
 
   UpdateTechnicianViewModel(this.usersRepository) : super(const ResponseState<UserModel>.idle());
 
-  Future<void> update({required String endPoint , required String name , required String email, required String address, required String zoneArea, required String additional, required String phone,}) async{
+  Future<void> update({required String endPoint , required String name , required String address, required String zoneArea, required String additional, required String phone,}) async{
 
     setState(const ResponseState<UserModel>.loading());
 
@@ -25,7 +25,6 @@ class UpdateTechnicianViewModel extends StateNotifier<ResponseState<UserModel>>{
 
     final response = await usersRepository.update(endPoint: endPoint, data: {
       'name' : name,
-      'email' : email,
       'address' : address,
       "phone": phone,
       'zone_area' : zoneArea,

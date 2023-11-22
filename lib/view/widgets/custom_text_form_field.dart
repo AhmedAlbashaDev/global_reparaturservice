@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class CustomTextFormField extends StatelessWidget {
-  const CustomTextFormField({super.key, required this.label, this.controller, required this.validator, this.textInputType = TextInputType.text , this.readOnly = false , this.height = 60 , this.onTap , this.maxLength , this.minLength , this.hint , this.searchSuffix});
+  const CustomTextFormField({super.key, required this.label, this.controller, required this.validator, this.textInputType = TextInputType.text , this.readOnly = false , this.height = 70 , this.onTap , this.maxLength , this.minLength , this.hint , this.searchSuffix});
 
   final String label;
   final TextEditingController? controller;
@@ -25,6 +25,7 @@ class CustomTextFormField extends StatelessWidget {
         validator: validator,
         textAlignVertical: TextAlignVertical.top,
         onTap: onTap,
+        onTapOutside: (event) => FocusScope.of(context).unfocus(),
         keyboardType: textInputType,
         readOnly: readOnly,
         maxLines: null,

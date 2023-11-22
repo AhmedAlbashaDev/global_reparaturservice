@@ -21,7 +21,7 @@ class SearchViewModel extends StateNotifier<ResponseState>{
 
   SearchViewModel(this.searchRepository ,this.ref) : super(const ResponseState<UserModel>.idle());
 
-  Future<void> search({required String endPoint , required String searchText , String? dateFrom , String? dateTo , bool withoutRoute = false}) async{
+  Future<void> search({required String endPoint , required String searchText , String? dateFrom , String? dateTo , bool withoutRoute = false , bool active = false}) async{
 
     state = const ResponseState.loading();
 
@@ -29,11 +29,20 @@ class SearchViewModel extends StateNotifier<ResponseState>{
 
     String url = '';
 
-    if(withoutRoute == true){
-      url = '$endPoint?search_text=$searchText&per_page=10&without_route=$withoutRoute';
+    if(withoutRoute == true || active == true){
+      url = '$endPoint?search_text=$searchText&per_page=10';
+      if(withoutRoute == true){
+        url += '&without_route=true';
+      }
+      if(active == true){
+        url += '&active=true';
+      }
     }
     else if(dateTo != null && dateFrom != null){
       url = '$endPoint?search_text=$searchText&per_page=10&date_from=$dateFrom&date_to=$dateTo';
+    }
+    else if(active == true){
+      url = '$endPoint?search_text=$searchText&per_page=10&active=true';
     }
     else{
       url = '$endPoint?search_text=$searchText&per_page=10';

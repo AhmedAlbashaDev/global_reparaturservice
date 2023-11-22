@@ -63,7 +63,7 @@ class CustomerCard extends ConsumerWidget {
                           ),
                           const SizedBox(height: 5,),
                           AutoSizeText(
-                            userModel!.email,
+                            userModel!.email ?? '',
                             style: TextStyle(
                                 color: Theme.of(context).primaryColor,
                                 fontSize: 10,

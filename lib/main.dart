@@ -118,28 +118,29 @@ Future<void> main() async {
   Stripe.publishableKey = dotenv.env['STRIPE_PUBLISH'] ?? '';
 
 
+  runApp(
+      ProviderScope(
+        child: EasyLocalization(
+            supportedLocales: const [Locale('en'), Locale('de')],
+            path: 'assets/translations',
+            fallbackLocale: const Locale('en'),
+            startLocale: const Locale('en'),
+            useOnlyLangCode: true,
+            child: const MyApp()),
+      )
+    );
+
   // runApp(
-  //     ProviderScope(
-  //       child: EasyLocalization(
+  //     ProviderScope(child: DevicePreview(
+  //       enabled: true,
+  //       builder: (context) => EasyLocalization(
   //           supportedLocales: const [Locale('en'), Locale('de')],
   //           path: 'assets/translations',
   //           fallbackLocale: const Locale('en'),
   //           startLocale: const Locale('en'),
   //           child: const MyApp()),
-  //     )
-  //   );
-
-  runApp(
-      ProviderScope(child: DevicePreview(
-        enabled: true,
-        builder: (context) => EasyLocalization(
-            supportedLocales: const [Locale('en'), Locale('de')],
-            path: 'assets/translations',
-            fallbackLocale: const Locale('en'),
-            startLocale: const Locale('en'),
-            child: const MyApp()),
-      ))
-  );
+  //     ))
+  // );
 
 }
 
@@ -240,7 +241,7 @@ void onStart(ServiceInstance service) async {
   });
 
   // bring to foreground
-  Timer.periodic(const Duration(minutes: 1), (timer) async {
+  Timer.periodic(const Duration(minutes: 30), (timer) async {
 
     if(await SharedPref.get('userToken') != null && await SharedPref.get('userType') == 'driver'){
       if (service is AndroidServiceInstance) {
@@ -337,7 +338,7 @@ class _MyAppState extends State<MyApp> {
                     borderRadius: BorderRadius.circular(9),
                     borderSide: const BorderSide(color: Colors.red , width: 1.5)
                 ),
-                errorStyle: const TextStyle(height: .1),
+                errorStyle: const TextStyle(height: 1),
                 counterStyle: const TextStyle(height: .1,),
                 contentPadding: const EdgeInsets.all(10)
             )

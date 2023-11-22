@@ -40,7 +40,7 @@ class _RouteDetailsTechnicianState
 
   final int routeId;
 
-  late GoogleMapController mapController;
+  GoogleMapController? mapController;
 
   final Map<String, Marker> _markers = {};
 
@@ -91,7 +91,7 @@ class _RouteDetailsTechnicianState
 
   @override
   void dispose() {
-    mapController.dispose();
+    mapController?.dispose();
     super.dispose();
   }
 
@@ -232,9 +232,10 @@ class _RouteDetailsTechnicianState
                             //BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow)),
                             infoWindow: InfoWindow(
                               title: '#${index+1}',
-                              snippet: order.statusName.tr(),
+                              snippet: order.statusName,
                             ),
                           );
+
                           _markers[order.referenceNo] = marker;
 
                           polyLinePoints.add(position);
@@ -247,25 +248,30 @@ class _RouteDetailsTechnicianState
                                 onMapCreated: (GoogleMapController controller) {
                                   mapController = controller;
                                 },
+
                                 initialCameraPosition: CameraPosition(
                                   target: LatLng(
                                       routeDetails.orders?.first.lat ?? double.parse(centerLat),
                                       routeDetails.orders?.first.lng ?? double.parse(centerLng)),
-                                  zoom: 14,
+                                  zoom: 8,
                                 ),
                                 myLocationEnabled: true,
                                 myLocationButtonEnabled: false,
                                 zoomControlsEnabled: true,
                                 markers: _markers.values.toSet(),
-                                polygons: {
-                                  Polygon(
-                                      polygonId: PolygonId("$routeId",),
-                                      points: polyLinePoints,
-                                      strokeWidth: 2,
-                                      strokeColor: Theme.of(context).primaryColor.withOpacity(.6),
-                                      fillColor: Theme.of(context).primaryColor.withOpacity(.5)
-                                  )
-                                },
+                                // polylines: {
+                                //   Polyline(
+                                //     polylineId: PolylineId('$routeId'),
+                                //     points: polyLinePoints,
+                                //     color: Theme.of(context).primaryColor.withOpacity(.5),
+                                //     width: 1,
+                                //       // polygonId: PolygonId("$routeId",),
+                                //       // points: polyLinePoints,
+                                //       // strokeWidth: 2,
+                                //       // strokeColor: Theme.of(context).primaryColor.withOpacity(.6),
+                                //       // fillColor: Theme.of(context).primaryColor.withOpacity(.5)
+                                //   )
+                                // },
                               ),
                               Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -294,7 +300,7 @@ class _RouteDetailsTechnicianState
                                             radius: 22,
                                             child: IconButton(onPressed: (){
                                               ref.read(routeViewModelProvider.notifier).getLocation().then((position){
-                                                mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: LatLng(position.latitude , position.longitude) , zoom: 13)));
+                                                mapController?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: LatLng(position.latitude , position.longitude) , zoom: 13)));
                                               });
                                             },
                                               icon: const Icon(Icons.my_location , size: 25,),

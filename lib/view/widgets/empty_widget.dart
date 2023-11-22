@@ -5,11 +5,12 @@ import 'package:global_reparaturservice/core/globals.dart';
 import 'package:lottie/lottie.dart';
 
 class EmptyWidget extends StatelessWidget {
-  const EmptyWidget({super.key, this.text , this.height = 50 , this.textSize = 17});
+  const EmptyWidget({super.key, this.text , this.height = 50 , this.textSize = 17 , this.showImage = true,});
 
   final String? text;
   final double height;
   final double textSize;
+  final bool showImage;
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +20,8 @@ class EmptyWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Lottie.asset('assets/images/empty_animation.json',fit: BoxFit.contain , height: screenHeight * 25),
-            // SizedBox(height: height != 50 ? 10 : 20,),
+            if(showImage)
+              Lottie.asset('assets/images/empty_animation.json',fit: BoxFit.contain , height: screenHeight * 25),
             AutoSizeText(
               'no_data'.tr(),
               style: TextStyle(
@@ -28,6 +29,7 @@ class EmptyWidget extends StatelessWidget {
                 fontWeight: FontWeight.w600,
                 color: Theme.of(context).primaryColor
               ),
+              textAlign: TextAlign.center,
             )
           ],
         ),

@@ -3,7 +3,11 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:global_reparaturservice/core/providers/app_mode.dart';
 import 'package:global_reparaturservice/view/screens/bottom_menu/more/update_password.dart';
+import 'package:global_reparaturservice/view_model/language_view_model.dart';
+import 'package:global_reparaturservice/view_model/splash_view_model.dart';
+import '../../../../core/providers/app_locale.dart';
 import '../../../../models/response_state.dart';
 import '../../../../models/user.dart';
 import '../../../../view_model/logout_view_model.dart';
@@ -97,6 +101,8 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
                       MaterialButton(
                         onPressed: () {
                           ref.context.setLocale(context.locale.languageCode == 'en' ? const Locale('de') : const Locale('en'));
+                          ref.read(currentAppLocaleProvider.notifier).state = context.locale.languageCode == 'de' ? AppLocale.de : AppLocale.en;
+                          ref.read(languageViewModelProvider.notifier).changeLanguage(context.locale.languageCode == 'de' ? const Locale('de') : const Locale('en'));
                         },
                         padding: EdgeInsets.zero,
                         shape: RoundedRectangleBorder(
@@ -167,7 +173,8 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
                       const SizedBox(
                         height: 15,
                       ),
-                      MaterialButton(
+                      if(ref.watch(currentAppModeProvider) == AppMode.technician)
+                        MaterialButton(
                         onPressed: () {},
                         padding: EdgeInsets.zero,
                         shape: RoundedRectangleBorder(

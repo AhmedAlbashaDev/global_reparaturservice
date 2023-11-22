@@ -177,7 +177,7 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
                                       ),
                                     ),
                                     AutoSizeText(
-                                      routeDetails.statusName.tr(),
+                                      routeDetails.statusName,
                                       style:  TextStyle(
                                         color: Theme.of(context).primaryColor,
                                         fontSize: 15,
@@ -229,6 +229,7 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
                                 shrinkWrap: true,
                                 itemBuilder: (context, index) {
                                   return OrderCard(
+                                    orderIndex: index + 1,
                                       scaffoldContext: _scaffoldKey.currentContext,
                                       orderModel: routeDetails.orders?[index],
                                       onPressed: (){
@@ -534,7 +535,7 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
                                                                                                       AutoSizeText(
                                                                                                         technician
                                                                                                             .phone ??
-                                                                                                            technician.email,
+                                                                                                            '${technician.email}',
                                                                                                         style: TextStyle(
                                                                                                             color:
                                                                                                             Theme.of(context)
@@ -676,7 +677,7 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
                                             child: CustomButton(
                                                 onPressed: (){
                                               Navigator.push(context, MaterialPageRoute(builder: (context) => TrackTechnician(routesModel: routeDetails,)));
-                                            },
+                                              },
                                                 radius: 8,
                                                 text: 'Location'.tr(), textColor: Colors.white, bgColor: Theme.of(context).primaryColor
                                             ),
@@ -819,7 +820,7 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
                                                                             _refreshControllerTech.refreshCompleted(resetFooterState: true);
                                                                             _refreshControllerTech.loadComplete();
 
-                                                                            technicians.data.remove(routeDetails.driver);
+                                                                            // technicians.data.remove(routeDetails.driver);
 
                                                                             return technicians.data.isEmpty
                                                                                 ? Column(
@@ -882,7 +883,7 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
                                                                                         AutoSizeText.rich(
                                                                                           TextSpan(text: 'technicians'.tr(), children:  [
                                                                                             TextSpan(
-                                                                                                text: ' (${technicians.data.length})',
+                                                                                                text: ' (${technicians.total})',
                                                                                                 style: const TextStyle(
                                                                                                     fontSize: 15,
                                                                                                     fontWeight: FontWeight.w500))
@@ -958,7 +959,7 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
                                                                                                   child: Container(
                                                                                                       margin: const EdgeInsets.all(5),
                                                                                                       child: MaterialButton(
-                                                                                                        onPressed: () {
+                                                                                                        onPressed: routeDetails.driverId ==  technician.id? null : () {
                                                                                                           if(ref.watch(selectedTechnician)?.id == technician.id){
                                                                                                             ref.read(selectedTechnician.notifier).state = null;
                                                                                                           }
@@ -1011,7 +1012,7 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
                                                                                                                     AutoSizeText(
                                                                                                                       technician
                                                                                                                           .phone ??
-                                                                                                                          technician.email,
+                                                                                                                          '${technician.email}',
                                                                                                                       style: TextStyle(
                                                                                                                           color:
                                                                                                                           Theme.of(context)
@@ -1028,12 +1029,14 @@ class _RouteDetailsAdminState extends ConsumerState<RouteDetailsAdmin> with Tick
                                                                                                                     value: ref.watch(selectedTechnician)?.id == technician.id,
                                                                                                                     activeColor: Theme.of(context).primaryColor,
                                                                                                                     onChanged: (value){
-                                                                                                                      if(ref.watch(selectedTechnician)?.id == technician.id){
-                                                                                                                        ref.read(selectedTechnician.notifier).state = null;
-                                                                                                                      }
-                                                                                                                      else{
-                                                                                                                        ref.read(selectTechnicianLater.notifier).state = false;
-                                                                                                                        ref.read(selectedTechnician.notifier).state = technician;
+                                                                                                                      if(routeDetails.driverId !=  technician.id){
+                                                                                                                        if(ref.watch(selectedTechnician)?.id == technician.id){
+                                                                                                                          ref.read(selectedTechnician.notifier).state = null;
+                                                                                                                        }
+                                                                                                                        else{
+                                                                                                                          ref.read(selectTechnicianLater.notifier).state = false;
+                                                                                                                          ref.read(selectedTechnician.notifier).state = technician;
+                                                                                                                        }
                                                                                                                       }
                                                                                                                     },
                                                                                                                   ),

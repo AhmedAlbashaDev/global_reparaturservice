@@ -215,6 +215,7 @@ class _State extends ConsumerState<AddNewAdminScreen> {
                           ),
                           CustomTextFormField(
                             controller: email,
+                            textInputType: TextInputType.emailAddress,
                             validator: (String? text) {
                               if (text?.isEmpty ?? true) {
                                 return 'this_filed_required'.tr();

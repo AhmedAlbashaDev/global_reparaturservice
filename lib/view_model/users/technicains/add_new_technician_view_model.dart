@@ -17,7 +17,7 @@ class AddNewTechnicianViewModel extends StateNotifier<ResponseState<UserModel>>{
 
   AddNewTechnicianViewModel(this.usersRepository) : super(const ResponseState<UserModel>.idle());
 
-  Future<void> create({required String endPoint , required String name , required String email, required String phoneNo, required String zoneArea, required String address, required String additional,}) async{
+  Future<void> create({required String endPoint , required String name, required String password, required String phoneNo, required String zoneArea, required String address, required String additional,}) async{
 
     setState(const ResponseState<UserModel>.loading());
 
@@ -25,8 +25,8 @@ class AddNewTechnicianViewModel extends StateNotifier<ResponseState<UserModel>>{
 
     FormData data = FormData.fromMap({
       'name' : name,
-      'email' : email,
       'phone' : phoneNo,
+      'password' : password,
       'address' : address,
       'zone_area' : zoneArea,
       'additional_info' : '',

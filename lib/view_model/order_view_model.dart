@@ -17,22 +17,7 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
   final OrdersRepository ordersRepository;
    OrderViewModel(this.ordersRepository) : super(const ResponseState<OrderModel>.idle());
 
-  Future<void> loadOne({required int orderId}) async{
-
-    setState(const ResponseState<OrderModel>.loading());
-
-    await Future.delayed(const Duration(seconds: 1));
-
-    final response = await ordersRepository.loadOne(endPoint: 'orders/$orderId');
-
-    response.whenOrNull(data: (data) {
-      setState(ResponseState<OrderModel>.data(data: data));
-    }, error: (error) {
-      setState(ResponseState<OrderModel>.error(error: error));
-    });
-  }
-
-  Future<void> create({required String maintenanceDevice ,required String brand ,required String description ,required String address ,required String floorNumber ,required String apartmentNumber ,required String additionalInfo ,required int? customerId , required double? lat , required double? lng , required String? phone , required String? postalCode , required String? city , required String? zone}) async{
+  Future<void> create({required String maintenanceDevice ,required String brand ,required String description ,required String address ,required String floorNumber ,required String apartmentNumber ,required String additionalInfo ,required int? customerId , required double? lat , required double? lng , required String? phone , required String? postalCode , required String? city , required String? zone , required String? visitTime}) async{
 
     setState(const ResponseState<OrderModel>.loading());
 
@@ -53,6 +38,7 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
       'apartment_number' : apartmentNumber,
       'order_phone_number' : phone,
       'additional_info' : additionalInfo,
+      "visit_time" : visitTime,
     };
 
     final response = await ordersRepository.create(endPoint: 'orders', data: data);
@@ -70,8 +56,6 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
 
     await Future.delayed(const Duration(seconds: 1));
 
-
-    print('WithRoute $withRoute');
 
     final response = await ordersRepository.create(endPoint: 'orders/add-drop-off' ,data: {
       'reference_no' : referenceNumber,
@@ -123,6 +107,24 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
     });
   }
 
+  Future<void> updateOrderType({required int orderId ,required int? type}) async{
+
+    setState(const ResponseState<OrderModel>.loading());
+
+    final response = await ordersRepository.update(
+      orderId: orderId,
+      data: {
+        "type" : type,
+      },
+    );
+
+    response.whenOrNull(success: (data) {
+      setState(ResponseState<OrderModel>.success(data: data));
+    }, error: (error) {
+      setState(ResponseState<OrderModel>.error(error: error));
+    });
+  }
+
   Future<void> sendInvoice({required int orderId}) async{
 
     setState(const ResponseState<OrderModel>.loading());
@@ -136,7 +138,7 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
     });
   }
 
-  Future<void> finishOrder({required int orderId ,required String report , required bool isPayLater}) async{
+  Future<void> finishOrder({required int orderId ,required bool isPayLater}) async{
 
     setState(const ResponseState<OrderModel>.loading());
 
@@ -145,7 +147,6 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
     final response = await ordersRepository.update(
         orderId: orderId,
         data: {
-          "report" : report,
           "status" : 3,
           "is_pay_later" : isPayLater
         },
@@ -165,6 +166,27 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
     await Future.delayed(const Duration(seconds: 1));
 
     final response = await ordersRepository.addFiles(id: id, files: files);
+
+    response.whenOrNull(success: (data) {
+      setState(ResponseState<OrderModel>.success(data: data));
+    }, error: (error) {
+      setState(ResponseState<OrderModel>.error(error: error));
+    });
+  }
+
+  Future<void> addReports({required int id ,required String title, required String description , required String price}) async{
+
+    setState(const ResponseState<OrderModel>.loading());
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    Map data = {
+      "title" : title,
+      "description" : description,
+      "price" : price
+    };
+
+    final response = await ordersRepository.addReport(id: id, data: data);
 
     response.whenOrNull(success: (data) {
       setState(ResponseState<OrderModel>.success(data: data));

@@ -59,7 +59,7 @@ class _TrackTechnicianState extends ConsumerState<TrackTechnician> {
           //BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow)),
           infoWindow: InfoWindow(
             title: '#${order.id}',
-            snippet: order.statusName.tr(),
+            snippet: order.statusName,
           ),
         );
         _markers[order.referenceNo] = marker;
@@ -143,9 +143,9 @@ class _TrackTechnicianState extends ConsumerState<TrackTechnician> {
                   mapController = controller;
                 },
                 initialCameraPosition: CameraPosition(
-                  target: techniciansList == null
+                  target:techniciansList == null
                       ? LatLng(routesModel?.driver?.lat ?? double.parse(centerLat), routesModel?.driver?.lng ?? double.parse(centerLng))
-                      : LatLng(techniciansList?.first.lat ?? double.parse(centerLat), techniciansList?.first.lng ?? double.parse(centerLng)),
+                      : techniciansList?.isEmpty ?? false? LatLng(double.parse(centerLat),double.parse(centerLng)) : LatLng(techniciansList?.first.lat ?? double.parse(centerLat), techniciansList?.first.lng ?? double.parse(centerLng)),
                   zoom: 10,
                 ),
                 myLocationEnabled: true,
@@ -153,13 +153,14 @@ class _TrackTechnicianState extends ConsumerState<TrackTechnician> {
                 zoomControlsEnabled: true,
                 markers: _markers.values.toSet(),
                 polygons: {
-                  Polygon(
-                      polygonId: const PolygonId("technicians"),
-                      points: polyLinePoints,
-                      strokeWidth: 2,
-                      strokeColor: Theme.of(context).primaryColor.withOpacity(.6),
-                      fillColor: Theme.of(context).primaryColor.withOpacity(.6)
-                  )
+                  if(polyLinePoints.isNotEmpty)
+                    Polygon(
+                        polygonId: const PolygonId("technicians"),
+                        points: polyLinePoints,
+                        strokeWidth: 2,
+                        strokeColor: Theme.of(context).primaryColor.withOpacity(.6),
+                        fillColor: Theme.of(context).primaryColor.withOpacity(.6)
+                    )
                 },
               ),
             )

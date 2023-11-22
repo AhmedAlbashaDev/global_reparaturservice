@@ -20,7 +20,7 @@ class AuthViewModel extends StateNotifier<ResponseState<UserModel>>{
 
   AuthViewModel(this.authRepository) : super(const ResponseState<UserModel>.idle());
 
-  Future<void> login({required String email, required String password}) async{
+  Future<void> loginAdmin({required String email, required String password}) async{
 
     setState(const ResponseState<UserModel>.loading());
 
@@ -35,7 +35,32 @@ class AuthViewModel extends StateNotifier<ResponseState<UserModel>>{
       'device_type'  : Platform.isAndroid ? 'android' : 'ios',
     });
 
-    final response = await authRepository.login(data: data);
+    final response = await authRepository.login(endPoint: 'login', data: data);
+
+    response.whenOrNull(data: (data) {
+      state = ResponseState<UserModel>.data(data: data);
+    }, error: (error) {
+      state = ResponseState<UserModel>.error(error: error);
+    });
+
+  }
+
+  Future<void> loginTechnician({required String phone, required String password}) async{
+
+    setState(const ResponseState<UserModel>.loading());
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    String? token = await FirebaseMessaging.instance.getToken();
+
+    FormData data = FormData.fromMap({
+      'phone'     : phone,
+      'password'  : password,
+      'fcm_token'  : token,
+      'device_type'  : Platform.isAndroid ? 'android' : 'ios',
+    });
+
+    final response = await authRepository.login(endPoint: 'driver-login', data: data);
 
     response.whenOrNull(data: (data) {
       state = ResponseState<UserModel>.data(data: data);

@@ -149,6 +149,7 @@ class _ForgetPasswordScreenState extends ConsumerState<ForgetPasswordScreen> {
                                 const SizedBox(height: 20,),
                                 CustomTextFormField(
                                   controller: email,
+                                  textInputType: TextInputType.emailAddress,
                                   validator: (String? text) {
                                     if (text?.isEmpty ?? true) {
                                       return 'this_filed_required'.tr();

@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:global_reparaturservice/models/order.dart';
 import 'package:global_reparaturservice/view/screens/bottom_menu/orders/order_details_admin.dart';
@@ -22,7 +23,7 @@ import '../../../widgets/pagination_footer.dart';
 import 'new_order.dart';
 
 
-final ordersFilterProvider = StateProvider<String?>((ref) => 'all'.tr());
+final ordersFilterProvider = StateProvider.autoDispose<String?>((ref) => 'all'.tr());
 final ordersTabsSelectedProvider = StateProvider<int>((ref) => 0);
 
 
@@ -39,6 +40,9 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
   final RefreshController _otherRefreshController = RefreshController(initialRefresh: false);
 
   TabController? tabController;
+
+  ValueNotifier<bool> isDialOpen = ValueNotifier(false);
+
 
 
   @override
@@ -162,13 +166,13 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
                                       todayFilteredList = orders.data;
                                     }
                                     else if (ref.watch(ordersFilterProvider) == 'Pending'.tr()){
-                                      todayFilteredList = orders.data.where((order) => order.statusName == 'Pending').toList();
+                                      todayFilteredList = orders.data.where((order) => order.status == 1).toList();
                                     }
-                                    else if (ref.watch(ordersFilterProvider) == 'On progress'.tr()){
-                                      todayFilteredList = orders.data.where((order) => order.statusName == 'On progress').toList();
+                                    else if (ref.watch(ordersFilterProvider) == 'On Progress'.tr()){
+                                      todayFilteredList = orders.data.where((order) => order.status == 2).toList();
                                     }
                                     else if (ref.watch(ordersFilterProvider) == 'Finished'.tr()){
-                                      todayFilteredList = orders.data.where((order) => order.statusName == 'Finished').toList();
+                                      todayFilteredList = orders.data.where((order) => order.status == 3).toList();
                                     }
 
                                   return Column(
@@ -200,7 +204,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
                                                       'assets/images/filter.png',
                                                       height: 18,
                                                     ),
-                                                    items: <String>['all'.tr(), 'Pending'.tr(), 'On progress'.tr() , 'Finished'.tr()]
+                                                    items: <String>['all'.tr(), 'Pending'.tr(), 'On Progress'.tr() , 'Finished'.tr()]
                                                         .map<DropdownMenuItem<String>>((String value) {
                                                       return DropdownMenuItem(
                                                         value: value,
@@ -286,6 +290,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
                                                       verticalOffset: 50.0,
                                                       child: FadeInAnimation(
                                                         child: OrderCard(
+                                                          orderIndex: index + 1,
                                                           orderModel: todayFilteredList[index],
                                                           onPressed: (){
                                                             Navigator.push(context, MaterialPageRoute(builder: (context) => OrderDetailsAdmin(orderId: todayFilteredList[index].id,)));
@@ -335,13 +340,13 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
                                       allFilteredList = orders.data;
                                     }
                                     else if (ref.watch(ordersFilterProvider) == 'Pending'.tr()){
-                                      allFilteredList = orders.data.where((order) => order.statusName == 'Pending').toList();
+                                      allFilteredList = orders.data.where((order) => order.status == 1).toList();
                                     }
-                                    else if (ref.watch(ordersFilterProvider) == 'On progress'.tr()){
-                                      allFilteredList = orders.data.where((order) => order.statusName == 'On progress').toList();
+                                    else if (ref.watch(ordersFilterProvider) == 'On Progress'.tr()){
+                                      allFilteredList = orders.data.where((order) => order.status == 2).toList();
                                     }
                                     else if (ref.watch(ordersFilterProvider) == 'Finished'.tr()){
-                                      allFilteredList = orders.data.where((order) => order.statusName == 'Finished').toList();
+                                      allFilteredList = orders.data.where((order) => order.status == 3).toList();
                                     }
 
                                   return Column(
@@ -354,7 +359,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
                                               AutoSizeText.rich(
                                                 TextSpan(text: 'orders'.tr(), children:  [
                                                   TextSpan(
-                                                      text: ' (${orders.data.length})',
+                                                      text: ' (${orders.total})',
                                                       style: const TextStyle(
                                                           fontSize: 15,
                                                           fontWeight: FontWeight.w500))
@@ -373,7 +378,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
                                                       'assets/images/filter.png',
                                                       height: 18,
                                                     ),
-                                                    items: <String>['all'.tr(), 'Pending'.tr(), 'On progress'.tr() , 'Finished'.tr()]
+                                                    items: <String>['all'.tr(), 'Pending'.tr(), 'On Progress'.tr() , 'Finished'.tr()]
                                                         .map<DropdownMenuItem<String>>((String value) {
                                                       return DropdownMenuItem(
                                                         value: value,
@@ -440,7 +445,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
                                             : SmartRefresher(
                                           controller: _otherRefreshController,
                                           enablePullDown: true,
-                                          enablePullUp: false,
+                                          enablePullUp: true,
                                           onRefresh: () async {
                                             ref.read(ordersViewModelProvider.notifier).loadAll();
                                           },
@@ -470,6 +475,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
                                                       verticalOffset: 50.0,
                                                       child: FadeInAnimation(
                                                         child: OrderCard(
+                                                          orderIndex: index + 1,
                                                           orderModel: allFilteredList[index],
                                                           onPressed: (){
                                                             Navigator.push(context, MaterialPageRoute(builder: (context) => OrderDetailsAdmin(orderId: allFilteredList[index].id,)));
@@ -517,19 +523,52 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
           ),
         ],
       ),
-      floatingActionButton: FloatingAddButton(
-        onPresses: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const NewOrderScreen())).then((value) {
-            if(value == 'update'){
-              ref
-                  .read(ordersViewModelProvider.notifier)
-                  .loadAll();
-              ref
-                  .read(todayOrdersViewModelProvider.notifier)
-                  .loadAll(today: true);
-            }
-          });
-        },
+      floatingActionButton: SpeedDial(
+        openCloseDial: isDialOpen,
+        icon: Icons.add,
+        activeIcon: Icons.close,
+        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).primaryColor,
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.directions_transit),
+            backgroundColor: Theme.of(context).primaryColor,
+            foregroundColor: Colors.white,
+            label: 'new_order'.tr(),
+            onTap: () {
+              ref.read(newOrderTypeSelectedProvider.notifier).state = 0;
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const NewOrderScreen())).then((value) {
+                if(value == 'update'){
+                  ref
+                      .read(ordersViewModelProvider.notifier)
+                      .loadAll();
+                  ref
+                      .read(todayOrdersViewModelProvider.notifier)
+                      .loadAll(today: true);
+                }
+              });
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.directions_transit),
+            backgroundColor: Theme.of(context).primaryColor,
+            foregroundColor: Colors.white,
+            label: 'Drop-Off Order'.tr(),
+            onTap: () {
+              ref.read(newOrderTypeSelectedProvider.notifier).state = 1;
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const NewOrderScreen())).then((value) {
+                if(value == 'update'){
+                  ref
+                      .read(ordersViewModelProvider.notifier)
+                      .loadAll();
+                  ref
+                      .read(todayOrdersViewModelProvider.notifier)
+                      .loadAll(today: true);
+                }
+              });
+            },
+          ),
+        ],
       ),
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

@@ -56,6 +56,7 @@ class RouteDetailsTechnicianListView extends ConsumerWidget {
                               return Column(
                                 children: [
                                   OrderCard(
+                                    orderIndex: index + 1,
                                     showOrderStatus: true,
                                     showOrderPaymentStatus: true,
                                     showOrderCheckBox: false,

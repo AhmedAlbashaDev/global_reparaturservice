@@ -35,8 +35,8 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
   final UserModel? userModel;
 
   late TextEditingController name;
-  late TextEditingController email;
   late TextEditingController phone;
+  late TextEditingController password;
   late TextEditingController address;
   late TextEditingController zone;
   late TextEditingController additional;
@@ -49,15 +49,14 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
     super.initState();
 
     name = TextEditingController();
-    email = TextEditingController();
     phone = TextEditingController();
+    password = TextEditingController();
     address = TextEditingController();
     zone = TextEditingController();
     additional = TextEditingController();
 
     if(isUpdate){
       name.text = userModel?.name ?? '';
-      email.text = userModel?.email ?? '';
       phone.text = userModel?.phone ?? '';
       address.text = userModel?.address ?? '';
       zone.text = userModel?.zoneArea ?? '';
@@ -70,8 +69,8 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
   void dispose() {
 
     name.dispose();
-    email.dispose();
     phone.dispose();
+    password.dispose();
     address.dispose();
     zone.dispose();
     additional.dispose();
@@ -85,7 +84,27 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
             (previous, next) {
           next.whenOrNull(
             data: (user) {
-
+              // AwesomeDialog(
+              //     context: context,
+              //     dialogType: DialogType.info,
+              //     animType: AnimType.rightSlide,
+              //     title: 'Password'.tr(),
+              //     desc: 'Account password sent to the technician email'.tr(),
+              //     autoDismiss: false,
+              //     dialogBackgroundColor: Colors.white,
+              //     btnOk: CustomButton(
+              //       onPressed: () {
+              //         Navigator.of(context).pop();
+              //         Navigator.pop(context , 'update');
+              //       },
+              //       radius: 10,
+              //       text: 'Ok'.tr(),
+              //       textColor: Colors.white,
+              //       bgColor: Theme.of(context).primaryColor,
+              //       height: 40,
+              //     ),
+              //     onDismissCallback: (dismiss) {})
+              //     .show();
               Navigator.pop(context , 'update');
             },
             error: (error) {
@@ -212,31 +231,13 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
                             label: 'technician_name'.tr(),
                           ),
                           const SizedBox(
-                            height: 10,
-                          ),
-                          CustomTextFormField(
-                            controller: email,
-                            height: 85,
-                            validator: (String? text) {
-                              if (text?.isEmpty ?? true) {
-                                return 'this_filed_required'.tr();
-                              } else if (!isValidEmail(text: text)) {
-                                return 'please_enter_valid_email'.tr();
-                              }
-                              return null;
-                            },
-                            hint: 'please_enter_real_email_you_will_get_password_in_it'.tr(),
-                            label: 'email'.tr(),
-                          ),
-                          const SizedBox(
-                            height: 10,
+                            height: 15,
                           ),
                           CustomTextFormField(
                             controller: phone,
                             textInputType: TextInputType.phone,
                             readOnly: isUpdate,
                             maxLength: 12,
-                            height: 60,
                             validator: (String? text) {
                               if (text?.isEmpty ?? true) {
                                 return 'this_filed_required'.tr();
@@ -249,39 +250,18 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
                             label: 'phone_no'.tr(),
                           ),
                           const SizedBox(
-                            height: 10,
+                            height: 15,
                           ),
                           CustomTextFormField(
-                            controller: address,
+                            controller: password,
                             validator: (text) {
                               if (text?.isEmpty ?? true) {
                                 return 'this_filed_required'.tr();
                               }
                               return null;
                             },
-                            label: 'address'.tr(),
+                            label: 'password'.tr(),
                           ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          CustomTextFormField(
-                            controller: zone,
-                            validator: (text) {
-                              if (text?.isEmpty ?? true) {
-                                return 'this_filed_required'.tr();
-                              }
-                              return null;
-                            },
-                            label: 'zone_area'.tr(),
-                          ),
-                          // const SizedBox(
-                          //   height: 10,
-                          // ),
-                          // CustomTextFormField(
-                          //   controller: additional,
-                          //   validator: (text) {},
-                          //   label: 'additional_info'.tr(),
-                          // ),
                           const SizedBox(
                             height: 20,
                           ),
@@ -307,7 +287,6 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
                                                   .update(
                                                   endPoint: 'drivers/${userModel?.id}',
                                                   name: name.text,
-                                                  email: email.text,
                                                   phone: phone.text,
                                                   address: address.text,
                                                   zoneArea: zone.text,
@@ -416,11 +395,11 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
                                               .create(
                                               endPoint: 'drivers',
                                               name: name.text,
-                                              email: email.text,
                                               phoneNo: phone.text,
-                                              address: address.text,
-                                              zoneArea: zone.text,
-                                              additional: additional.text);
+                                              password: password.text,
+                                              address: '',
+                                              zoneArea: '',
+                                              additional: '');
                                         }
                                       },
                                       text: 'add_new_technician'.tr(),

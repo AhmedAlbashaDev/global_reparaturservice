@@ -22,7 +22,8 @@ class OrderModel with _$OrderModel {
     @JsonKey(name: 'block_no') required String? blockNo,
     @JsonKey(name: 'is_paid') required bool isPaid,
     required int? amount,
-    required String? report,
+    required List<Reports>? reports,
+    @JsonKey(name: 'visit_time') required String? visitTime,
     @JsonKey(name: 'payment_id') required String? paymentId,
     @JsonKey(name: 'payment_way') required dynamic paymentWay,
     @JsonKey(name: 'customer_id') required int customerId,
@@ -44,4 +45,16 @@ class OrderModel with _$OrderModel {
   }) = _OrderModel;
 
   factory OrderModel.fromJson(Map<String, dynamic> json) => _$OrderModelFromJson(json);
+}
+
+@freezed
+class Reports with _$Reports {
+  const factory Reports({
+    required int id,
+    required String title,
+    required String description,
+    required String price,
+  }) = _Reports;
+
+  factory Reports.fromJson(Map<String, dynamic> json) => _$ReportsFromJson(json);
 }

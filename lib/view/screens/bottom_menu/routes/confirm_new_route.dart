@@ -101,6 +101,7 @@ class ConfirmNewRoute extends ConsumerWidget {
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
                             return OrderCard(
+                                orderIndex: index + 1,
                                 orderModel: ref.read(selectedOrdersToNewOrder)[index],
                                 onPressed: null,
                                 showOrderStatus: true,
@@ -137,10 +138,11 @@ class ConfirmNewRoute extends ConsumerWidget {
                               ref.read(selectTechnicianLater.notifier).state = value ?? false;
                             },
                             title: AutoSizeText(
-                              'assign_driver_later'.tr(),
+                              'Driver Will Assign Automatically'.tr(),
                               style: TextStyle(
                                   color: Theme.of(context).primaryColor,
-                                  fontWeight: FontWeight.bold
+                                  fontWeight: FontWeight.bold,
+                                fontSize: 14
                               ),
                             ),
                           ),

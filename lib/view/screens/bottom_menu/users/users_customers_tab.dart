@@ -143,7 +143,7 @@ class UsersCustomersTab extends ConsumerWidget {
                         AutoSizeText.rich(
                           TextSpan(text: 'customers'.tr(), children: [
                             TextSpan(
-                                text: ' (${usersCustomers.data.length})',
+                                text: ' (${usersCustomers.total})',
                                 style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500))

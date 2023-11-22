@@ -176,7 +176,7 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
                                         AutoSizeText.rich(
                                           TextSpan(text: 'customers'.tr(), children: [
                                             TextSpan(
-                                                text: ' (${usersCustomers.data.length})',
+                                                text: ' (${usersCustomers.total})',
                                                 style: const TextStyle(
                                                     fontSize: 15,
                                                     fontWeight: FontWeight.w500))
@@ -199,7 +199,7 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
                                                     PageTransition(
                                                         type: PageTransitionType.rightToLeft,
                                                         duration: const Duration(milliseconds: 500),
-                                                        child:  SearchScreen(endPoint: 'customers', title: 'customers'.tr() , callback: true,)));
+                                                        child:  SearchScreen(endPoint: 'customers', title: 'customers'.tr() , callback: true,active: true,)));
                                               },
                                               child: Image.asset(
                                                 'assets/images/search.png',
@@ -304,7 +304,7 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
                                                                         Row(
                                                                           children: [
                                                                             AutoSizeText(
-                                                                              usersCustomers.data[index].email,
+                                                                              usersCustomers.data[index].email ??'',
                                                                               style: TextStyle(
                                                                                   color: Theme.of(context).primaryColor,
                                                                                   fontSize: 10,
@@ -376,7 +376,11 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
       ),
       floatingActionButton: FloatingAddButton(
         onPresses: (){
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const AddNewCustomerScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const AddNewCustomerScreen())).then((value){
+            if(value == 'update'){
+              ref.read(usersCustomersViewModelProvider.notifier).loadAll(endPoint: 'customers?active=true');
+            }
+          });
         },
       )
     );

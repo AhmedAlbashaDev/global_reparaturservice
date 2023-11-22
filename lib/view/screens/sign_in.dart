@@ -14,13 +14,10 @@ import '../../models/response_state.dart';
 import '../../models/user.dart';
 import '../../view_model/auth_view_model.dart';
 import '../widgets/custom_button.dart';
-import '../widgets/custom_snakbar.dart';
 import '../widgets/sign_in_top_view.dart';
 import 'home.dart';
 
-
 final hidePasswordProvider = StateProvider<bool>((ref) => true);
-
 
 class SignIn extends ConsumerStatefulWidget {
   const SignIn({super.key});
@@ -31,7 +28,7 @@ class SignIn extends ConsumerStatefulWidget {
 
 class _SignInState extends ConsumerState<SignIn> {
 
-  late TextEditingController email;
+  late TextEditingController userId;
   late TextEditingController password;
 
   final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
@@ -41,22 +38,20 @@ class _SignInState extends ConsumerState<SignIn> {
     super.initState();
 
     Future.microtask(() => ref.read(bottomNavigationMenuProvider.notifier).state = 0);
-    // email = TextEditingController(text: 'ahmedmohammedkhier@gmail.com');
-    // password = TextEditingController(text: 'cw0Mh4hF');
-    email = TextEditingController(text: 'admin@admin.com');
+    // userId = TextEditingController(text: '123456789123');
+    // password = TextEditingController(text: '123ahmed');
+    userId = TextEditingController(text: 'admin@admin.com');
     password = TextEditingController(text: '123admin');
 
     //sahlowle@gmail.com
     //q6eXUJrN
-
   }
 
   @override
   void dispose() {
-    email.dispose();
+    userId.dispose();
     password.dispose();
     super.dispose();
-
   }
 
   @override
@@ -140,19 +135,24 @@ class _SignInState extends ConsumerState<SignIn> {
                           SizedBox(
                             height: 60,
                             child: TextFormField(
-                              controller: email,
+                              controller: userId,
                               validator: (text){
                                 if(text?.isEmpty ?? true){
                                   return 'this_filed_required'.tr();
                                 }
-                                else if(!isValidEmail(text: text)){
+                                else if(isNumeric(text)){
+                                  if(text!.length != 12){
+                                    return 'Phone must be 12 number minimum'.tr();
+                                  }
+                                }
+                                else if(!isValidEmail(text: text) && !isNumeric(text)){
                                   return 'please_enter_valid_email'.tr();
                                 }
                                 return null;
                               },
                               keyboardType: TextInputType.emailAddress,
                               decoration: InputDecoration(
-                                labelText: 'user_email'.tr(),
+                                labelText: 'user_Id'.tr(),
                               ),
                             ),
                           ),
@@ -216,10 +216,13 @@ class _SignInState extends ConsumerState<SignIn> {
                             orElse: (){
                               return  CustomButton(
                                   onPressed: (){
-
                                     if(_loginFormKey.currentState?.validate() ?? false){
-
-                                      ref.read(authViewModelProvider.notifier).login(email: email.text, password: password.text);
+                                      if(!isNumeric(userId.text)){
+                                        ref.read(authViewModelProvider.notifier).loginAdmin(email: userId.text, password: password.text);
+                                      }
+                                      else{
+                                        ref.read(authViewModelProvider.notifier).loginTechnician(phone: userId.text, password: password.text);
+                                      }
                                     }
                                   },
                                   text: 'sign_in'.tr(),

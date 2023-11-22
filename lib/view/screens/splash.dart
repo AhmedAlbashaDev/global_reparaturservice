@@ -6,8 +6,10 @@ import 'package:global_reparaturservice/core/providers/user_provider.dart';
 import 'package:global_reparaturservice/models/user.dart';
 import 'package:global_reparaturservice/view/screens/home.dart';
 import 'package:global_reparaturservice/view_model/splash_view_model.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:lottie/lottie.dart';
 import '../../core/globals.dart';
+import '../../core/providers/app_locale.dart';
 import '../../core/providers/app_mode.dart';
 import '../../models/response_state.dart';
 import '../widgets/custom_button.dart';
@@ -28,12 +30,16 @@ class _SplashState extends ConsumerState<Splash> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(splashViewModelProvider.notifier).checkAndGetLocalUser();
+      ref.read(splashViewModelProvider.notifier).checkAndGetLocalUser().then((language) {
+        ref.read(currentAppLocaleProvider.notifier).state = language == 'de' ? AppLocale.de : AppLocale.en;
+        ref.context.setLocale(Locale(language));
+      });
     });
   }
-
   @override
   Widget build(BuildContext context) {
+
+    Jiffy.setLocale('en');
 
     ref.listen<ResponseState<UserModel>>(splashViewModelProvider, (previous, next) {
       next.whenOrNull(

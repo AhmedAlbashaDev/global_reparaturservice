@@ -9,7 +9,7 @@ class UserModel with _$UserModel {
     required int id,
     required String name,
     required String? image,
-    required String email,
+    required String? email,
     @JsonKey(name: 'email_verified_at',) required DateTime? emailVerifiedAt,
     required int? type,
     required String? address,
