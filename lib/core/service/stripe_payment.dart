@@ -47,15 +47,15 @@ class StripePaymentService {
       displayPaymentSheet().then((value) async {
         final paymentId = await getPaymentDetails(paymentIntent?['id']);
         if (paymentId.isNotEmpty) {
-          ref
-              .read(orderViewModelProvider
-              .notifier)
-              .updatePayment(
-              orderId: order!.id,
-              paymentId:
-              paymentId,
-              paymentWay:
-              2);
+          // ref
+          //     .read(orderViewModelProvider
+          //     .notifier)
+          //     .updatePayment(
+          //     orderId: order!.id,
+          //     paymentId:
+          //     paymentId,
+          //     paymentWay:
+          //     2);
         }
       });
     } catch (err) {

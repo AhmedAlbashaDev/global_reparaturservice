@@ -15,15 +15,29 @@ import '../../../widgets/empty_widget.dart';
 import '../../../widgets/pagination_footer.dart';
 import '../../../widgets/customer_card.dart';
 import '../../search.dart';
+//UsersCustomersTab
+class UsersCustomersTab extends ConsumerStatefulWidget {
+  const UsersCustomersTab({super.key});
 
-class UsersCustomersTab extends ConsumerWidget {
-  UsersCustomersTab({super.key,});
+  @override
+  ConsumerState createState() => _UsersCustomersTabState();
+}
+
+class _UsersCustomersTabState extends ConsumerState<UsersCustomersTab> {
+
 
   final RefreshController _refreshController =
   RefreshController(initialRefresh: false);
 
   @override
-  Widget build(BuildContext context , WidgetRef ref) {
+  void initState() {
+    Future.microtask(() => ref.read(usersCustomersViewModelProvider.notifier).loadAll(endPoint: 'customers'));
+    super.initState();
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16 , vertical: 4),
       child: ref.watch(usersCustomersViewModelProvider).maybeWhen(
@@ -232,7 +246,7 @@ class UsersCustomersTab extends ConsumerWidget {
                             child: SlideAnimation(
                               verticalOffset: 50.0,
                               child: FadeInAnimation(
-                                child: CustomerCard(userModel: usersCustomers.data[index],)
+                                  child: CustomerCard(userModel: usersCustomers.data[index],)
                               ),
                             ),
                           );
@@ -262,6 +276,7 @@ class UsersCustomersTab extends ConsumerWidget {
     );
   }
 }
+
 
 /*
 

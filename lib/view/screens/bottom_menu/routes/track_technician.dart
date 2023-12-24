@@ -129,7 +129,7 @@ class _TrackTechnicianState extends ConsumerState<TrackTechnician> {
         child: Column(
           children: [
             CustomAppBar(
-              title: 'Track Technician'.tr(),
+              title: 'Track In Map'.tr(),
             ),
             isLoading ? Expanded(
               child: Center(
@@ -152,16 +152,16 @@ class _TrackTechnicianState extends ConsumerState<TrackTechnician> {
                 myLocationButtonEnabled: false,
                 zoomControlsEnabled: true,
                 markers: _markers.values.toSet(),
-                polygons: {
-                  if(polyLinePoints.isNotEmpty)
-                    Polygon(
-                        polygonId: const PolygonId("technicians"),
-                        points: polyLinePoints,
-                        strokeWidth: 2,
-                        strokeColor: Theme.of(context).primaryColor.withOpacity(.6),
-                        fillColor: Theme.of(context).primaryColor.withOpacity(.6)
-                    )
-                },
+                // polygons: {
+                //   if(polyLinePoints.isNotEmpty)
+                //     Polygon(
+                //         polygonId: const PolygonId("technicians"),
+                //         points: polyLinePoints,
+                //         strokeWidth: 2,
+                //         strokeColor: Theme.of(context).primaryColor.withOpacity(.6),
+                //         fillColor: Theme.of(context).primaryColor.withOpacity(.6)
+                //     )
+                // },
               ),
             )
           ],

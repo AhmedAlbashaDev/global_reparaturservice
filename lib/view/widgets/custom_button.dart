@@ -2,7 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
-  const CustomButton({super.key, required this.onPressed, required this.text, required this.textColor, required this.bgColor , this.icon , this.radius = 10 , this.height = 55});
+  const CustomButton({super.key, required this.onPressed, required this.text, required this.textColor, required this.bgColor , this.icon , this.radius = 10 , this.height = 50});
 
   final VoidCallback? onPressed;
   final String? text;

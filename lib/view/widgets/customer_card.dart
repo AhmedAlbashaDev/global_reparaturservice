@@ -43,7 +43,7 @@ class CustomerCard extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           AutoSizeText(
-                            userModel!.name,
+                            (userModel!.name ?? userModel!.companyName) ?? '',
                             style: TextStyle(
                                 color: Theme.of(context).primaryColor,
                                 fontSize: 15,

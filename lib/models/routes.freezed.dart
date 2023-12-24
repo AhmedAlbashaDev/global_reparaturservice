@@ -21,7 +21,6 @@ RoutesModel _$RoutesModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$RoutesModel {
   int get id => throw _privateConstructorUsedError;
-  String get description => throw _privateConstructorUsedError;
   @JsonKey(name: 'reference_no')
   String get referenceNo => throw _privateConstructorUsedError;
   @JsonKey(name: 'create_by')
@@ -29,9 +28,9 @@ mixin _$RoutesModel {
   @JsonKey(name: 'driver_id')
   int? get driverId => throw _privateConstructorUsedError;
   int get status => throw _privateConstructorUsedError;
+  UserModel? get driver => throw _privateConstructorUsedError;
   @JsonKey(name: 'status_name')
   String get statusName => throw _privateConstructorUsedError;
-  UserModel? get driver => throw _privateConstructorUsedError;
   List<OrderModel>? get orders => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
@@ -54,13 +53,12 @@ abstract class $RoutesModelCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
-      String description,
       @JsonKey(name: 'reference_no') String referenceNo,
       @JsonKey(name: 'create_by') int createBy,
       @JsonKey(name: 'driver_id') int? driverId,
       int status,
-      @JsonKey(name: 'status_name') String statusName,
       UserModel? driver,
+      @JsonKey(name: 'status_name') String statusName,
       List<OrderModel>? orders,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt,
@@ -83,13 +81,12 @@ class _$RoutesModelCopyWithImpl<$Res, $Val extends RoutesModel>
   @override
   $Res call({
     Object? id = null,
-    Object? description = null,
     Object? referenceNo = null,
     Object? createBy = null,
     Object? driverId = freezed,
     Object? status = null,
-    Object? statusName = null,
     Object? driver = freezed,
+    Object? statusName = null,
     Object? orders = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -100,10 +97,6 @@ class _$RoutesModelCopyWithImpl<$Res, $Val extends RoutesModel>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      description: null == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String,
       referenceNo: null == referenceNo
           ? _value.referenceNo
           : referenceNo // ignore: cast_nullable_to_non_nullable
@@ -120,14 +113,14 @@ class _$RoutesModelCopyWithImpl<$Res, $Val extends RoutesModel>
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
               as int,
-      statusName: null == statusName
-          ? _value.statusName
-          : statusName // ignore: cast_nullable_to_non_nullable
-              as String,
       driver: freezed == driver
           ? _value.driver
           : driver // ignore: cast_nullable_to_non_nullable
               as UserModel?,
+      statusName: null == statusName
+          ? _value.statusName
+          : statusName // ignore: cast_nullable_to_non_nullable
+              as String,
       orders: freezed == orders
           ? _value.orders
           : orders // ignore: cast_nullable_to_non_nullable
@@ -170,13 +163,12 @@ abstract class _$$RoutesModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {int id,
-      String description,
       @JsonKey(name: 'reference_no') String referenceNo,
       @JsonKey(name: 'create_by') int createBy,
       @JsonKey(name: 'driver_id') int? driverId,
       int status,
-      @JsonKey(name: 'status_name') String statusName,
       UserModel? driver,
+      @JsonKey(name: 'status_name') String statusName,
       List<OrderModel>? orders,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt,
@@ -198,13 +190,12 @@ class __$$RoutesModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? description = null,
     Object? referenceNo = null,
     Object? createBy = null,
     Object? driverId = freezed,
     Object? status = null,
-    Object? statusName = null,
     Object? driver = freezed,
+    Object? statusName = null,
     Object? orders = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -215,10 +206,6 @@ class __$$RoutesModelImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      description: null == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String,
       referenceNo: null == referenceNo
           ? _value.referenceNo
           : referenceNo // ignore: cast_nullable_to_non_nullable
@@ -235,14 +222,14 @@ class __$$RoutesModelImplCopyWithImpl<$Res>
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
               as int,
-      statusName: null == statusName
-          ? _value.statusName
-          : statusName // ignore: cast_nullable_to_non_nullable
-              as String,
       driver: freezed == driver
           ? _value.driver
           : driver // ignore: cast_nullable_to_non_nullable
               as UserModel?,
+      statusName: null == statusName
+          ? _value.statusName
+          : statusName // ignore: cast_nullable_to_non_nullable
+              as String,
       orders: freezed == orders
           ? _value._orders
           : orders // ignore: cast_nullable_to_non_nullable
@@ -268,13 +255,12 @@ class __$$RoutesModelImplCopyWithImpl<$Res>
 class _$RoutesModelImpl implements _RoutesModel {
   const _$RoutesModelImpl(
       {required this.id,
-      required this.description,
       @JsonKey(name: 'reference_no') required this.referenceNo,
       @JsonKey(name: 'create_by') required this.createBy,
       @JsonKey(name: 'driver_id') required this.driverId,
       required this.status,
-      @JsonKey(name: 'status_name') required this.statusName,
       required this.driver,
+      @JsonKey(name: 'status_name') required this.statusName,
       final List<OrderModel>? orders,
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(name: 'updated_at') required this.updatedAt,
@@ -287,8 +273,6 @@ class _$RoutesModelImpl implements _RoutesModel {
   @override
   final int id;
   @override
-  final String description;
-  @override
   @JsonKey(name: 'reference_no')
   final String referenceNo;
   @override
@@ -300,10 +284,10 @@ class _$RoutesModelImpl implements _RoutesModel {
   @override
   final int status;
   @override
+  final UserModel? driver;
+  @override
   @JsonKey(name: 'status_name')
   final String statusName;
-  @override
-  final UserModel? driver;
   final List<OrderModel>? _orders;
   @override
   List<OrderModel>? get orders {
@@ -326,7 +310,7 @@ class _$RoutesModelImpl implements _RoutesModel {
 
   @override
   String toString() {
-    return 'RoutesModel(id: $id, description: $description, referenceNo: $referenceNo, createBy: $createBy, driverId: $driverId, status: $status, statusName: $statusName, driver: $driver, orders: $orders, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt)';
+    return 'RoutesModel(id: $id, referenceNo: $referenceNo, createBy: $createBy, driverId: $driverId, status: $status, driver: $driver, statusName: $statusName, orders: $orders, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt)';
   }
 
   @override
@@ -335,8 +319,6 @@ class _$RoutesModelImpl implements _RoutesModel {
         (other.runtimeType == runtimeType &&
             other is _$RoutesModelImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.description, description) ||
-                other.description == description) &&
             (identical(other.referenceNo, referenceNo) ||
                 other.referenceNo == referenceNo) &&
             (identical(other.createBy, createBy) ||
@@ -344,9 +326,9 @@ class _$RoutesModelImpl implements _RoutesModel {
             (identical(other.driverId, driverId) ||
                 other.driverId == driverId) &&
             (identical(other.status, status) || other.status == status) &&
+            (identical(other.driver, driver) || other.driver == driver) &&
             (identical(other.statusName, statusName) ||
                 other.statusName == statusName) &&
-            (identical(other.driver, driver) || other.driver == driver) &&
             const DeepCollectionEquality().equals(other._orders, _orders) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
@@ -361,13 +343,12 @@ class _$RoutesModelImpl implements _RoutesModel {
   int get hashCode => Object.hash(
       runtimeType,
       id,
-      description,
       referenceNo,
       createBy,
       driverId,
       status,
-      statusName,
       driver,
+      statusName,
       const DeepCollectionEquality().hash(_orders),
       createdAt,
       updatedAt,
@@ -390,13 +371,12 @@ class _$RoutesModelImpl implements _RoutesModel {
 abstract class _RoutesModel implements RoutesModel {
   const factory _RoutesModel(
           {required final int id,
-          required final String description,
           @JsonKey(name: 'reference_no') required final String referenceNo,
           @JsonKey(name: 'create_by') required final int createBy,
           @JsonKey(name: 'driver_id') required final int? driverId,
           required final int status,
-          @JsonKey(name: 'status_name') required final String statusName,
           required final UserModel? driver,
+          @JsonKey(name: 'status_name') required final String statusName,
           final List<OrderModel>? orders,
           @JsonKey(name: 'created_at') required final DateTime createdAt,
           @JsonKey(name: 'updated_at') required final DateTime updatedAt,
@@ -409,8 +389,6 @@ abstract class _RoutesModel implements RoutesModel {
   @override
   int get id;
   @override
-  String get description;
-  @override
   @JsonKey(name: 'reference_no')
   String get referenceNo;
   @override
@@ -422,10 +400,10 @@ abstract class _RoutesModel implements RoutesModel {
   @override
   int get status;
   @override
+  UserModel? get driver;
+  @override
   @JsonKey(name: 'status_name')
   String get statusName;
-  @override
-  UserModel? get driver;
   @override
   List<OrderModel>? get orders;
   @override

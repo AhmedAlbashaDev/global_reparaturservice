@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 
+import '../globals.dart';
 import 'app_locale.dart';
 import 'token_provider.dart';
 
@@ -13,8 +14,7 @@ final dioClientNetworkProvider = Provider.autoDispose<Dio>((ref) {
   final token = ref.watch(tokenProvider);
 
   final Dio dio = Dio(BaseOptions(
-      // baseUrl: 'https://workshop.anothercars.com/api/',
-      baseUrl: 'https://smart-intercom.de/api/',
+      baseUrl: baseUrl,
       headers: {
         HttpHeaders.authorizationHeader : token != null ? 'Bearer $token' : null,
         'Content-Type': 'application/json',

@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:global_reparaturservice/core/providers/app_mode.dart';
 import 'package:global_reparaturservice/models/order.dart';
 import 'package:global_reparaturservice/models/routes.dart';
 import 'package:global_reparaturservice/view/widgets/custom_button.dart';
@@ -23,9 +24,39 @@ class OrderCard extends ConsumerWidget {
   final dynamic onChangeCheckbox;
   final BuildContext? scaffoldContext;
   final int orderIndex;
+
   @override
   Widget build(BuildContext context , WidgetRef ref) {
+
+    var statusName;
+    var textColor;
+    var bgColor;
+    if(ref.read(currentAppModeProvider) == AppMode.technician){
+      if((orderModel?.status ?? 0) > 2){
+        statusName = 'Finished'.tr();
+        textColor =  const Color(0xff21AE38);
+        bgColor = const Color(0xff21AE38).withOpacity(.2);
+      }
+      else{
+        statusName = orderModel?.statusName ?? '';
+        if(orderModel?.status == 0){
+          textColor =  Colors.red;
+          bgColor = Colors.red.shade50;
+        }
+        else{
+          textColor = const Color(0xffE2BD38);
+          bgColor = const Color(0xffE2BD38).withOpacity(.2);
+        }
+      }
+    }
+    else{
+      statusName = orderModel?.statusName ?? '';
+      textColor = orderModel?.status == 4 ? const Color(0xff21AE38) : orderModel?.status == 0 ? Colors.red : const Color(0xffE2BD38);
+      bgColor = orderModel?.status == 4 ?  const Color(0xff21AE38).withOpacity(.2) : orderModel?.status == 0 ? Colors.red.shade50 :  const Color(0xffE2BD38).withOpacity(.2);
+    }
+
     if((orderModel?.status != 3 && orderModel?.isPaid == false) && route != null) {
+
       return Slidable(
       key: const ValueKey(0),
       startActionPane: ActionPane(
@@ -122,7 +153,7 @@ class OrderCard extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8,),
                       AutoSizeText(
-                        '${orderModel?.customer?.name}',
+                        (orderModel?.customer.name ?? orderModel?.customer.companyName) ?? '',
                         style: TextStyle(
                             color:
                             Theme.of(context).primaryColor,
@@ -169,14 +200,14 @@ class OrderCard extends ConsumerWidget {
                                 decoration: BoxDecoration(
                                     borderRadius:
                                     BorderRadius.circular(5),
-                                    color: orderModel?.status == 3 ?  const Color(0xff21AE38).withOpacity(.2) : const Color(0xffE2BD38).withOpacity(.2)
+                                    color: bgColor
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 12 , vertical: 6),
                                   child: AutoSizeText(
-                                    '${orderModel?.statusName}',
+                                    '$statusName',
                                     style:  TextStyle(
-                                        color: orderModel?.status == 3 ? const Color(0xff21AE38) : const Color(0xffE2BD38),
+                                        color: textColor,
                                         fontSize: 13,
                                         fontWeight: FontWeight.bold),
                                   ),
@@ -216,7 +247,8 @@ class OrderCard extends ConsumerWidget {
         ),
       ),
     );
-    } else {
+    }
+    else {
       return Container(
         margin: const EdgeInsets.all(5),
         child: MaterialButton(
@@ -232,56 +264,80 @@ class OrderCard extends ConsumerWidget {
               borderRadius: BorderRadius.circular(10),
               color: Colors.white,
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 16 , vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
               children: [
-                AutoSizeText(
-                  '$orderIndex \\ ',
-                  style: TextStyle(
-                      color:
-                      Theme.of(context).primaryColor,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(width: 5,),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                const SizedBox(height: 10,),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       AutoSizeText(
-                        '${orderModel?.referenceNo}',
+                        '$orderIndex \\ ',
                         style: TextStyle(
                             color:
                             Theme.of(context).primaryColor,
                             fontSize: 15,
                             fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 8,),
-                      AutoSizeText(
-                        '${orderModel?.customer?.name}',
-                        style: TextStyle(
-                            color:
-                            Theme.of(context).primaryColor,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600),
+                      const SizedBox(width: 5,),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            AutoSizeText(
+                              '${orderModel?.referenceNo}',
+                              style: TextStyle(
+                                  color:
+                                  Theme.of(context).primaryColor,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8,),
+                            AutoSizeText(
+                              (orderModel?.customer.name ?? orderModel?.customer.companyName) ?? '',
+                              style: TextStyle(
+                                  color:
+                                  Theme.of(context).primaryColor,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(height: 8,),
+                            AutoSizeText(
+                              '${'Visit Time'.tr()} : ${Jiffy.parse('${orderModel?.visitTime ?? orderModel?.createdAt}').format(pattern: 'dd/MM/yyyy hh:mm a')}',
+                              style: TextStyle(
+                                  color:
+                                  Theme.of(context).primaryColor,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold),
+                            ),
+
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 8,),
-                      AutoSizeText(
-                        '${'Visit Time'.tr()} : ${Jiffy.parse('${orderModel?.visitTime ?? orderModel?.createdAt}').format(pattern: 'dd/MM/yyyy hh:mm a')}',
-                        style: TextStyle(
-                            color:
-                            Theme.of(context).primaryColor,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 10,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Visibility(
-                              visible: showOrderPaymentStatus,
+                      const SizedBox(width: 5,),
+                      if(showOrderCheckBox)
+                        Transform.scale(
+                          scale: 1.3,
+                          child: Checkbox(
+                            value: selected,
+                            activeColor: Theme.of(context).primaryColor,
+                            onChanged: onChangeCheckbox,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10,),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Row(
+                    children: [
+                      Visibility(
+                          visible: showOrderPaymentStatus,
+                          child: Expanded(
+                            child: Center(
                               child: Container(
                                 // height: 50,
                                 decoration: BoxDecoration(
@@ -295,35 +351,45 @@ class OrderCard extends ConsumerWidget {
                                     '${orderModel?.typeName}',
                                     style:  const TextStyle(
                                         color: Colors.white,
-                                        fontSize: 13,
+                                        fontSize: 12,
                                         fontWeight: FontWeight.bold),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                              )
-                          ),
-                          Visibility(
-                              visible: showOrderStatus,
+                              ),
+                            ),
+                          )
+                      ),
+                      Visibility(
+                          visible: showOrderStatus,
+                          child: Expanded(
+                            child: Center(
                               child: Container(
                                 // height: 50,
                                 decoration: BoxDecoration(
                                     borderRadius:
                                     BorderRadius.circular(5),
-                                    color: orderModel?.status == 3 ?  const Color(0xff21AE38).withOpacity(.2) : const Color(0xffE2BD38).withOpacity(.2)
+                                    color: bgColor
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 12 , vertical: 6),
                                   child: AutoSizeText(
-                                    '${orderModel?.statusName}',
+                                    '$statusName',
                                     style:  TextStyle(
-                                        color: orderModel?.status == 3 ? const Color(0xff21AE38) : const Color(0xffE2BD38),
-                                        fontSize: 13,
+                                        color: textColor,
+                                        fontSize: 12,
                                         fontWeight: FontWeight.bold),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                              )
-                          ),
-                          Visibility(
-                              visible: showOrderPaymentStatus,
+                              ),
+                            ),
+                          )
+                      ),
+                      Visibility(
+                          visible: showOrderPaymentStatus,
+                          child: Expanded(
+                            child: Center(
                               child: Container(
                                 // height: 50,
                                 decoration: BoxDecoration(
@@ -337,28 +403,19 @@ class OrderCard extends ConsumerWidget {
                                     orderModel?.isPaid ?? false ? 'paid'.tr() : 'not_paid'.tr(),
                                     style:  TextStyle(
                                         color: orderModel?.isPaid ?? false ? const Color(0xff21AE38) : const Color(0xffE2BD38),
-                                        fontSize: 13,
+                                        fontSize: 12,
                                         fontWeight: FontWeight.bold),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                              )
-                          ),
-                        ],
+                              ),
+                            ),
+                          )
                       ),
-
                     ],
                   ),
                 ),
-                const SizedBox(width: 5,),
-                if(showOrderCheckBox)
-                  Transform.scale(
-                    scale: 1.3,
-                    child: Checkbox(
-                      value: selected,
-                      activeColor: Theme.of(context).primaryColor,
-                      onChanged: onChangeCheckbox,
-                    ),
-                  ),
+                const SizedBox(height: 10,),
               ],
             ),
           ),

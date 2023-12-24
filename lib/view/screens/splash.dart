@@ -13,7 +13,6 @@ import '../../core/providers/app_locale.dart';
 import '../../core/providers/app_mode.dart';
 import '../../models/response_state.dart';
 import '../widgets/custom_button.dart';
-import '../widgets/custom_snakbar.dart';
 import '../widgets/loading_dialog.dart';
 import '../widgets/version_widget.dart';
 import 'onboarding.dart';
@@ -26,6 +25,7 @@ class Splash extends ConsumerStatefulWidget {
 }
 
 class _SplashState extends ConsumerState<Splash> {
+
   @override
   void initState() {
     super.initState();
@@ -138,5 +138,6 @@ class _SplashState extends ConsumerState<Splash> {
         ),
       ),
     );
+
   }
 }

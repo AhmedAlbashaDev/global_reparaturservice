@@ -35,11 +35,6 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
 
     Future.microtask(() => {
       ref.read(userTabsSelectedProvider.notifier).state = 0,
-
-      ref.read(usersAdminsViewModelProvider.notifier).loadAll(endPoint: 'admins'),
-      ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers'),
-      ref.read(usersCustomersViewModelProvider.notifier).loadAll(endPoint: 'customers'),
-
     });
 
     tabController = TabController(length: 3, vsync: this);
@@ -181,7 +176,8 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
           ),
         ],
       ),
-      floatingActionButton: tabController?.index == 1 ? Column(
+      floatingActionButton: tabController?.index == 1
+          ? Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           SizedBox(
@@ -196,17 +192,6 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
           const SizedBox(height: 10,),
           FloatingAddButton(
             onPresses: (){
-              if(tabController?.index == 0){
-                Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewAdminScreen())).then((value) {
-                  print('Added new Admin update');
-                  if(value == 'update'){
-                    ref
-                        .read(usersAdminsViewModelProvider.notifier)
-                        .loadAll(endPoint: 'admins');
-                  }
-                });
-              }
-              else if(tabController?.index == 1){
                 Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewTechnicianScreen())).then((value) {
                   print('Added new Tech update');
                   if(value == 'update'){
@@ -215,21 +200,11 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
                         .loadAll(endPoint: 'drivers');
                   }
                 });
-              }
-              else {
-                Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewCustomerScreen())).then((value) {
-                  if(value == 'update'){
-                    ref
-                        .read(usersCustomersViewModelProvider.notifier)
-                        .loadAll(endPoint: 'customers');
-                  }
-                });
-
-              }
             },
           ),
         ],
-      ) : FloatingAddButton(
+      )
+          : FloatingAddButton(
         onPresses: (){
           if(tabController?.index == 0){
             Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewAdminScreen())).then((value) {
@@ -252,7 +227,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> with TickerProviderSt
             });
           }
           else {
-            Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewCustomerScreen())).then((value) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) =>  const AddNewCustomerScreen(outSide: true,))).then((value) {
               print('Added new Cus update');
               if(value == 'update'){
                 ref

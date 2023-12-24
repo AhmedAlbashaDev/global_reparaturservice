@@ -7,6 +7,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:global_reparaturservice/models/pagination_model.dart';
 
 import '../core/custom_exception.dart';
+import '../core/globals.dart';
+import '../core/providers/dio_network_provider.dart';
 import '../core/service/shared_preferences.dart';
 import '../models/response_state.dart';
 import '../models/user.dart';
@@ -268,7 +270,7 @@ class UsersRepository {
     final token = await SharedPref.get('userToken');
 
     dioClient = Dio(BaseOptions(
-        baseUrl: 'https://smart-intercom.de/api/',
+        baseUrl: baseUrl,
         headers: {
           HttpHeaders.authorizationHeader : token != null ? 'Bearer $token' : null,
           'Content-Type': 'application/json',

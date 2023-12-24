@@ -19,7 +19,7 @@ final usersTechniciansViewModelProvider = StateNotifierProvider<UsersViewModel,R
   return UsersViewModel(UsersRepository(dioClient: ref.read(dioClientNetworkProvider) , ref: ref));
 });
 
-final usersCustomersViewModelProvider = StateNotifierProvider<UsersViewModel,ResponseState<PaginationModel<UserModel>>>((ref) {
+final usersCustomersViewModelProvider = StateNotifierProvider.autoDispose<UsersViewModel,ResponseState<PaginationModel<UserModel>>>((ref) {
   final cancelToken = CancelToken();
   ref.onDispose(cancelToken.cancel);
   return UsersViewModel(UsersRepository(dioClient: ref.read(dioClientNetworkProvider) , ref: ref));

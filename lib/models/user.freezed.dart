@@ -21,17 +21,22 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$UserModel {
   int get id => throw _privateConstructorUsedError;
-  String get name => throw _privateConstructorUsedError;
+  String? get name => throw _privateConstructorUsedError;
   String? get image => throw _privateConstructorUsedError;
   String? get email => throw _privateConstructorUsedError;
+  @JsonKey(name: 'company_name')
+  String? get companyName => throw _privateConstructorUsedError;
   @JsonKey(name: 'email_verified_at')
   DateTime? get emailVerifiedAt => throw _privateConstructorUsedError;
   int? get type => throw _privateConstructorUsedError;
   String? get address => throw _privateConstructorUsedError;
   @JsonKey(name: 'postal_code')
   int? get postalCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'part_of_building')
+  String? get partOfBuilding => throw _privateConstructorUsedError;
   String? get city => throw _privateConstructorUsedError;
   String? get phone => throw _privateConstructorUsedError;
+  String? get telephone => throw _privateConstructorUsedError;
   double? get lat => throw _privateConstructorUsedError;
   double? get lng => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_disabled')
@@ -61,15 +66,18 @@ abstract class $UserModelCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
-      String name,
+      String? name,
       String? image,
       String? email,
+      @JsonKey(name: 'company_name') String? companyName,
       @JsonKey(name: 'email_verified_at') DateTime? emailVerifiedAt,
       int? type,
       String? address,
       @JsonKey(name: 'postal_code') int? postalCode,
+      @JsonKey(name: 'part_of_building') String? partOfBuilding,
       String? city,
       String? phone,
+      String? telephone,
       double? lat,
       double? lng,
       @JsonKey(name: 'is_disabled') bool? isDisabled,
@@ -95,15 +103,18 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
   @override
   $Res call({
     Object? id = null,
-    Object? name = null,
+    Object? name = freezed,
     Object? image = freezed,
     Object? email = freezed,
+    Object? companyName = freezed,
     Object? emailVerifiedAt = freezed,
     Object? type = freezed,
     Object? address = freezed,
     Object? postalCode = freezed,
+    Object? partOfBuilding = freezed,
     Object? city = freezed,
     Object? phone = freezed,
+    Object? telephone = freezed,
     Object? lat = freezed,
     Object? lng = freezed,
     Object? isDisabled = freezed,
@@ -119,10 +130,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      name: null == name
+      name: freezed == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
@@ -130,6 +141,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
       email: freezed == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
+              as String?,
+      companyName: freezed == companyName
+          ? _value.companyName
+          : companyName // ignore: cast_nullable_to_non_nullable
               as String?,
       emailVerifiedAt: freezed == emailVerifiedAt
           ? _value.emailVerifiedAt
@@ -147,6 +162,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.postalCode
           : postalCode // ignore: cast_nullable_to_non_nullable
               as int?,
+      partOfBuilding: freezed == partOfBuilding
+          ? _value.partOfBuilding
+          : partOfBuilding // ignore: cast_nullable_to_non_nullable
+              as String?,
       city: freezed == city
           ? _value.city
           : city // ignore: cast_nullable_to_non_nullable
@@ -154,6 +173,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
       phone: freezed == phone
           ? _value.phone
           : phone // ignore: cast_nullable_to_non_nullable
+              as String?,
+      telephone: freezed == telephone
+          ? _value.telephone
+          : telephone // ignore: cast_nullable_to_non_nullable
               as String?,
       lat: freezed == lat
           ? _value.lat
@@ -205,15 +228,18 @@ abstract class _$$UserModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {int id,
-      String name,
+      String? name,
       String? image,
       String? email,
+      @JsonKey(name: 'company_name') String? companyName,
       @JsonKey(name: 'email_verified_at') DateTime? emailVerifiedAt,
       int? type,
       String? address,
       @JsonKey(name: 'postal_code') int? postalCode,
+      @JsonKey(name: 'part_of_building') String? partOfBuilding,
       String? city,
       String? phone,
+      String? telephone,
       double? lat,
       double? lng,
       @JsonKey(name: 'is_disabled') bool? isDisabled,
@@ -237,15 +263,18 @@ class __$$UserModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? name = null,
+    Object? name = freezed,
     Object? image = freezed,
     Object? email = freezed,
+    Object? companyName = freezed,
     Object? emailVerifiedAt = freezed,
     Object? type = freezed,
     Object? address = freezed,
     Object? postalCode = freezed,
+    Object? partOfBuilding = freezed,
     Object? city = freezed,
     Object? phone = freezed,
+    Object? telephone = freezed,
     Object? lat = freezed,
     Object? lng = freezed,
     Object? isDisabled = freezed,
@@ -261,10 +290,10 @@ class __$$UserModelImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      name: null == name
+      name: freezed == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
@@ -272,6 +301,10 @@ class __$$UserModelImplCopyWithImpl<$Res>
       email: freezed == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
+              as String?,
+      companyName: freezed == companyName
+          ? _value.companyName
+          : companyName // ignore: cast_nullable_to_non_nullable
               as String?,
       emailVerifiedAt: freezed == emailVerifiedAt
           ? _value.emailVerifiedAt
@@ -289,6 +322,10 @@ class __$$UserModelImplCopyWithImpl<$Res>
           ? _value.postalCode
           : postalCode // ignore: cast_nullable_to_non_nullable
               as int?,
+      partOfBuilding: freezed == partOfBuilding
+          ? _value.partOfBuilding
+          : partOfBuilding // ignore: cast_nullable_to_non_nullable
+              as String?,
       city: freezed == city
           ? _value.city
           : city // ignore: cast_nullable_to_non_nullable
@@ -296,6 +333,10 @@ class __$$UserModelImplCopyWithImpl<$Res>
       phone: freezed == phone
           ? _value.phone
           : phone // ignore: cast_nullable_to_non_nullable
+              as String?,
+      telephone: freezed == telephone
+          ? _value.telephone
+          : telephone // ignore: cast_nullable_to_non_nullable
               as String?,
       lat: freezed == lat
           ? _value.lat
@@ -345,12 +386,15 @@ class _$UserModelImpl implements _UserModel {
       required this.name,
       required this.image,
       required this.email,
+      @JsonKey(name: 'company_name') required this.companyName,
       @JsonKey(name: 'email_verified_at') required this.emailVerifiedAt,
       required this.type,
       required this.address,
       @JsonKey(name: 'postal_code') required this.postalCode,
+      @JsonKey(name: 'part_of_building') required this.partOfBuilding,
       required this.city,
       required this.phone,
+      required this.telephone,
       required this.lat,
       required this.lng,
       @JsonKey(name: 'is_disabled') required this.isDisabled,
@@ -367,11 +411,14 @@ class _$UserModelImpl implements _UserModel {
   @override
   final int id;
   @override
-  final String name;
+  final String? name;
   @override
   final String? image;
   @override
   final String? email;
+  @override
+  @JsonKey(name: 'company_name')
+  final String? companyName;
   @override
   @JsonKey(name: 'email_verified_at')
   final DateTime? emailVerifiedAt;
@@ -383,9 +430,14 @@ class _$UserModelImpl implements _UserModel {
   @JsonKey(name: 'postal_code')
   final int? postalCode;
   @override
+  @JsonKey(name: 'part_of_building')
+  final String? partOfBuilding;
+  @override
   final String? city;
   @override
   final String? phone;
+  @override
+  final String? telephone;
   @override
   final double? lat;
   @override
@@ -413,7 +465,7 @@ class _$UserModelImpl implements _UserModel {
 
   @override
   String toString() {
-    return 'UserModel(id: $id, name: $name, image: $image, email: $email, emailVerifiedAt: $emailVerifiedAt, type: $type, address: $address, postalCode: $postalCode, city: $city, phone: $phone, lat: $lat, lng: $lng, isDisabled: $isDisabled, zoneArea: $zoneArea, nationalId: $nationalId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, role: $role)';
+    return 'UserModel(id: $id, name: $name, image: $image, email: $email, companyName: $companyName, emailVerifiedAt: $emailVerifiedAt, type: $type, address: $address, postalCode: $postalCode, partOfBuilding: $partOfBuilding, city: $city, phone: $phone, telephone: $telephone, lat: $lat, lng: $lng, isDisabled: $isDisabled, zoneArea: $zoneArea, nationalId: $nationalId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, role: $role)';
   }
 
   @override
@@ -425,14 +477,20 @@ class _$UserModelImpl implements _UserModel {
             (identical(other.name, name) || other.name == name) &&
             (identical(other.image, image) || other.image == image) &&
             (identical(other.email, email) || other.email == email) &&
+            (identical(other.companyName, companyName) ||
+                other.companyName == companyName) &&
             (identical(other.emailVerifiedAt, emailVerifiedAt) ||
                 other.emailVerifiedAt == emailVerifiedAt) &&
             (identical(other.type, type) || other.type == type) &&
             (identical(other.address, address) || other.address == address) &&
             (identical(other.postalCode, postalCode) ||
                 other.postalCode == postalCode) &&
+            (identical(other.partOfBuilding, partOfBuilding) ||
+                other.partOfBuilding == partOfBuilding) &&
             (identical(other.city, city) || other.city == city) &&
             (identical(other.phone, phone) || other.phone == phone) &&
+            (identical(other.telephone, telephone) ||
+                other.telephone == telephone) &&
             (identical(other.lat, lat) || other.lat == lat) &&
             (identical(other.lng, lng) || other.lng == lng) &&
             (identical(other.isDisabled, isDisabled) ||
@@ -458,12 +516,15 @@ class _$UserModelImpl implements _UserModel {
         name,
         image,
         email,
+        companyName,
         emailVerifiedAt,
         type,
         address,
         postalCode,
+        partOfBuilding,
         city,
         phone,
+        telephone,
         lat,
         lng,
         isDisabled,
@@ -492,16 +553,19 @@ class _$UserModelImpl implements _UserModel {
 abstract class _UserModel implements UserModel {
   const factory _UserModel(
       {required final int id,
-      required final String name,
+      required final String? name,
       required final String? image,
       required final String? email,
+      @JsonKey(name: 'company_name') required final String? companyName,
       @JsonKey(name: 'email_verified_at')
       required final DateTime? emailVerifiedAt,
       required final int? type,
       required final String? address,
       @JsonKey(name: 'postal_code') required final int? postalCode,
+      @JsonKey(name: 'part_of_building') required final String? partOfBuilding,
       required final String? city,
       required final String? phone,
+      required final String? telephone,
       required final double? lat,
       required final double? lng,
       @JsonKey(name: 'is_disabled') required final bool? isDisabled,
@@ -518,11 +582,14 @@ abstract class _UserModel implements UserModel {
   @override
   int get id;
   @override
-  String get name;
+  String? get name;
   @override
   String? get image;
   @override
   String? get email;
+  @override
+  @JsonKey(name: 'company_name')
+  String? get companyName;
   @override
   @JsonKey(name: 'email_verified_at')
   DateTime? get emailVerifiedAt;
@@ -534,9 +601,14 @@ abstract class _UserModel implements UserModel {
   @JsonKey(name: 'postal_code')
   int? get postalCode;
   @override
+  @JsonKey(name: 'part_of_building')
+  String? get partOfBuilding;
+  @override
   String? get city;
   @override
   String? get phone;
+  @override
+  String? get telephone;
   @override
   double? get lat;
   @override

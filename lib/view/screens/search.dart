@@ -165,8 +165,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                             .search(
                                           endPoint: endPoint,
                                           searchText: searchController.text,
-                                          dateFrom: Jiffy.parse(fromDate?.toString() ?? '').format(pattern: 'yyyy-MM-dd'),
-                                          dateTo: Jiffy.parse(toDate?.toString() ?? '').format(pattern: 'yyyy-MM-dd'),
+                                          dateFrom: Jiffy.parse(fromDate?.toString() ?? '').format(pattern: 'dd.MM.yyyy'),
+                                          dateTo: Jiffy.parse(toDate?.toString() ?? '').format(pattern: 'dd.MM.yyyy'),
                                         );
                                       }
                                       else{
@@ -193,8 +193,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                             .search(
                                           endPoint: endPoint,
                                           searchText: searchController.text,
-                                          dateFrom: Jiffy.parse(fromDate?.toString() ?? '').format(pattern: 'yyyy-MM-dd'),
-                                          dateTo: Jiffy.parse(fromDate?.toString() ?? '').format(pattern: 'yyyy-MM-dd'),
+                                          dateFrom: Jiffy.parse(fromDate?.toString() ?? '').format(pattern: 'dd.MM.yyyy'),
+                                          dateTo: Jiffy.parse(fromDate?.toString() ?? '').format(pattern: 'dd.MM.yyyy'),
                                         );
                                       }
                                       else{
@@ -306,7 +306,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                                   ),
                                                 ),
                                                 AutoSizeText(
-                                                  fromDate == null ? 'Select From Date'.tr() : Jiffy.parse(fromDate.toString()).format(pattern: 'dd-MM-yyyy'),
+                                                  fromDate == null ? 'Select From Date'.tr() : Jiffy.parse(fromDate.toString()).format(pattern: 'dd.MM.yyyy'),
                                                   style:  TextStyle(
                                                     color: Theme.of(context).primaryColor,
                                                     fontSize: 15,
@@ -347,7 +347,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                                   ),
                                                 ),
                                                 AutoSizeText(
-                                                  toDate == null ? 'Select To Date'.tr() : Jiffy.parse(toDate.toString()).format(pattern: 'dd-MM-yyyy'),
+                                                  toDate == null ? 'Select To Date'.tr() : Jiffy.parse(toDate.toString()).format(pattern: 'dd.MM.yyyy'),
                                                   style:  TextStyle(
                                                     color: Theme.of(context).primaryColor,
                                                     fontSize: 15,
@@ -427,7 +427,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                             ),
                                           ),
                                           AutoSizeText(
-                                            fromDate == null ? 'Select Date'.tr() : Jiffy.parse(fromDate.toString()).format(pattern: 'dd-MM-yyyy'),
+                                            fromDate == null ? 'Select Date'.tr() : Jiffy.parse(fromDate.toString()).format(pattern: 'dd.MM.yyyy'),
                                             style:  TextStyle(
                                               color: Theme.of(context).primaryColor,
                                               fontSize: 15,

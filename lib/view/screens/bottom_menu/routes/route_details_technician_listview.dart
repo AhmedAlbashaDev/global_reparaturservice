@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/models/order.dart';
+import 'package:global_reparaturservice/view/screens/bottom_menu/orders/drop_off_order_details_technicain.dart';
 import 'package:global_reparaturservice/view/widgets/order_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -61,13 +62,24 @@ class RouteDetailsTechnicianListView extends ConsumerWidget {
                                     showOrderPaymentStatus: true,
                                     showOrderCheckBox: false,
                                     onPressed: () {
-                                      Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => OrderDetailsTechnician(
-                                                orderId: orders[index].id,
-                                                routeId: routeId,
-                                              )));
+                                      if(orders[index].type != 3){
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => OrderDetailsTechnician(
+                                                  orderId: orders[index].id,
+                                                  routeId: routeId,
+                                                )));
+                                      }
+                                      else{
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => DropOddOrderDetailsTechnician(
+                                                  orderId: orders[index].id,
+                                                  routeId: routeId,
+                                                )));
+                                      }
                                     },
                                     orderModel: orders[index],
                                   ),

@@ -38,13 +38,16 @@ class _SignInState extends ConsumerState<SignIn> {
     super.initState();
 
     Future.microtask(() => ref.read(bottomNavigationMenuProvider.notifier).state = 0);
-    // userId = TextEditingController(text: '123456789123');
-    // password = TextEditingController(text: '123ahmed');
-    userId = TextEditingController(text: 'admin@admin.com');
-    password = TextEditingController(text: '123admin');
+
+    userId = TextEditingController(text: '123456789123');
+    password = TextEditingController(text: '123ahmed');
+    //
+    // userId = TextEditingController(text: 'admin@admin.com');
+    // password = TextEditingController(text: '123admin');
 
     //sahlowle@gmail.com
     //q6eXUJrN
+
   }
 
   @override

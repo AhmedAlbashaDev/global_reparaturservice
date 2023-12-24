@@ -10,13 +10,12 @@ part 'routes.g.dart';
 class RoutesModel with _$RoutesModel {
   const factory RoutesModel({
     required int id,
-    required String description,
     @JsonKey(name: 'reference_no') required String referenceNo,
     @JsonKey(name: 'create_by') required int createBy,
     @JsonKey(name: 'driver_id') required int? driverId,
     required int status,
-    @JsonKey(name: 'status_name') required String statusName,
     required UserModel? driver,
+    @JsonKey(name: 'status_name') required String statusName,
     List<OrderModel>? orders,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,

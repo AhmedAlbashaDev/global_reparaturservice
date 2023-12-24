@@ -14,6 +14,7 @@ import 'package:lottie/lottie.dart';
 
 import '../../../../core/globals.dart';
 import '../../../../models/response_state.dart';
+import '../../../widgets/available_times.dart';
 import '../../../widgets/custom_app_bar.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_text_form_field.dart';
@@ -26,8 +27,6 @@ final selectedVisitToNewOrder = StateProvider<String?>((ref) => null);
 final isCustomDate = StateProvider<bool>((ref) => false);
 
 final selectedAddressToNewOrder = StateProvider<Map<String, dynamic>?>((ref) => null);
-
-final newOrderTypeSelectedProvider = StateProvider<int>((ref) => 0);
 
 class NewOrderScreen extends ConsumerStatefulWidget {
   const NewOrderScreen({super.key});
@@ -49,7 +48,6 @@ class _State extends ConsumerState<NewOrderScreen>
   late TextEditingController city;
   late TextEditingController zone;
   late TextEditingController floorNumber;
-  late TextEditingController apartmentNumber;
   late TextEditingController additionalInfo;
 
   TabController? tabController;
@@ -60,21 +58,6 @@ class _State extends ConsumerState<NewOrderScreen>
   final GlobalKey<FormState> _newOrderFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _dropOffFormKey = GlobalKey<FormState>();
 
-   _selectCustomVisitDate(BuildContext context) {
-    showDatePicker(
-        context: context,
-        locale: context.locale,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(2023, 1),
-        lastDate: DateTime(2101)).then((picked) {
-          if(picked != null){
-            ref.read(isCustomDate.notifier).state = true;
-            ref.read(selectedVisitDateToNewOrder.notifier).state = Jiffy.parseFromDateTime(picked).format(pattern: 'yyyy-MM-dd');
-            ref.read(selectedVisitToNewOrder.notifier).state = null;
-            ref.read(orderGetAvailableTimesViewModelProvider.notifier).getAvailableTimes(selectedDate: ref.watch(selectedVisitDateToNewOrder));
-          }
-    });
-  }
 
   @override
   void initState() {
@@ -85,7 +68,6 @@ class _State extends ConsumerState<NewOrderScreen>
       ref.read(selectedVisitDateToNewOrder.notifier).state = null;
       ref.read(selectedVisitToNewOrder.notifier).state = null;
       ref.read(selectedAddressToNewOrder.notifier).state = null;
-      ref.read(selectedUserToNewOrder.notifier).state = null;
     });
 
     referenceNumber = TextEditingController();
@@ -99,7 +81,6 @@ class _State extends ConsumerState<NewOrderScreen>
     city = TextEditingController();
     zone = TextEditingController();
     floorNumber = TextEditingController();
-    apartmentNumber = TextEditingController();
     additionalInfo = TextEditingController();
 
     tabController = TabController(length: 2, vsync: this);
@@ -118,7 +99,6 @@ class _State extends ConsumerState<NewOrderScreen>
     city.dispose();
     zone.dispose();
     floorNumber.dispose();
-    apartmentNumber.dispose();
     additionalInfo.dispose();
     tabController?.dispose();
     super.dispose();
@@ -130,12 +110,9 @@ class _State extends ConsumerState<NewOrderScreen>
         (previous, next) {
       next.whenOrNull(
         success: (order) {
-          if (order?['with_route'] == true) {
-            Navigator.pop(context, 'update');
-            ref.read(bottomNavigationMenuProvider.notifier).state = 0;
-          } else {
-            Navigator.pop(context, 'update');
-          }
+          ref.read(selectedUserToNewOrder.notifier).state = null;
+          Navigator.pop(context, 'update');
+          ref.read(bottomNavigationMenuProvider.notifier).state = 1;
         },
         error: (error) {
           if (ModalRoute.of(context)?.isCurrent != true) {
@@ -179,6 +156,8 @@ class _State extends ConsumerState<NewOrderScreen>
     zone.text = ref.watch(selectedAddressToNewOrder)?['zone_area'] ??
         (ref.watch(selectedUserToNewOrder)?.zoneArea ?? '');
 
+
+    //: 'Drop-Off Order'.tr()
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -187,7 +166,11 @@ class _State extends ConsumerState<NewOrderScreen>
             Column(
               children: [
                 CustomAppBar(
-                  title: ref.read(newOrderTypeSelectedProvider) == 0 ? 'new_order'.tr() : 'Drop-Off Order'.tr(),
+                  onPop: (){
+                    ref.read(selectedUserToNewOrder.notifier).state = null;
+                    Navigator.pop(context);
+                  },
+                  title:'new_order'.tr() ,
                 ),
                 ref.watch(orderViewModelProvider).maybeWhen(
                     loading: () => Expanded(
@@ -202,8 +185,7 @@ class _State extends ConsumerState<NewOrderScreen>
                         child: Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 22, vertical: 4),
-                            child: ref.watch(newOrderTypeSelectedProvider) == 0
-                                ? SingleChildScrollView(
+                            child: SingleChildScrollView(
                               child: Form(
                                 key: _newOrderFormKey,
                                 child: Column(
@@ -212,12 +194,7 @@ class _State extends ConsumerState<NewOrderScreen>
                                       height: 10,
                                     ),
                                     CustomerCardNewOrder(
-                                      empty: ref
-                                          .read(
-                                          selectedUserToNewOrder
-                                              .notifier)
-                                          .state ==
-                                          null
+                                      empty: ref.watch(selectedUserToNewOrder) == null
                                           ? true
                                           : false,
                                       userModel: ref.watch(
@@ -415,19 +392,13 @@ class _State extends ConsumerState<NewOrderScreen>
                                                 await PlacesAutocomplete
                                                     .show(
                                                   context: context,
-                                                  apiKey:
-                                                  kGoogleApiKey,
-                                                  onError:
-                                                      (error) {},
-                                                  mode: Mode
-                                                      .fullscreen,
+                                                  apiKey: kGoogleApiKey,
+                                                  onError: (error) {},
+                                                  mode: Mode.fullscreen,
                                                   language: "de",
-                                                  sessionToken:
-                                                  DateTime.now()
-                                                      .timeZoneName,
+                                                  sessionToken: DateTime.now().timeZoneName,
                                                   types: [],
-                                                  decoration:
-                                                  InputDecoration(
+                                                  decoration: InputDecoration(
                                                     hintText:
                                                     'Search',
                                                     focusedBorder:
@@ -455,13 +426,9 @@ class _State extends ConsumerState<NewOrderScreen>
                                                       ),
                                                     ),
                                                   ),
-                                                  strictbounds:
-                                                  false,
+                                                  strictbounds: false,
                                                   components: [
-                                                    Component(
-                                                        Component
-                                                            .country,
-                                                        "de")
+                                                    Component(Component.country, "de")
                                                   ],
                                                 );
 
@@ -482,60 +449,26 @@ class _State extends ConsumerState<NewOrderScreen>
                                                   // print('Location name ${prediction.description}');
                                                   // print('detail.result.formattedAddress name ${detail.result.formattedAddress}');
 
-                                                  Map<String,
-                                                      dynamic>
-                                                  data = {};
+                                                  Map<String, dynamic>data = {};
 
-                                                  for (var element
-                                                  in detail
-                                                      .result
-                                                      .addressComponents) {
-                                                    if (element.types[
-                                                    0] ==
-                                                        'postal_code') {
-                                                      data['postal_code'] =
-                                                          element
-                                                              .longName;
+                                                  for (var element in detail.result.addressComponents) {
+                                                    if (element.types[0] == 'postal_code') {
+                                                      data['postal_code'] = element.longName;
                                                     }
-                                                    if (element.types[
-                                                    0] ==
-                                                        'administrative_area_level_1') {
-                                                      data['city'] =
-                                                          element
-                                                              .longName;
+                                                    if (element.types[0] == 'administrative_area_level_1') {
+                                                      data['city'] = element.longName;
                                                     }
-                                                    if (element.types[
-                                                    0] ==
-                                                        'administrative_area_level_3' ||
-                                                        element.types[
-                                                        0] ==
-                                                            'administrative_area_level_2') {
-                                                      data['zone_area'] =
-                                                          element
-                                                              .longName;
+                                                    if (element.types[0] == 'administrative_area_level_3' || element.types[0] == 'administrative_area_level_2') {
+                                                      data['zone_area'] = element.longName;
                                                     }
                                                   }
 
-                                                  data['address'] =
-                                                      detail.result
-                                                          .formattedAddress;
-                                                  data['lat'] =
-                                                      detail
-                                                          .result
-                                                          .geometry
-                                                          ?.location
-                                                          .lat;
-                                                  data['lng'] =
-                                                      detail
-                                                          .result
-                                                          .geometry
-                                                          ?.location
-                                                          .lng;
+                                                  data['address'] = detail.result.formattedAddress;
+                                                  data['lat'] = detail.result.geometry?.location.lat;
+                                                  data['lng'] = detail.result.geometry?.location.lng;
 
-                                                  ref
-                                                      .read(selectedAddressToNewOrder
-                                                      .notifier)
-                                                      .state = data;
+                                                  ref.read(selectedAddressToNewOrder.notifier).state = data;
+
                                                 }
                                               },
                                               radius: 10,
@@ -555,10 +488,10 @@ class _State extends ConsumerState<NewOrderScreen>
                                     CustomTextFormField(
                                       controller: floorNumber,
                                       validator: (text) {
-                                        if (text?.isEmpty ?? true) {
-                                          return 'this_filed_required'
-                                              .tr();
-                                        }
+                                        // if (text?.isEmpty ?? true) {
+                                        //   return 'this_filed_required'
+                                        //       .tr();
+                                        // }
                                         return null;
                                       },
                                       height: 60,
@@ -578,7 +511,7 @@ class _State extends ConsumerState<NewOrderScreen>
                                     const SizedBox(
                                       height: 10,
                                     ),
-                                    availableTimesWidget(),
+                                    const AvailableTimesWidget(),
                                     const SizedBox(
                                       height: 10,
                                     ),
@@ -596,16 +529,15 @@ class _State extends ConsumerState<NewOrderScreen>
                                                   description: description.text,
                                                   address: address.text,
                                                   floorNumber: floorNumber.text,
-                                                  apartmentNumber: apartmentNumber.text,
                                                   additionalInfo: additionalInfo.text,
                                                   customerId: ref.read(selectedUserToNewOrder)?.id,
-                                                  lat: ref.read(selectedAddressToNewOrder)?['lat'],
-                                                  lng: ref.read(selectedAddressToNewOrder)?['lng'],
+                                                  lat: ref.watch(selectedAddressToNewOrder)?['lat'] ?? ref.read(selectedUserToNewOrder)?.lat,
+                                                  lng: ref.watch(selectedAddressToNewOrder)?['lng'] ?? ref.read(selectedUserToNewOrder)?.lng,
                                                   postalCode: postalCode.text,
                                                   city: city.text,
                                                   zone: zone.text,
                                                   phone: orderPhone.text,
-                                                  visitTime: ref.read(selectedVisitToNewOrder)
+                                                  visitTime: ref.watch(selectedVisitToNewOrder)
                                               );
                                             }
                                           },
@@ -615,107 +547,6 @@ class _State extends ConsumerState<NewOrderScreen>
                                           textColor: Colors.white,
                                           bgColor: Theme.of(context)
                                               .primaryColor)
-                                  ],
-                                ),
-                              ),
-                            )
-                                : SingleChildScrollView(
-                              child: Form(
-                                key: _dropOffFormKey,
-                                child: Column(
-                                  children: [
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    AutoSizeText(
-                                      'Enter the reference number for the pickup order below and place a drop-off order connected with the pick-up order'.tr(),
-                                      style: TextStyle(
-                                          color: Theme.of(context)
-                                              .primaryColor,
-                                          fontSize: 14,
-                                          fontWeight:
-                                          FontWeight.bold),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    CustomTextFormField(
-                                      controller: referenceNumber,
-                                      validator: (text) {
-                                        if (text?.isEmpty ?? true) {
-                                          return 'this_filed_required'
-                                              .tr();
-                                        }
-                                        return null;
-                                      },
-                                      label:
-                                      'Reference number'.tr(),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    availableTimesWidget(),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    if (ref.watch(selectedVisitToNewOrder) != null)
-                                      Column(
-                                        children: [
-                                          CustomButton(
-                                              onPressed: () {
-                                                if (_dropOffFormKey
-                                                    .currentState
-                                                    ?.validate() ??
-                                                    false) {
-                                                  ref
-                                                      .read(orderViewModelProvider
-                                                      .notifier)
-                                                      .dropOffOrder(
-                                                      referenceNumber:
-                                                      referenceNumber
-                                                          .text,
-                                                      withRoute:
-                                                      true);
-                                                }
-                                              },
-                                              radius: 10,
-                                              text:
-                                              'Place an order with new route'
-                                                  .tr(),
-                                              textColor:
-                                              Colors.white,
-                                              bgColor: Theme.of(
-                                                  context)
-                                                  .primaryColor),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          CustomButton(
-                                              onPressed: () {
-                                                if (_dropOffFormKey
-                                                    .currentState
-                                                    ?.validate() ??
-                                                    false) {
-                                                  ref
-                                                      .read(orderViewModelProvider
-                                                      .notifier)
-                                                      .dropOffOrder(
-                                                      referenceNumber:
-                                                      referenceNumber
-                                                          .text,
-                                                      withRoute:
-                                                      false);
-                                                }
-                                              },
-                                              radius: 10,
-                                              text: 'place_an_order'
-                                                  .tr(),
-                                              textColor:
-                                              Colors.white,
-                                              bgColor: Theme.of(context)
-                                                  .primaryColor),
-                                        ],
-                                      ),
                                   ],
                                 ),
                               ),
@@ -729,246 +560,5 @@ class _State extends ConsumerState<NewOrderScreen>
         ),
       ),
     );
-  }
-
-  Widget availableTimesWidget(){
-    return ref.watch(orderGetAvailableTimesViewModelProvider).maybeWhen(
-        loading: () => Center(
-          child: Lottie.asset(
-              'assets/images/global_loader.json',
-              height: 50),
-        ),
-        data: (availableTimes) {
-          Future.microtask((){
-            if(ref.read(selectedVisitDateToNewOrder) == null){
-              ref.read(selectedVisitDateToNewOrder.notifier).state = Jiffy.parseFromDateTime(DateTime.now()).format(pattern: 'yyyy-MM-dd');
-            }
-          });
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AutoSizeText(
-                'Available Time Slots'.tr(),
-                style: TextStyle(
-                    color: Theme.of(context).primaryColor,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold),
-              ),
-              SizedBox(
-                height: 85,
-                child: ListView.builder(
-                  itemCount: 5,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context , index) {
-                    bool isSelected = Jiffy.parseFromDateTime(DateTime.now().add(Duration(days: index))).format(pattern: 'yyyy-MM-dd') == ref.watch(selectedVisitDateToNewOrder);
-                      return Center(
-                        child: Container(
-                          height: 60,
-                          width: 90,
-                          margin: const EdgeInsets.all(3),
-                          padding: EdgeInsets.zero,
-                          child:  MaterialButton(
-                            onPressed: (){
-                              ref.read(isCustomDate.notifier).state = false;
-                              ref.read(selectedVisitDateToNewOrder.notifier).state = Jiffy.parseFromDateTime(DateTime.now().add(Duration(days: index))).format(pattern: 'yyyy-MM-dd');
-                              ref.read(selectedVisitToNewOrder.notifier).state = null;
-                              ref.read(orderGetAvailableTimesViewModelProvider.notifier).getAvailableTimes(selectedDate: ref.watch(selectedVisitDateToNewOrder));
-                            },
-                            color: isSelected ? Theme.of(context).primaryColor : Colors.white,
-                            disabledColor: Colors.grey.shade500,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)
-                            ),
-                            child:  Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                AutoSizeText(
-                                  '${DateTime.now().add(Duration(days: index)).day}',
-                                  style:  TextStyle(
-                                    color: isSelected ? Colors.white : Theme.of(context).primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
-                                ),
-                                AutoSizeText(
-                                  '${Jiffy.parseFromDateTime(DateTime.now().add(Duration(days: index))).MMM} ${DateTime.now().add(Duration(days: index)).year}',
-                                  style:  TextStyle(
-                                      color: isSelected ? Colors.white : Theme.of(context).primaryColor,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 12
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                  },
-                ),
-              ),
-              const SizedBox(height: 5,),
-              if(ref.watch(isCustomDate))
-                Container(
-                  height: 60,
-                  width: 90,
-                  margin: const EdgeInsets.all(3),
-                  padding: EdgeInsets.zero,
-                  child:  MaterialButton(
-                    onPressed: (){
-                      ref.read(selectedVisitToNewOrder.notifier).state = null;
-                      ref.read(orderGetAvailableTimesViewModelProvider.notifier).getAvailableTimes(selectedDate: ref.watch(selectedVisitDateToNewOrder));
-                    },
-                    color: Theme.of(context).primaryColor,
-                    disabledColor: Colors.grey.shade500,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)
-                    ),
-                    child:  Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        AutoSizeText(
-                          '${Jiffy.parse('${ref.watch(selectedVisitDateToNewOrder)}').date}',
-                          style:  const TextStyle(
-                            color: Colors.white ,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                        ),
-                        AutoSizeText(
-                          '${Jiffy.parse('${ref.watch(selectedVisitDateToNewOrder)}').MMM} ${Jiffy.parse('${ref.watch(selectedVisitDateToNewOrder)}').year}',
-                          style:  const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 5,),
-              AutoSizeText(
-                'Which Time'.tr(),
-                style: TextStyle(
-                    color: Theme.of(context).primaryColor,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 5,),
-              availableTimes.isNotEmpty
-                  ? GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: availableTimes.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4 , childAspectRatio: 10 / 5),
-                itemBuilder:
-                    (context,
-                    index) {
-                  return Container(
-                    margin: const EdgeInsets.all(3),
-                    child: CustomButton(
-                      onPressed: () {
-                        ref.read(selectedVisitToNewOrder.notifier).state = '${ref.read(selectedVisitDateToNewOrder.notifier).state} ${availableTimes[index]}';
-                        // ref.read(selectedCustomVisitToNewOrder.notifier).state = availableTimes[index];
-                      },
-                      text: availableTimes[index],
-                      // text: Jiffy.parse(availableTimes[index]).format(pattern: 'HH:mm'),
-                      textColor: ref.watch(selectedVisitToNewOrder)?.split(' ').last == availableTimes[index] ? Colors.white : Theme.of(context).primaryColor,
-                      radius: 10,
-                      height: 40,
-                      bgColor: ref.watch(selectedVisitToNewOrder)?.split(' ').last == availableTimes[index] ? Theme.of(context).primaryColor :Colors.white,
-                    ),
-                  );
-                },
-              )
-                  :  Center(
-                    child: AutoSizeText(
-                      'No Times Available'.tr(),
-                      style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600),
-                    ),
-                  ),
-              const SizedBox(height: 15,),
-              Container(
-                height: 40,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  children: [
-                    AutoSizeText(
-                      'Your Visit Time is'.tr(),
-                      style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600),
-                    ),
-                    Expanded(
-                      child: AutoSizeText(
-                        ' : ${ref.watch(selectedVisitToNewOrder) ?? 'Not set' }',
-                        style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              const SizedBox(height: 5,),
-              CustomButton(
-                  onPressed: (){
-                    _selectCustomVisitDate(context);
-                  },
-                  text: 'Set Custom Visit Time'.tr(),
-                  textColor: Colors.white,
-                  radius: 10,
-                  bgColor: Theme.of(context).primaryColor
-              )
-            ],
-          );
-        },
-        error: (error){
-          return CustomButton(
-              onPressed: () {
-                ref
-                    .read(orderGetAvailableTimesViewModelProvider
-                    .notifier)
-                    .getAvailableTimes(selectedDate: ref.watch(selectedVisitDateToNewOrder));
-              },
-              radius: 10,
-              text:
-              'Retry'.tr(),
-              height: 45,
-              textColor:
-              Colors
-                  .white,
-              bgColor: Colors.redAccent
-          );
-        },
-        orElse: () {
-          return CustomButton(
-              onPressed: () {
-                ref
-                    .read(orderGetAvailableTimesViewModelProvider
-                    .notifier)
-                    .getAvailableTimes(selectedDate: Jiffy.parseFromDateTime(DateTime.now()).format(pattern: 'yyyy-MM-dd'));
-              },
-              radius: 10,
-              text:
-              'Get available times'.tr(),
-              height: 45,
-              textColor:
-              Colors
-                  .white,
-              bgColor: Theme.of(context).primaryColor
-          );
-        });
   }
 }

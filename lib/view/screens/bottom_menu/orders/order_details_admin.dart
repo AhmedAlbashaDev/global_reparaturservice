@@ -4,13 +4,17 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/core/globals.dart';
+import 'package:global_reparaturservice/view/screens/bottom_menu/orders/new_drop_off_order.dart';
 import 'package:global_reparaturservice/view/widgets/custom_button.dart';
 import 'package:global_reparaturservice/view_model/load_one_order_view_model.dart';
+import 'package:global_reparaturservice/view_model/orders_view_model.dart';
+import 'package:jiffy/jiffy.dart';
 
 import 'package:lottie/lottie.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/providers/added_items_to_order.dart';
 import '../../../../models/order.dart';
 import '../../../../models/response_state.dart';
 import '../../../../view_model/order_view_model.dart';
@@ -35,8 +39,6 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
 
   final int orderId;
 
-  late TextEditingController amount;
-
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
@@ -44,17 +46,12 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
 
   @override
   void initState() {
-    Future.microtask(() =>
-        ref.read(loadOrderViewModelProvider.notifier).loadOne(orderId: orderId));
-
-    amount = TextEditingController();
-
+    Future.microtask(() => ref.read(loadOrderViewModelProvider.notifier).loadOne(orderId: orderId));
     super.initState();
   }
 
   @override
   void dispose() {
-    amount.dispose();
     super.dispose();
   }
 
@@ -64,6 +61,9 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
         (previous, next) {
       next.whenOrNull(
         success: (order) {
+
+          ref.read(todayOrdersViewModelProvider.notifier).loadAll(today: true);
+          ref.read(ordersViewModelProvider.notifier).loadAll();
 
           if(order?['send_invoice'] == true){
             AwesomeDialog(
@@ -88,7 +88,6 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
                 .show();
           }
           else{
-            amount.clear();
             ref.read(loadOrderViewModelProvider.notifier).loadOne(orderId: orderId);
           }
         },
@@ -120,10 +119,25 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
 
                         globalOrderModel = orderModel;
 
-                        return OrderDetailsAdminView(orderModel: orderModel, refreshController: _refreshController, amount: amount);
+                        return ref.watch(orderViewModelProvider).maybeWhen(
+                          loading: () => Expanded(
+                            child: Center(
+                              child: Lottie.asset(
+                                  'assets/images/global_loader.json',
+                                  height: 50),
+                            ),
+                          ),
+                          orElse: (){
+                            return OrderDetailsAdminView(orderModel: globalOrderModel!,);
+                          },
+                        );
                       },
                       success: (order){
-                        return OrderDetailsAdminView(orderModel: globalOrderModel!, refreshController: _refreshController, amount: amount);
+                        return ref.watch(orderViewModelProvider).maybeWhen(
+                          orElse: (){
+                            return OrderDetailsAdminView(orderModel: globalOrderModel!,);
+                          },
+                        );
                       },
                       error: (error) => Expanded(
                         child: Padding(
@@ -161,14 +175,19 @@ class _OrderDetailsAdminState extends ConsumerState<OrderDetailsAdmin> {
 }
 
 class OrderDetailsAdminView extends ConsumerWidget {
-  const OrderDetailsAdminView({super.key ,required this.orderModel,required this.refreshController ,required this.amount,});
+  OrderDetailsAdminView({super.key ,required this.orderModel});
 
   final OrderModel orderModel;
 
-  final TextEditingController amount;
 
+  static TextEditingController title = TextEditingController();
+  static TextEditingController price = TextEditingController();
+  static TextEditingController quantity = TextEditingController();
 
-  final RefreshController refreshController;
+  static final GlobalKey<FormState> _reportFormKey = GlobalKey<FormState>();
+
+  final RefreshController refreshController = RefreshController(initialRefresh: false);
+
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -189,6 +208,46 @@ class OrderDetailsAdminView extends ConsumerWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                        BorderRadius.circular(8),
+                        border: Border.all(
+                            color:
+                            const Color(0xffDCDCDC))),
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisAlignment:
+                      MainAxisAlignment.start,
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                      children: [
+                        AutoSizeText(
+                          'Visit Time'.tr(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        AutoSizeText(
+                          Jiffy.parse(orderModel.visitTime ?? '').format(pattern: 'dd.MM.yyyy : HH:mm'),
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
                   const SizedBox(
                     height: 10,
                   ),
@@ -234,164 +293,10 @@ class OrderDetailsAdminView extends ConsumerWidget {
                   const SizedBox(
                     height: 10,
                   ),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius:
-                        BorderRadius.circular(8),
-                        border: Border.all(
-                            color:
-                            const Color(0xffDCDCDC))),
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      mainAxisAlignment:
-                      MainAxisAlignment.start,
-                      crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                      children: [
-                        AutoSizeText(
-                          'Order Type'.tr(),
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Theme.of(context)
-                                .primaryColor,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        AutoSizeText(
-                          orderModel.typeName,
-                          style: TextStyle(
-                            color: Theme.of(context)
-                                .primaryColor,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius:
-                        BorderRadius.circular(8),
-                        border: Border.all(
-                            color:
-                            const Color(0xffDCDCDC))),
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment:
-                            MainAxisAlignment.start,
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                            children: [
-                              AutoSizeText(
-                                'order_status'.tr(),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Theme.of(context)
-                                      .primaryColor,
-                                  fontWeight:
-                                  FontWeight.w400,
-                                ),
-                              ),
-                              AutoSizeText(
-                                orderModel.statusName,
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .primaryColor,
-                                  fontSize: 15,
-                                  fontWeight:
-                                  FontWeight.w600,
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment:
-                            MainAxisAlignment.start,
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                            children: [
-                              AutoSizeText(
-                                'payment_status'.tr(),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Theme.of(context)
-                                      .primaryColor,
-                                  fontWeight:
-                                  FontWeight.w400,
-                                ),
-                              ),
-                              AutoSizeText(
-                                orderModel.isPaid
-                                    ? 'paid'.tr()
-                                    : 'not_paid'.tr(),
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .primaryColor,
-                                  fontSize: 15,
-                                  fontWeight:
-                                  FontWeight.w600,
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius:
-                        BorderRadius.circular(8),
-                        border: Border.all(
-                            color:
-                            const Color(0xffDCDCDC))),
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      mainAxisAlignment:
-                      MainAxisAlignment.start,
-                      crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                      children: [
-                        AutoSizeText(
-                          'problem_summary'.tr(),
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Theme.of(context)
-                                .primaryColor,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        AutoSizeText(
-                          orderModel.description,
-                          style: TextStyle(
-                            color: Theme.of(context)
-                                .primaryColor,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        )
-                      ],
-                    ),
+                  CustomerCardNewOrder(
+                    userModel: orderModel.customer,
+                    isOrderDetails: true,
+                    empty: false,
                   ),
                   const SizedBox(
                     height: 10,
@@ -429,6 +334,33 @@ class OrderDetailsAdminView extends ConsumerWidget {
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                           ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Divider(color: Theme.of(context).primaryColor,height: 1,thickness: .5,),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        AutoSizeText(
+                          'floor_number'.tr(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontWeight:
+                            FontWeight.w400,
+                          ),
+                        ),
+                        AutoSizeText(
+                          '${orderModel.floorNumber ?? 'N/A'}',
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontSize: 15,
+                            fontWeight:
+                            FontWeight.w600,
+                          ),
                         )
                       ],
                     ),
@@ -446,82 +378,148 @@ class OrderDetailsAdminView extends ConsumerWidget {
                             color:
                             const Color(0xffDCDCDC))),
                     padding: const EdgeInsets.all(12),
-                    child: Row(
+                    child: Column(
                       mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
+                      MainAxisAlignment.start,
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment:
-                            MainAxisAlignment.start,
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                            children: [
-                              AutoSizeText(
-                                'floor_number'.tr(),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Theme.of(context)
-                                      .primaryColor,
-                                  fontWeight:
-                                  FontWeight.w400,
-                                ),
-                              ),
-                              AutoSizeText(
-                                '${orderModel.floorNumber}',
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .primaryColor,
-                                  fontSize: 15,
-                                  fontWeight:
-                                  FontWeight.w600,
-                                ),
-                              )
-                            ],
+                        AutoSizeText(
+                          'order_status'.tr(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontWeight:
+                            FontWeight.w400,
                           ),
                         ),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment:
-                            MainAxisAlignment.start,
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                            children: [
-                              AutoSizeText(
-                                'apartment_number'.tr(),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Theme.of(context)
-                                      .primaryColor,
-                                  fontWeight:
-                                  FontWeight.w400,
-                                ),
-                              ),
-                              AutoSizeText(
-                                orderModel
-                                    .apartmentNumber ??
-                                    'N/A',
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .primaryColor,
-                                  fontSize: 15,
-                                  fontWeight:
-                                  FontWeight.w600,
-                                ),
-                              )
-                            ],
+                        AutoSizeText(
+                          orderModel.statusName,
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontSize: 15,
+                            fontWeight:
+                            FontWeight.w600,
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ),
                   const SizedBox(
                     height: 10,
                   ),
-                  CustomerCardNewOrder(
-                    userModel: orderModel.customer,
-                    isOrderDetails: true,
-                    empty: false,
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                        BorderRadius.circular(8),
+                        border: Border.all(
+                            color:
+                            const Color(0xffDCDCDC))),
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisAlignment:
+                      MainAxisAlignment.start,
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                      children: [
+                        AutoSizeText(
+                          'problem_summary'.tr(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        AutoSizeText(
+                          orderModel.problemSummary,
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border:
+                        Border.all(color: const Color(0xffDCDCDC))),
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AutoSizeText(
+                          'maintenance_device'.tr(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        AutoSizeText(
+                          orderModel.maintenanceDevice,
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                        BorderRadius.circular(8),
+                        border: Border.all(
+                            color:
+                            const Color(0xffDCDCDC))),
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisAlignment:
+                      MainAxisAlignment.start,
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                      children: [
+                        AutoSizeText(
+                          'brand'.tr(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        AutoSizeText(
+                          orderModel.brand,
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                   const SizedBox(
                     height: 10,
@@ -594,263 +592,669 @@ class OrderDetailsAdminView extends ConsumerWidget {
                         ),
                       ],
                     ),
-                  if (orderModel.amount == 0)
-                    Column(
+                  const SizedBox(height: 10,),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                        BorderRadius.circular(8),
+                        border: Border.all(
+                            color:
+                            const Color(0xffDCDCDC))),
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisAlignment:
+                      MainAxisAlignment.start,
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
                       children: [
-                        CustomTextFormField(
-                          label: 'New amount'.tr(),
-                          validator: (text) {},
-                          controller: amount,
-                          textInputType:
-                          TextInputType.number,
+                        AutoSizeText(
+                          'Order Type'.tr(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        SizedBox(
-                          height: 40,
-                          width: screenWidth * 80,
-                          child: CustomButton(
-                              onPressed: () {
-                                if (amount
-                                    .text.isNotEmpty) {
-                                  ref
-                                      .read(
-                                      orderViewModelProvider
-                                          .notifier)
-                                      .updateAmount(
-                                      orderId: orderModel.id,
-                                      amount:
-                                      amount.text);
-                                }
-                              },
-                              text: 'Update amount'.tr(),
-                              textColor: Colors.white,
-                              bgColor: Theme.of(context)
-                                  .primaryColor),
+                        AutoSizeText(
+                          orderModel.typeName,
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
                         )
                       ],
-                    )
-                  else
-                    Column(
+                    ),
+                  ),
+                  const SizedBox(height: 10,),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                        BorderRadius.circular(8),
+                        border: Border.all(
+                            color:
+                            const Color(0xffDCDCDC))),
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisAlignment:
+                      MainAxisAlignment.start,
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius:
-                              BorderRadius.circular(8),
-                              border: Border.all(
-                                  color: const Color(
-                                      0xffDCDCDC))),
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            mainAxisAlignment:
-                            MainAxisAlignment.start,
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                            children: [
-                              AutoSizeText(
-                                'last_updated_amount'.tr(),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Theme.of(context)
-                                      .primaryColor,
-                                  fontWeight:
-                                  FontWeight.w400,
-                                ),
-                              ),
-                              AutoSizeText(
-                                '${orderModel.amount}',
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .primaryColor,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              )
-                            ],
+                        AutoSizeText(
+                          'Information'.tr(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        AutoSizeText(
+                          orderModel.information ?? 'N/A',
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 10,),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border:
+                        Border.all(color: const Color(0xffDCDCDC))),
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AutoSizeText(
+                          'Items'.tr(),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                         const SizedBox(
-                          height: 5,
+                          height: 10,
                         ),
-                        if (orderModel.isPaid == false && orderModel.status != 3)
-                          Column(
-                            children: [
-                              CustomTextFormField(
-                                label: 'New amount'.tr(),
-                                validator: (text) {},
-                                controller: amount,
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              SizedBox(
-                                height: 40,
-                                width: screenWidth * 80,
-                                child: CustomButton(
-                                    onPressed: () {
-                                      if (amount.text
-                                          .isNotEmpty) {
-                                        ref
-                                            .read(orderViewModelProvider
-                                            .notifier)
-                                            .updateAmount(
-                                            orderId:
-                                            orderModel.id,
-                                            amount: amount
-                                                .text);
-                                      }
-                                    },
-                                    text: 'Update amount'
-                                        .tr(),
-                                    textColor: Colors.white,
-                                    bgColor:
-                                    Theme.of(context)
-                                        .primaryColor),
-                              )
-                            ],
-                          )
-                      ],
-                    ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AutoSizeText(
-                        'Reports'.tr(),
-                        style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            overflow: TextOverflow.ellipsis
-                        ),
-                      ),
-                      const SizedBox(height: 10,),
-                      if(orderModel.reports?.isNotEmpty ?? false)
                         Column(
                           children: [
                             Table(
                               border: TableBorder.all(),
+                              columnWidths: {
+                                0: FlexColumnWidth(2.8),
+                                1: FlexColumnWidth(1.3),
+                                2: FlexColumnWidth(1.5),
+                                if(orderModel.type != 3 && orderModel.status < 4)
+                                3: FlexColumnWidth(1.1),
+                              },
                               children: [
                                 TableRow(
                                   children: <Widget>[
                                     TableCell(
-                                      verticalAlignment: TableCellVerticalAlignment.top,
+                                      verticalAlignment:
+                                      TableCellVerticalAlignment
+                                          .top,
                                       child: Container(
-                                        padding: const EdgeInsets.all(10),
-                                        color: Colors.grey[200],
+                                        padding:
+                                        const EdgeInsets.all(10),
                                         child: AutoSizeText(
-                                          'Title'.tr(),
+                                          'Warenbezeichnug'.tr(),
                                           style: TextStyle(
-                                              color: Theme.of(context).primaryColor,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                              overflow: TextOverflow.ellipsis
-                                          ),
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                              fontSize: 13,
+                                              fontWeight:
+                                              FontWeight.bold,
+                                              overflow: TextOverflow
+                                                  .ellipsis),
                                         ),
                                       ),
                                     ),
                                     TableCell(
-                                      verticalAlignment: TableCellVerticalAlignment.top,
+                                      verticalAlignment:
+                                      TableCellVerticalAlignment
+                                          .top,
                                       child: Container(
-                                        padding: const EdgeInsets.all(10),
-                                        color: Colors.grey[200],
+                                        padding:
+                                        const EdgeInsets.all(10),
                                         child: AutoSizeText(
-                                          'Description'.tr(),
+                                          'Anzahl'.tr(),
                                           style: TextStyle(
-                                              color: Theme.of(context).primaryColor,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                              overflow: TextOverflow.ellipsis
-                                          ),
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                              fontSize: 13,
+                                              fontWeight:
+                                              FontWeight.bold,
+                                              overflow: TextOverflow
+                                                  .ellipsis),
                                         ),
                                       ),
                                     ),
                                     TableCell(
-                                      verticalAlignment: TableCellVerticalAlignment.top,
+                                      verticalAlignment:
+                                      TableCellVerticalAlignment
+                                          .top,
                                       child: Container(
-                                        padding: const EdgeInsets.all(10),
-                                        color: Colors.grey[200],
+                                        padding:
+                                        const EdgeInsets.all(10),
                                         child: AutoSizeText(
                                           'Price'.tr(),
                                           style: TextStyle(
-                                              color: Theme.of(context).primaryColor,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                              overflow: TextOverflow.ellipsis
-                                          ),
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                              fontSize: 13,
+                                              fontWeight:
+                                              FontWeight.bold,
+                                              overflow: TextOverflow
+                                                  .ellipsis),
                                         ),
                                       ),
                                     ),
+                                    if(orderModel.type != 3 && orderModel.status < 4)
+                                      TableCell(
+                                        verticalAlignment:
+                                        TableCellVerticalAlignment
+                                            .top,
+                                        child: Container(
+                                          padding:
+                                          const EdgeInsets.all(10),
+// child: AutoSizeText(
+//   'Endpreis'.tr(),
+//   style: TextStyle(
+//       color: Theme.of(context).primaryColor,
+//       fontSize: 15,
+//       fontWeight: FontWeight.bold,
+//       overflow: TextOverflow.ellipsis
+//   ),
+// ),
+                                        ),
+                                      ),
                                   ],
                                 ),
                               ],
                             ),
                             Table(
                               border: TableBorder.all(),
-                              children: orderModel.reports?.map((e) {
+                              columnWidths: {
+                                0: FlexColumnWidth(2.8),
+                                1: FlexColumnWidth(1.3),
+                                2: FlexColumnWidth(1.5),
+                                if(orderModel.type != 3 && orderModel.status < 4)
+                                3: FlexColumnWidth(1.1),
+                              },
+                              children: orderModel.items?.map((e) {
                                 return TableRow(
                                   children: <Widget>[
                                     TableCell(
-                                      verticalAlignment: TableCellVerticalAlignment.top,
+                                      verticalAlignment:
+                                      TableCellVerticalAlignment
+                                          .top,
                                       child: Container(
-                                        padding: const EdgeInsets.all(10),
+                                        padding:
+                                        const EdgeInsets.all(
+                                            10),
                                         child: AutoSizeText(
                                           e.title,
                                           style: TextStyle(
-                                            color: Theme.of(context).primaryColor,
+                                            color: Theme.of(context)
+                                                .primaryColor,
                                             fontSize: 14,
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight:
+                                            FontWeight.bold,
                                           ),
                                         ),
                                       ),
                                     ),
                                     TableCell(
-                                      verticalAlignment: TableCellVerticalAlignment.top,
+                                      verticalAlignment:
+                                      TableCellVerticalAlignment
+                                          .top,
                                       child: Container(
-                                        padding: const EdgeInsets.all(10),
+                                        padding:
+                                        const EdgeInsets.all(
+                                            10),
                                         child: AutoSizeText(
-                                          e.description,
+                                          '${e.quantity}',
                                           style: TextStyle(
-                                            color: Theme.of(context).primaryColor,
+                                            color: Theme.of(context)
+                                                .primaryColor,
                                             fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-
+                                            fontWeight:
+                                            FontWeight.bold,
                                           ),
                                         ),
                                       ),
                                     ),
                                     TableCell(
-                                      verticalAlignment: TableCellVerticalAlignment.top,
+                                      verticalAlignment:
+                                      TableCellVerticalAlignment
+                                          .top,
                                       child: Container(
-                                        padding: const EdgeInsets.all(10),
+                                        padding:
+                                        const EdgeInsets.all(
+                                            10),
                                         child: AutoSizeText(
-                                          e.price,
+                                          '${e.price}',
                                           style: TextStyle(
-                                              color: Theme.of(context).primaryColor,
+                                              color:
+                                              Theme.of(context)
+                                                  .primaryColor,
                                               fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              overflow: TextOverflow.ellipsis
-                                          ),
+                                              fontWeight:
+                                              FontWeight.bold,
+                                              overflow: TextOverflow
+                                                  .ellipsis),
                                         ),
                                       ),
                                     ),
+                                    if(orderModel.type != 3 && orderModel.status < 4)
+                                      TableCell(
+                                        verticalAlignment:
+                                        TableCellVerticalAlignment
+                                            .top,
+                                        child: Padding(
+                                          padding:
+                                          const EdgeInsets.all(
+                                              10),
+                                          child: InkWell(
+                                            onTap: () {
+                                              ref
+                                                  .read(
+                                                  orderViewModelProvider
+                                                      .notifier)
+                                                  .deleteItem(
+                                                  orderId:
+                                                  orderModel
+                                                      .id,
+                                                  itemId: e.id);
+                                            },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  color: Colors.red,
+                                                  borderRadius:
+                                                  BorderRadius
+                                                      .circular(
+                                                      5)),
+                                              padding:
+                                              const EdgeInsets
+                                                  .symmetric(
+                                                  horizontal: 5,
+                                                  vertical: 10),
+                                              child: const Icon(
+                                                Icons.delete_forever,
+                                                color: Colors.white,
+                                                size: 25,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                   ],
                                 );
-                              }).toList() ?? [],
+                              }).toList() ??
+                                  [],
                             ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            if (orderModel.status == 3)
+                              CustomButton(
+                                  onPressed: () {
+                                    AwesomeDialog(
+                                        context: context,
+                                        dialogType:
+                                        DialogType.noHeader,
+                                        animType:
+                                        AnimType.rightSlide,
+                                        autoDismiss: false,
+                                        dialogBackgroundColor:
+                                        Colors.white,
+                                        body: Padding(
+                                          padding: const EdgeInsets
+                                              .symmetric(
+                                              horizontal: 6,
+                                              vertical: 12),
+                                          child:
+                                          SingleChildScrollView(
+                                            child: Form(
+                                              key: _reportFormKey,
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                CrossAxisAlignment
+                                                    .start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                    children: [
+                                                      AutoSizeText(
+                                                        'Add New Price'
+                                                            .tr(),
+                                                        style: TextStyle(
+                                                            color: Theme.of(context)
+                                                                .primaryColor,
+                                                            fontSize:
+                                                            17,
+                                                            fontWeight:
+                                                            FontWeight
+                                                                .bold,
+                                                            overflow:
+                                                            TextOverflow.ellipsis),
+                                                      ),
+                                                      IconButton(
+                                                          onPressed:
+                                                              () {
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          icon:
+                                                          Icon(
+                                                            Icons
+                                                                .close,
+                                                            size:
+                                                            30,
+                                                            color: Colors
+                                                                .grey
+                                                                .shade800,
+                                                          ))
+                                                    ],
+                                                  ),
+                                                  const SizedBox(
+                                                    height: 5,
+                                                  ),
+                                                  CustomTextFormField(
+                                                      controller:
+                                                      title,
+                                                      label:
+                                                      'Warenbezeichnug'
+                                                          .tr(),
+                                                      height: 100,
+                                                      validator:
+                                                          (text) {
+                                                        if (text?.isEmpty ??
+                                                            true) {
+                                                          return 'this_filed_required'
+                                                              .tr();
+                                                        }
+                                                        return null;
+                                                      }),
+                                                  const SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  CustomTextFormField(
+                                                      controller:
+                                                      quantity,
+                                                      label: 'Anzahl'
+                                                          .tr(),
+                                                      height: 60,
+                                                      validator:
+                                                          (text) {
+                                                        if (text?.isEmpty ??
+                                                            true) {
+                                                          return 'this_filed_required'
+                                                              .tr();
+                                                        }
+                                                        return null;
+                                                      }),
+                                                  const SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  CustomTextFormField(
+                                                      controller:
+                                                      price,
+                                                      textInputType:
+                                                      TextInputType
+                                                          .number,
+                                                      label:
+                                                      'Price'
+                                                          .tr(),
+                                                      height: 60,
+                                                      validator:
+                                                          (text) {
+                                                        if (text?.isEmpty ??
+                                                            true) {
+                                                          return 'this_filed_required'
+                                                              .tr();
+                                                        }
+                                                        return null;
+                                                      }),
+                                                  const SizedBox(
+                                                    height: 20,
+                                                  ),
+                                                  CustomButton(
+                                                      onPressed:
+                                                          () {
+                                                        if (_reportFormKey
+                                                            .currentState
+                                                            ?.validate() ??
+                                                            false) {
+                                                          Navigator.pop(
+                                                              context);
+                                                          ref.read(orderViewModelProvider.notifier).addItem(orderId: orderModel.id, title: title.text, quantity: quantity.text, price: price.text);
+                                                          title.clear();
+                                                          quantity.clear();
+                                                          price.clear();
+                                                        }
+                                                      },
+                                                      text: "Add"
+                                                          .tr(),
+                                                      radius: 10,
+                                                      height: 50,
+                                                      textColor:
+                                                      Colors
+                                                          .white,
+                                                      bgColor: Theme.of(
+                                                          context)
+                                                          .primaryColor)
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        onDismissCallback:
+                                            (dismiss) {})
+                                        .show();
+                                  },
+                                  text: 'Add Price'.tr(),
+                                  textColor: Colors.white,
+                                  radius: 10,
+                                  height: 45,
+                                  bgColor:
+                                  Theme.of(context).primaryColor),
                           ],
-                        )
-                      else
-                        const EmptyWidget(
-                          showImage: false,
                         ),
-                      const SizedBox(height: 10,),
-                    ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border:
+                            Border.all(color: const Color(0xffDCDCDC))),
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: AutoSizeText(
+                                '${'Netto Gesamt'.tr()} : ',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: AutoSizeText(
+                                '${orderModel.subtotal ?? 0.00} €',
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: AutoSizeText(
+                                '${'19% MwSt.'.tr()} : ',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: AutoSizeText(
+                                '${orderModel.vat ?? 0.00} €',
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: AutoSizeText(
+                                '${'*Endbetrag'.tr()} : ',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: AutoSizeText(
+                                '${orderModel.total ?? 0.00} €',
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10,),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                        BorderRadius.circular(8),
+                        border: Border.all(
+                            color:
+                            const Color(0xffDCDCDC))),
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisAlignment:
+                      MainAxisAlignment.start,
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                      children: [
+                        AutoSizeText(
+                          'Anzahlung in Höhe von €'.tr(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        AutoSizeText(
+                          '${orderModel.paidAmount ?? 0.00} €',
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10,),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                        BorderRadius.circular(8),
+                        border: Border.all(
+                            color:
+                            const Color(0xffDCDCDC))),
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisAlignment:
+                      MainAxisAlignment.start,
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                      children: [
+                        AutoSizeText(
+                          'Reparatur genehmigt bis €'.tr(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        AutoSizeText(
+                            '${orderModel.maxMaintenancePrice ?? 'N/A'}',
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .primaryColor,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                   const SizedBox(
                     height: 10,
@@ -870,7 +1274,7 @@ class OrderDetailsAdminView extends ConsumerWidget {
                       CrossAxisAlignment.start,
                       children: [
                         AutoSizeText(
-                          'files'.tr(),
+                          'Files'.tr(),
                           style: TextStyle(
                             fontSize: 11,
                             color: Theme.of(context)
@@ -890,7 +1294,7 @@ class OrderDetailsAdminView extends ConsumerWidget {
                                     height: 20,
                                     showImage: false,
                                     textSize: 14,
-                                  )),
+                                    )),
                             ))
                             : ListView.builder(
                           itemCount: orderModel
@@ -953,50 +1357,94 @@ class OrderDetailsAdminView extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  if(orderModel.amount != 0)
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomButton(
+                            onPressed: () async {
+                              Uri url = Uri.parse(orderModel.pdfLink);//order pdf file
+                              if (await canLaunchUrl(url)) {
+                                await launchUrl(url);
+                              } else {
+                                throw 'Could not launch $url';
+                              }
+                            },
+                            text: 'Show file'.tr(),
+                            textColor: Colors.white,
+                            bgColor: Theme.of(context).primaryColor),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Expanded(
+                        child: CustomButton(
+                            onPressed: () {},
+                            text: 'Print file'.tr(),
+                            textColor: Colors.white,
+                            bgColor: Theme.of(context).primaryColor
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  if(orderModel.status != 0)
                     Column(
                       children: [
+                        if(orderModel.status == 3)
+                          Column(
+                            children: [
+                              CustomButton(onPressed: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => NewDropOffOrder(orderModel: orderModel,)));
+                              }, text: 'Finish & Make Drop Off Order'.tr(), textColor: Colors.white, bgColor: Theme.of(context).primaryColor),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                            ],
+                          ),
+                        if(orderModel.type != 3 && orderModel.status < 4)
+                        CustomButton(onPressed: (){
+                          AwesomeDialog(
+                              context: context,
+                              dialogType: DialogType.question,
+                              animType: AnimType.rightSlide,
+                              title: 'Cancel Order'.tr(),
+                              desc: 'Are you sure you want to cancel this order'.tr(),
+                              autoDismiss: false,
+                              dialogBackgroundColor: Colors.white,
+                              btnCancel: CustomButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                radius: 10,
+                                text: 'No'.tr(),
+                                textColor: Colors.white,
+                                bgColor: const Color(0xffd63d46),
+                                height: 40,
+                              ),
+                              btnOk: CustomButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  ref.read(orderViewModelProvider.notifier).cancelOrder(orderId: orderModel.id);
+                                },
+                                radius: 10,
+                                text: 'Yes'.tr(),
+                                textColor: Colors.white,
+                                bgColor: Theme.of(context).primaryColor,
+                                height: 40,
+                              ),
+                              onDismissCallback: (dismiss) {})
+                              .show();
+                        }, text: 'Cancel Order'.tr(), textColor: Colors.white, bgColor: Colors.redAccent),
                         const SizedBox(
                           height: 10,
                         ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: CustomButton(
-                                onPressed: () {
-                                  ref.read(orderViewModelProvider.notifier).sendInvoice(orderId: orderModel.id);
-                                },
-                                text: 'Send invoice'.tr(),
-                                textColor: Colors.white,
-                                bgColor: Theme.of(context).primaryColor,
-                                radius: 10,
-                              ),
-                            ),
-                            const SizedBox(width: 5,),
-                            Expanded(
-                              child: CustomButton(
-                                onPressed: () async {
-                                  print('Order Pdf ${orderModel.pdfLink}');
-                                  Uri url = Uri.parse(orderModel.pdfLink);//order pdf file
-                                  if (await canLaunchUrl(url)) {
-                                    await launchUrl(url);
-                                  } else {
-                                    throw 'Could not launch $url';
-                                  }
-                                },
-                                text: 'Show invoice'.tr(),
-                                textColor: Colors.white,
-                                bgColor: Theme.of(context).primaryColor,
-                                radius: 10,
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
-                    ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                    )
                 ],
               ),
             ),

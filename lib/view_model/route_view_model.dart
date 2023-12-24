@@ -86,10 +86,6 @@ class RouteViewModel extends StateNotifier<ResponseState<RoutesModel>> {
       data['driver_id'] = driverId;
     }
 
-    if(description != null){
-      data['description'] = description;
-    }
-
     final response = await routesRepository.update(
         routeId: routeId,
         data: data

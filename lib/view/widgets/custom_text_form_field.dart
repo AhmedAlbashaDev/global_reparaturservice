@@ -30,7 +30,7 @@ class CustomTextFormField extends StatelessWidget {
         readOnly: readOnly,
         maxLines: null,
         minLines: null,
-        inputFormatters: textInputType == TextInputType.number? [FilteringTextInputFormatter.digitsOnly] : null,
+        inputFormatters: (textInputType == TextInputType.number) || (textInputType == TextInputType.phone)? [FilteringTextInputFormatter.digitsOnly] : null,
         maxLength: maxLength,
         expands: true,
         style: TextStyle(color: Theme.of(context).primaryColor),

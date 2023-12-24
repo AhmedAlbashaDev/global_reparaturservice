@@ -20,7 +20,7 @@ import '../../../widgets/gradient_background.dart';
 import '../users/add_new_customer.dart';
 import 'new_order.dart';
 
-final selectedUserToNewOrder = StateProvider.autoDispose<UserModel?>((ref) => null);
+final selectedUserToNewOrder = StateProvider<UserModel?>((ref) => null);
 
 class SelectOrAddCustomerScreen extends ConsumerStatefulWidget {
   const SelectOrAddCustomerScreen({super.key});
@@ -287,52 +287,48 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
                                                             child: Center(
                                                               child: Padding(
                                                                 padding: const EdgeInsets.symmetric(horizontal: 4),
-                                                                child: Row(
-                                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                child: Column(
+                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                                                                   children: [
-                                                                    Column(
-                                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                                    AutoSizeText(
+                                                                      (usersCustomers.data[index].name ?? usersCustomers.data[index].companyName) ?? '',
+                                                                      style: TextStyle(
+                                                                          color: Theme.of(context).primaryColor,
+                                                                          fontSize: 15,
+                                                                          fontWeight: FontWeight.bold),
+                                                                    ),
+                                                                    Row(
                                                                       children: [
                                                                         AutoSizeText(
-                                                                          usersCustomers.data[index].name,
+                                                                          usersCustomers.data[index].email ??'',
                                                                           style: TextStyle(
                                                                               color: Theme.of(context).primaryColor,
-                                                                              fontSize: 15,
-                                                                              fontWeight: FontWeight.bold),
+                                                                              fontSize: 10,
+                                                                              fontWeight: FontWeight.w500),
                                                                         ),
-                                                                        Row(
-                                                                          children: [
-                                                                            AutoSizeText(
-                                                                              usersCustomers.data[index].email ??'',
-                                                                              style: TextStyle(
-                                                                                  color: Theme.of(context).primaryColor,
-                                                                                  fontSize: 10,
-                                                                                  fontWeight: FontWeight.w500),
-                                                                            ),
-                                                                            const SizedBox(width: 5,),
-                                                                            const CircleAvatar(
-                                                                              radius: 3,
-                                                                              backgroundColor: Colors.grey,
-                                                                            ),
-                                                                            const SizedBox(width: 5,),
-                                                                            AutoSizeText(
-                                                                              '${usersCustomers.data[index].phone}',
-                                                                              style: TextStyle(
-                                                                                  color: Theme.of(context).primaryColor,
-                                                                                  fontSize: 10,
-                                                                                  fontWeight: FontWeight.w500),
-                                                                            ),
-                                                                          ],
+                                                                        const SizedBox(width: 5,),
+                                                                        const CircleAvatar(
+                                                                          radius: 3,
+                                                                          backgroundColor: Colors.grey,
                                                                         ),
+                                                                        const SizedBox(width: 5,),
                                                                         AutoSizeText(
-                                                                          usersCustomers.data[index].address ?? 'unknown_address'.tr(),
+                                                                          '${usersCustomers.data[index].phone}',
                                                                           style: TextStyle(
                                                                               color: Theme.of(context).primaryColor,
                                                                               fontSize: 10,
                                                                               fontWeight: FontWeight.w500),
                                                                         ),
                                                                       ],
+                                                                    ),
+                                                                    AutoSizeText(
+                                                                      usersCustomers.data[index].address ?? 'unknown_address'.tr(),
+                                                                      style: TextStyle(
+                                                                          color: Theme.of(context).primaryColor,
+                                                                          fontSize: 10,
+                                                                          fontWeight: FontWeight.w500),
+
                                                                     ),
                                                                   ],
                                                                 ),

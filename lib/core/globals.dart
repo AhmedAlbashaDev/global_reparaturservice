@@ -1,3 +1,9 @@
+// baseUrl
+
+String baseUrl = 'https://smart-intercom.de/api/';
+// String baseUrl = 'https://workshop.anothercars.com/api/';
+
+
 // Media Query Screen Sizes
 
 late double screenHeight;

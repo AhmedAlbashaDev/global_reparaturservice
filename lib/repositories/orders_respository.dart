@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../core/custom_exception.dart';
 import '../core/providers/request_sending_progress.dart';
+import '../models/file.dart';
 import '../models/pagination_model.dart';
 import '../models/response_state.dart';
 
@@ -142,7 +143,7 @@ class OrdersRepository {
     }
   }
 
-  Future<ResponseState<OrderModel>> create({required String endPoint , required Map data}) async {
+  Future<ResponseState<OrderModel>> create({required String endPoint , Map? data}) async {
     try {
 
       final response = await dioClient.post(endPoint, data: data);
@@ -248,7 +249,7 @@ class OrdersRepository {
     }
   }
 
-  Future<ResponseState<OrderModel>> addFiles({required int id, required List<XFile?> files,}) async {
+  Future<ResponseState<FilesModel>> addFiles({required int orderId, required List<XFile?> files,}) async {
     try {
 
       FormData data = FormData();
@@ -259,7 +260,7 @@ class OrdersRepository {
 
 
       final response = await dioClient.post(
-          'orders/add-files/$id',
+          'orders/add-files/$orderId',
           data: data,
           onSendProgress: (sent , total) async{
             final progress = (sent / total * 100).toInt();
@@ -268,7 +269,7 @@ class OrdersRepository {
       );
 
       if(response.data['success'] == false){
-        return ResponseState<OrderModel>.error(
+        return ResponseState<FilesModel>.error(
           error: CustomException(
             errorStatusCode: response.data['code'],
             errorMessage:    response.data['message'] ?? 'unknown_error_please_try_again'.tr(),
@@ -277,11 +278,11 @@ class OrdersRepository {
         );
       }
 
-      return const ResponseState<OrderModel>.success(data: {});
+      return ResponseState<FilesModel>.data(data: FilesModel.fromJson(response.data['data']));
 
     } on DioException catch (e) {
       if(e.type == DioExceptionType.badResponse && e.response?.data == null){
-        return ResponseState<OrderModel>.error(
+        return ResponseState<FilesModel>.error(
           error: CustomException(
             errorStatusCode:  500,
             errorMessage:     'unknown_error_please_try_again'.tr(),
@@ -297,7 +298,7 @@ class OrdersRepository {
           message += '${key.value[0]} , ';
         }
 
-        return ResponseState<OrderModel>.error(
+        return ResponseState<FilesModel>.error(
           error: CustomException(
             errorStatusCode:  e.response?.data['code'],
             errorMessage:     message.isEmpty ? e.response?.data['message'] : message,
@@ -305,7 +306,7 @@ class OrdersRepository {
           ),
         );
       }
-      return ResponseState<OrderModel>.error(
+      return ResponseState<FilesModel>.error(
         error: CustomException(
           errorStatusCode:  e.response?.data['code'],
           errorMessage:     e.response?.data['message'] ?? 'unknown_error_please_try_again'.tr(),
@@ -315,11 +316,53 @@ class OrdersRepository {
     }
   }
 
-  Future<ResponseState<OrderModel>> addReport({required int id,required Map data}) async {
+  Future<ResponseState<FilesModel>> deleteFile({required int orderId, required int? fileId,}) async {
+    try {
+
+      final response = await dioClient.delete(
+        'orders/delete-files/$orderId',
+        data: {
+          'file_id' : fileId
+        },
+      );
+
+      if(response.data['success'] == false){
+        return ResponseState<FilesModel>.error(
+          error: CustomException(
+            errorStatusCode: response.data['code'],
+            errorMessage:    response.data['message'] ?? 'unknown_error_please_try_again'.tr(),
+            errorType: DioExceptionType.unknown.name,
+          ),
+        );
+      }
+
+      return ResponseState<FilesModel>.success(data: response.data['data']);
+
+    } on DioException catch (e) {
+      if(e.type == DioExceptionType.badResponse && e.response?.data == null){
+        return ResponseState<FilesModel>.error(
+          error: CustomException(
+            errorStatusCode:  500,
+            errorMessage:     'unknown_error_please_try_again'.tr(),
+            errorType:        e.type.name,
+          ),
+        );
+      }
+      return ResponseState<FilesModel>.error(
+        error: CustomException(
+          errorStatusCode:  e.response?.data['code'],
+          errorMessage:     e.response?.data['message'] ?? 'unknown_error_please_try_again'.tr(),
+          errorType:        e.type.name,
+        ),
+      );
+    }
+  }
+
+  Future<ResponseState<OrderModel>> addItem({required int orderId,required Map data}) async {
     try {
 
       final response = await dioClient.post(
-          'orders/add-report/$id',
+          'orders/add-item/$orderId',
           data: data,
       );
 
@@ -370,6 +413,49 @@ class OrdersRepository {
       );
     }
   }
+
+  Future<ResponseState<OrderModel>> deleteItem({required int orderId, required int? itemId,}) async {
+    try {
+
+      final response = await dioClient.delete(
+        'orders/delete-item/$orderId',
+        data: {
+          'item_id' : itemId
+        },
+      );
+
+      if(response.data['success'] == false){
+        return ResponseState<OrderModel>.error(
+          error: CustomException(
+            errorStatusCode: response.data['code'],
+            errorMessage:    response.data['message'] ?? 'unknown_error_please_try_again'.tr(),
+            errorType: DioExceptionType.unknown.name,
+          ),
+        );
+      }
+
+      return const ResponseState<OrderModel>.success(data: {});
+
+    } on DioException catch (e) {
+      if(e.type == DioExceptionType.badResponse && e.response?.data == null){
+        return ResponseState<OrderModel>.error(
+          error: CustomException(
+            errorStatusCode:  500,
+            errorMessage:     'unknown_error_please_try_again'.tr(),
+            errorType:        e.type.name,
+          ),
+        );
+      }
+      return ResponseState<OrderModel>.error(
+        error: CustomException(
+          errorStatusCode:  e.response?.data['code'],
+          errorMessage:     e.response?.data['message'] ?? 'unknown_error_please_try_again'.tr(),
+          errorType:        e.type.name,
+        ),
+      );
+    }
+  }
+
 
   Future<ResponseState<OrderModel>> sendInvoice({required String endPoint}) async {
     try {
@@ -424,47 +510,6 @@ class OrdersRepository {
     }
   }
 
-  Future<ResponseState<OrderModel>> deleteFile({required int id, required int? fileId,}) async {
-    try {
-
-      final response = await dioClient.delete(
-          'orders/delete-files/$id',
-          data: {
-            'file_id' : fileId
-          },
-      );
-
-      if(response.data['success'] == false){
-        return ResponseState<OrderModel>.error(
-          error: CustomException(
-            errorStatusCode: response.data['code'],
-            errorMessage:    response.data['message'] ?? 'unknown_error_please_try_again'.tr(),
-            errorType: DioExceptionType.unknown.name,
-          ),
-        );
-      }
-
-      return const ResponseState<OrderModel>.success(data: {});
-
-    } on DioException catch (e) {
-      if(e.type == DioExceptionType.badResponse && e.response?.data == null){
-        return ResponseState<OrderModel>.error(
-          error: CustomException(
-            errorStatusCode:  500,
-            errorMessage:     'unknown_error_please_try_again'.tr(),
-            errorType:        e.type.name,
-          ),
-        );
-      }
-      return ResponseState<OrderModel>.error(
-        error: CustomException(
-          errorStatusCode:  e.response?.data['code'],
-          errorMessage:     e.response?.data['message'] ?? 'unknown_error_please_try_again'.tr(),
-          errorType:        e.type.name,
-        ),
-      );
-    }
-  }
 
 
 

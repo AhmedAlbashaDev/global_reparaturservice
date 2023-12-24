@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:global_reparaturservice/view/screens/bottom_menu/orders/new_order.dart';
 import 'package:global_reparaturservice/view_model/users/customers/add_new_cutomer_view_model.dart';
 import 'package:global_reparaturservice/view_model/users/customers/update_customer_view_model.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -15,34 +16,37 @@ import '../../../../models/user.dart';
 import '../../../../view_model/users/customers/toggle_customer_status_view_model.dart';
 import '../../../widgets/custom_app_bar.dart';
 import '../../../widgets/custom_button.dart';
-import '../../../widgets/custom_snakbar.dart';
 import '../../../widgets/custom_text_form_field.dart';
 import '../../../widgets/gradient_background.dart';
+import '../orders/select_or_add_customer.dart';
 
 
 final selectedAddressToNewCustomer =
 StateProvider.autoDispose<Map<String , dynamic>?>((ref) => null);
 
 class AddNewCustomerScreen extends ConsumerStatefulWidget {
-  const AddNewCustomerScreen({this.isUpdate = false, this.userModel , super.key});
+  const AddNewCustomerScreen({this.isUpdate = false, this.userModel , this.outSide = false , super.key});
 
   final bool isUpdate;
+  final bool outSide;
   final UserModel? userModel;
 
   @override
-  ConsumerState createState() => _State(isUpdate: isUpdate , userModel: userModel);
+  ConsumerState createState() => AddNewCustomerScreenState(isUpdate: isUpdate , userModel: userModel);
 }
 
-class _State extends ConsumerState<AddNewCustomerScreen> {
+class AddNewCustomerScreenState extends ConsumerState<AddNewCustomerScreen> {
 
-  _State({required this.isUpdate , this.userModel});
+  AddNewCustomerScreenState({required this.isUpdate , this.userModel});
 
   final bool isUpdate;
   final UserModel? userModel;
 
   late TextEditingController name;
+  late TextEditingController companyName;
   late TextEditingController email;
   late TextEditingController phone;
+  late TextEditingController telephone;
   late TextEditingController address;
   late TextEditingController postalCode;
   late TextEditingController city;
@@ -60,8 +64,10 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
     super.initState();
 
     name = TextEditingController();
+    companyName = TextEditingController();
     email = TextEditingController();
     phone = TextEditingController();
+    telephone = TextEditingController();
     address = TextEditingController();
     postalCode = TextEditingController();
     city = TextEditingController();
@@ -70,8 +76,10 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
 
     if(isUpdate){
       name.text = userModel?.name ?? '';
+      companyName.text = userModel?.companyName ?? '';
       email.text = userModel?.email ?? '';
       phone.text = userModel?.phone ?? '';
+      telephone.text = userModel?.telephone ?? '';
       address.text = userModel?.address ?? '';
       postalCode.text = userModel?.postalCode.toString() ?? '';
       city.text = userModel?.city ?? '';
@@ -86,8 +94,10 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
   @override
   void dispose() {
     name.dispose();
+    companyName.dispose();
     email.dispose();
     phone.dispose();
+    telephone.dispose();
     address.dispose();
     postalCode.dispose();
     city.dispose();
@@ -99,12 +109,19 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
   @override
   Widget build(BuildContext context) {
 
+
     ref.listen<ResponseState<UserModel>>(usersAddNewCustomerViewModelProvider,
         (previous, next) {
       next.whenOrNull(
         data: (user) {
-
-          Navigator.pop(context , 'update');
+          ref.read(selectedUserToNewOrder.notifier).state = user;
+          if(widget.outSide){
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const NewOrderScreen()));
+          }
+          else{
+            Navigator.pop(context , 'update');
+            Navigator.pop(context , 'update');
+          }
         },
         error: (error) {
           AwesomeDialog(
@@ -258,12 +275,25 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                           CustomTextFormField(
                             controller: name,
                             validator: (String? text) {
-                              if (text?.isEmpty ?? true) {
+                              if ((text?.isEmpty ?? true) && companyName.text.isEmpty) {
                                 return 'this_filed_required'.tr();
                               }
                               return null;
                             },
                             label: 'customer_name'.tr(),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          CustomTextFormField(
+                            controller: companyName,
+                            validator: (String? text) {
+                              if ((text?.isEmpty ?? true) && name.text.isEmpty) {
+                                return 'this_filed_required'.tr();
+                              }
+                              return null;
+                            },
+                            label: 'Company Name'.tr(),
                           ),
                           const SizedBox(
                             height: 10,
@@ -294,11 +324,26 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                                 return 'this_filed_required'.tr();
                               }
                               else if (text != null && text.length < 12) {
-                                return 'Phone must be 12 number minimum'.tr();
+                                return 'Mobile No. must be 12 number minimum'.tr();
                               }
                               return null;
                             },
-                            label: 'phone_no'.tr(),
+                            label: 'mobile_no'.tr(),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          CustomTextFormField(
+                            controller: telephone,
+                            textInputType: TextInputType.phone,
+                            maxLength: 12,
+                            validator: (String? text) {
+                              if ((text != null && text.isNotEmpty) && text.length < 7) {
+                                return 'Telephone No. must be 7 number minimum'.tr();
+                              }
+                              return null;
+                            },
+                            label: 'telephone_no'.tr(),
                           ),
                           const SizedBox(
                             height: 10,
@@ -434,13 +479,13 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                                                 ?.validate() ??
                                                 false) {
 
-                                              print('postal code text field ${postalCode.text}');
                                               ref
                                                   .read(usersUpdateCustomerViewModelProvider
                                                   .notifier)
                                                   .update(
                                                   endPoint: 'customers/${userModel?.id}',
                                                   name: name.text,
+                                                  companyName: companyName.text,
                                                   email: email.text,
                                                   phone: phone.text,
                                                   lat: lat,
@@ -540,8 +585,10 @@ class _State extends ConsumerState<AddNewCustomerScreen> {
                                               .create(
                                               endPoint: 'customers',
                                               name: name.text,
+                                              companyName: companyName.text,
                                               email: email.text,
                                               phoneNo: phone.text,
+                                              telephone: telephone.text,
                                               address: address.text,
                                               lat: lat,
                                               lng: lng,

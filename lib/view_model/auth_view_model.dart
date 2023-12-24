@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:global_reparaturservice/core/custom_exception.dart';
 
 import '../core/providers/dio_network_provider.dart';
 import '../models/response_state.dart';
@@ -26,22 +28,28 @@ class AuthViewModel extends StateNotifier<ResponseState<UserModel>>{
 
     await Future.delayed(const Duration(seconds: 1));
 
-    String? token = await FirebaseMessaging.instance.getToken();
-
-    FormData data = FormData.fromMap({
-      'email'     : email,
-      'password'  : password,
-      'fcm_token'  : token,
-      'device_type'  : Platform.isAndroid ? 'android' : 'ios',
+    String? token = await FirebaseMessaging.instance.getToken().catchError((error){
+      state = ResponseState<UserModel>.error(error: CustomException(errorStatusCode: 500, errorMessage: 'unknown_error_please_try_again'.tr(), errorType: 'Unknown'));
+      return null;
     });
 
-    final response = await authRepository.login(endPoint: 'login', data: data);
+    if(token != null){
 
-    response.whenOrNull(data: (data) {
-      state = ResponseState<UserModel>.data(data: data);
-    }, error: (error) {
-      state = ResponseState<UserModel>.error(error: error);
-    });
+      FormData data = FormData.fromMap({
+        'email'     : email,
+        'password'  : password,
+        'fcm_token'  : token,
+        'device_type'  : Platform.isAndroid ? 'android' : 'ios',
+      });
+
+      final response = await authRepository.login(endPoint: 'login', data: data);
+
+      response.whenOrNull(data: (data) {
+        state = ResponseState<UserModel>.data(data: data);
+      }, error: (error) {
+        state = ResponseState<UserModel>.error(error: error);
+      });
+    }
 
   }
 
@@ -51,22 +59,27 @@ class AuthViewModel extends StateNotifier<ResponseState<UserModel>>{
 
     await Future.delayed(const Duration(seconds: 1));
 
-    String? token = await FirebaseMessaging.instance.getToken();
-
-    FormData data = FormData.fromMap({
-      'phone'     : phone,
-      'password'  : password,
-      'fcm_token'  : token,
-      'device_type'  : Platform.isAndroid ? 'android' : 'ios',
+    String? token = await FirebaseMessaging.instance.getToken().catchError((error){
+      state = ResponseState<UserModel>.error(error: CustomException(errorStatusCode: 500, errorMessage: 'unknown_error_please_try_again'.tr(), errorType: 'Unknown'));
+      return null;
     });
 
-    final response = await authRepository.login(endPoint: 'driver-login', data: data);
+    if(token != null){
+      FormData data = FormData.fromMap({
+        'phone'     : phone,
+        'password'  : password,
+        'fcm_token'  : token,
+        'device_type'  : Platform.isAndroid ? 'android' : 'ios',
+      });
 
-    response.whenOrNull(data: (data) {
-      state = ResponseState<UserModel>.data(data: data);
-    }, error: (error) {
-      state = ResponseState<UserModel>.error(error: error);
-    });
+      final response = await authRepository.login(endPoint: 'driver-login', data: data);
+
+      response.whenOrNull(data: (data) {
+        state = ResponseState<UserModel>.data(data: data);
+      }, error: (error) {
+        state = ResponseState<UserModel>.error(error: error);
+      });
+    }
 
   }
 

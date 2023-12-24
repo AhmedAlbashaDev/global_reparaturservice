@@ -16,112 +16,125 @@ import '../../../widgets/empty_widget.dart';
 import '../../../widgets/pagination_footer.dart';
 import '../../search.dart';
 
+//UsersTechniciansTab
 
-class UsersTechniciansTab extends ConsumerWidget {
-  UsersTechniciansTab({super.key,});
+class UsersTechniciansTab extends ConsumerStatefulWidget {
+  const UsersTechniciansTab({super.key});
+
+  @override
+  ConsumerState createState() => _UsersTechniciansTabState();
+}
+
+class _UsersTechniciansTabState extends ConsumerState<UsersTechniciansTab> {
 
   final RefreshController _refreshController =
   RefreshController(initialRefresh: false);
 
   @override
-  Widget build(BuildContext context , WidgetRef ref) {
+  void initState() {
+    Future.microtask(() => ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers'));
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16 , vertical: 4),
       child: ref.watch(usersTechniciansViewModelProvider).maybeWhen(
-          loading: () => Column(
-            children: [
-              SizedBox(
-                height: 50,
-                child: Stack(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        AutoSizeText.rich(
-                          TextSpan(text: 'technicians'.tr(), children: const [
-                            TextSpan(
-                                text: ' ( - )',
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w500))
-                          ]),
-                          style: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Center(
-                          child: SizedBox(
-                            width: 35,
-                            child: MaterialButton(
-                              padding: EdgeInsets.zero,
-                              materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                              onPressed: null,
-                              child: Image.asset(
-                                'assets/images/search.png',
-                                height: 20,
-                              ),
+        loading: () => Column(
+          children: [
+            SizedBox(
+              height: 50,
+              child: Stack(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AutoSizeText.rich(
+                        TextSpan(text: 'technicians'.tr(), children: const [
+                          TextSpan(
+                              text: ' ( - )',
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500))
+                        ]),
+                        style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Center(
+                        child: SizedBox(
+                          width: 35,
+                          child: MaterialButton(
+                            padding: EdgeInsets.zero,
+                            materialTapTargetSize:
+                            MaterialTapTargetSize.shrinkWrap,
+                            onPressed: null,
+                            child: Image.asset(
+                              'assets/images/search.png',
+                              height: 20,
                             ),
                           ),
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: 10,
+                itemBuilder: (context , index){
+                  return SizedBox(
+                    width: screenWidth * 100,
+                    height: 80,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Center(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                RoundedShimmerContainer(
+                                  height: 17,
+                                  width: screenWidth * 75,
+                                ),
+                                const SizedBox(height: 10,),
+                                RoundedShimmerContainer(
+                                  height: 15,
+                                  width: screenWidth * 70,
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            RoundedShimmerContainer(
+                              height: 20,
+                              width: 20,
+                              shape: BoxShape.circle,
+                            ),
+                          ],
                         )
+
                       ],
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: 10,
-                  itemBuilder: (context , index){
-                    return SizedBox(
-                      width: screenWidth * 100,
-                      height: 80,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Center(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  RoundedShimmerContainer(
-                                    height: 17,
-                                    width: screenWidth * 75,
-                                  ),
-                                  const SizedBox(height: 10,),
-                                  RoundedShimmerContainer(
-                                    height: 15,
-                                    width: screenWidth * 70,
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                          const Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              RoundedShimmerContainer(
-                                height: 20,
-                                width: 20,
-                                shape: BoxShape.circle,
-                              ),
-                            ],
-                          )
-
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
+        ),
         data: (usersTechnicians){
           _refreshController.refreshCompleted(resetFooterState: true);
           _refreshController.loadComplete();
@@ -262,8 +275,7 @@ class UsersTechniciansTab extends ConsumerWidget {
                                                 MainAxisAlignment.center,
                                                 children: [
                                                   AutoSizeText(
-                                                    usersTechnicians
-                                                        .data[index].name,
+                                                    (usersTechnicians.data[index].name ?? usersTechnicians.data[index].companyName) ?? '',
                                                     style: TextStyle(
                                                         color:
                                                         Theme.of(context)
@@ -339,4 +351,5 @@ class UsersTechniciansTab extends ConsumerWidget {
       ),
     );
   }
+
 }

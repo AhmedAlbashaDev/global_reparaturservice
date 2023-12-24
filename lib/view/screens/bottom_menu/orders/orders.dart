@@ -2,7 +2,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:global_reparaturservice/models/order.dart';
 import 'package:global_reparaturservice/view/screens/bottom_menu/orders/order_details_admin.dart';
@@ -162,18 +161,24 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
 
                                   List<OrderModel> todayFilteredList = [];
 
-                                    if(ref.watch(ordersFilterProvider) == 'all'.tr()){
-                                      todayFilteredList = orders.data;
-                                    }
-                                    else if (ref.watch(ordersFilterProvider) == 'Pending'.tr()){
-                                      todayFilteredList = orders.data.where((order) => order.status == 1).toList();
-                                    }
-                                    else if (ref.watch(ordersFilterProvider) == 'On Progress'.tr()){
-                                      todayFilteredList = orders.data.where((order) => order.status == 2).toList();
-                                    }
-                                    else if (ref.watch(ordersFilterProvider) == 'Finished'.tr()){
-                                      todayFilteredList = orders.data.where((order) => order.status == 3).toList();
-                                    }
+                                  if(ref.watch(ordersFilterProvider) == 'all'.tr()){
+                                    todayFilteredList = orders.data;
+                                  }
+                                  else if (ref.watch(ordersFilterProvider) == 'Pending'.tr()){
+                                    todayFilteredList = orders.data.where((order) => order.status == 1).toList();
+                                  }
+                                  else if (ref.watch(ordersFilterProvider) == 'Assigned'.tr()){
+                                    todayFilteredList = orders.data.where((order) => order.status == 2).toList();
+                                  }
+                                  else if (ref.watch(ordersFilterProvider) == 'Undermaintence'.tr()){
+                                    todayFilteredList = orders.data.where((order) => order.status == 3).toList();
+                                  }
+                                  else if (ref.watch(ordersFilterProvider) == 'Finished'.tr()){
+                                    todayFilteredList = orders.data.where((order) => order.status == 4).toList();
+                                  }
+                                  else if (ref.watch(ordersFilterProvider) == 'Canceled'.tr()){
+                                    todayFilteredList = orders.data.where((order) => order.status == 0).toList();
+                                  }
 
                                   return Column(
                                     children: [
@@ -204,7 +209,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
                                                       'assets/images/filter.png',
                                                       height: 18,
                                                     ),
-                                                    items: <String>['all'.tr(), 'Pending'.tr(), 'On Progress'.tr() , 'Finished'.tr()]
+                                                    items: <String>['all'.tr(), 'Pending'.tr(), 'Assigned'.tr() , 'Undermaintence'.tr() , 'Finished'.tr() , 'Canceled'.tr()]
                                                         .map<DropdownMenuItem<String>>((String value) {
                                                       return DropdownMenuItem(
                                                         value: value,
@@ -342,12 +347,19 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
                                     else if (ref.watch(ordersFilterProvider) == 'Pending'.tr()){
                                       allFilteredList = orders.data.where((order) => order.status == 1).toList();
                                     }
-                                    else if (ref.watch(ordersFilterProvider) == 'On Progress'.tr()){
+                                    else if (ref.watch(ordersFilterProvider) == 'Assigned'.tr()){
                                       allFilteredList = orders.data.where((order) => order.status == 2).toList();
                                     }
-                                    else if (ref.watch(ordersFilterProvider) == 'Finished'.tr()){
+                                    else if (ref.watch(ordersFilterProvider) == 'Undermaintence'.tr()){
                                       allFilteredList = orders.data.where((order) => order.status == 3).toList();
                                     }
+                                    else if (ref.watch(ordersFilterProvider) == 'Finished'.tr()){
+                                      allFilteredList = orders.data.where((order) => order.status == 4).toList();
+                                    }
+                                    else if (ref.watch(ordersFilterProvider) == 'Canceled'.tr()){
+                                      allFilteredList = orders.data.where((order) => order.status == 0).toList();
+                                    }
+
 
                                   return Column(
                                     children: [
@@ -378,7 +390,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
                                                       'assets/images/filter.png',
                                                       height: 18,
                                                     ),
-                                                    items: <String>['all'.tr(), 'Pending'.tr(), 'On Progress'.tr() , 'Finished'.tr()]
+                                                    items: <String>['all'.tr(), 'Pending'.tr(), 'Assigned'.tr() , 'Undermaintence'.tr() , 'Finished'.tr() , 'Canceled'.tr()]
                                                         .map<DropdownMenuItem<String>>((String value) {
                                                       return DropdownMenuItem(
                                                         value: value,
@@ -523,52 +535,19 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> with TickerProvider
           ),
         ],
       ),
-      floatingActionButton: SpeedDial(
-        openCloseDial: isDialOpen,
-        icon: Icons.add,
-        activeIcon: Icons.close,
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Theme.of(context).primaryColor,
-        children: [
-          SpeedDialChild(
-            child: const Icon(Icons.directions_transit),
-            backgroundColor: Theme.of(context).primaryColor,
-            foregroundColor: Colors.white,
-            label: 'new_order'.tr(),
-            onTap: () {
-              ref.read(newOrderTypeSelectedProvider.notifier).state = 0;
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const NewOrderScreen())).then((value) {
-                if(value == 'update'){
-                  ref
-                      .read(ordersViewModelProvider.notifier)
-                      .loadAll();
-                  ref
-                      .read(todayOrdersViewModelProvider.notifier)
-                      .loadAll(today: true);
-                }
-              });
-            },
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.directions_transit),
-            backgroundColor: Theme.of(context).primaryColor,
-            foregroundColor: Colors.white,
-            label: 'Drop-Off Order'.tr(),
-            onTap: () {
-              ref.read(newOrderTypeSelectedProvider.notifier).state = 1;
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const NewOrderScreen())).then((value) {
-                if(value == 'update'){
-                  ref
-                      .read(ordersViewModelProvider.notifier)
-                      .loadAll();
-                  ref
-                      .read(todayOrdersViewModelProvider.notifier)
-                      .loadAll(today: true);
-                }
-              });
-            },
-          ),
-        ],
+      floatingActionButton: FloatingAddButton(
+        onPresses: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const NewOrderScreen())).then((value) {
+            if(value == 'update'){
+              ref
+                  .read(ordersViewModelProvider.notifier)
+                  .loadAll();
+              ref
+                  .read(todayOrdersViewModelProvider.notifier)
+                  .loadAll(today: true);
+            }
+          });
+        },
       ),
       // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

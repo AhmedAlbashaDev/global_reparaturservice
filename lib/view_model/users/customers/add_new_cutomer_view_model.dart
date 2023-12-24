@@ -17,7 +17,7 @@ class AddNewCustomerViewModel extends StateNotifier<ResponseState<UserModel>>{
 
   AddNewCustomerViewModel(this.usersRepository) : super(const ResponseState<UserModel>.idle());
 
-  Future<void> create({required String endPoint , required String name , required String email, required String phoneNo, required String address, required String postalCode, required String city, required String zoneArea, required String additional, required double? lat , required double? lng}) async{
+  Future<void> create({required String endPoint , required String? name , required String? companyName, required String email, required String phoneNo, required String address, required String postalCode, required String city, required String zoneArea, required String additional, required double? lat , required double? lng , required String? telephone}) async{
 
     setState(const ResponseState<UserModel>.loading());
 
@@ -25,15 +25,16 @@ class AddNewCustomerViewModel extends StateNotifier<ResponseState<UserModel>>{
 
     FormData data = FormData.fromMap({
       'name' : name,
+      'company_name' : companyName,
       'email' : email,
       'phone' : phoneNo,
+      'telephone' : telephone,
       'address' : address,
       'lat' : lat,
       'lng' : lng,
       'postal_code' : postalCode,
       'city' : city,
       'zone_area' : zoneArea,
-      'additional_info' : '',
     });
 
     final response = await usersRepository.create(endPoint: endPoint, data: data);

@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:global_reparaturservice/core/globals.dart';
+import 'package:global_reparaturservice/view/screens/bottom_menu/orders/drop_off_order_details_technicain.dart';
 import 'package:global_reparaturservice/view/screens/bottom_menu/routes/route_details_technician_listview.dart';
 import 'package:global_reparaturservice/view/widgets/custom_button.dart';
 import 'package:global_reparaturservice/view/widgets/custsomer_card_new_order.dart';
@@ -22,7 +23,7 @@ import '../orders/order_details_technician.dart';
 import 'finished_route.dart';
 
 final selectedOrder = StateProvider<int?>((ref) => null);
-final isAllOrdersFinished = StateProvider.autoDispose<bool?>((ref) => null);
+final isAllOrdersFinished = StateProvider.autoDispose<bool?>((ref) => true);
 final isFinishedRouteProvider = StateProvider.autoDispose<bool>((ref) => false);
 
 class RouteDetailsTechnician extends ConsumerStatefulWidget {
@@ -120,15 +121,39 @@ class _RouteDetailsTechnicianState
 
                         routeDetails.orders?.asMap().forEach((index, order) {
 
-                          if (order.status != 3) {
-                            Future.microtask(() {
-                              ref.read(isAllOrdersFinished.notifier).state = false;
-                            });
+                          BitmapDescriptor? bitmapDescriptor;
+
+                          if(order.type == 3){
+                            if(order.status == 4){
+                              bitmapDescriptor = (ref.watch(selectedOrder) == order.id ? completedSelected : completed);
+                            }
+                            else{
+                              bitmapDescriptor = (ref.watch(selectedOrder) == order.id ? pendingSelected  : pending);
+                            }
                           }
                           else{
-                            Future.microtask(() {
-                              ref.read(isAllOrdersFinished.notifier).state = true;
-                            });
+                            if(order.status > 2){
+                              bitmapDescriptor = (ref.watch(selectedOrder) == order.id ? completedSelected : completed);
+                            }
+                            else{
+                              bitmapDescriptor = (ref.watch(selectedOrder) == order.id ? pendingSelected  : pending);
+                            }
+
+                          }
+
+                          if(order.type == 3){
+                            if (order.status != 4) {
+                              Future.microtask(() {
+                                ref.read(isAllOrdersFinished.notifier).state = false;
+                              });
+                            }
+                          }
+                          else{
+                            if (order.status > 0 && order.status < 3) {
+                              Future.microtask(() {
+                                ref.read(isAllOrdersFinished.notifier).state = false;
+                              });
+                            }
                           }
 
                           LatLng position = LatLng(order.lat, order.lng);
@@ -204,13 +229,24 @@ class _RouteDetailsTechnicianState
                                                   onPressed: () {
                                                     Navigator.pop(
                                                         context);
-                                                    Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) => OrderDetailsTechnician(
-                                                              orderId: order.id,
-                                                              routeId: routeId,
-                                                            )));
+                                                    if(order.type == 3){
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) => DropOddOrderDetailsTechnician(
+                                                                orderId: order.id,
+                                                                routeId: routeId,
+                                                              )));
+                                                    }
+                                                    else{
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) => OrderDetailsTechnician(
+                                                                orderId: order.id,
+                                                                routeId: routeId,
+                                                              )));
+                                                    }
                                                   },
                                                   text:
                                                   'order_details'
@@ -226,9 +262,7 @@ class _RouteDetailsTechnicianState
                                   });
                             }, // Her
                             position: position,
-                            icon: (order.status == 3
-                                ? (ref.watch(selectedOrder) == order.id ? completedSelected : completed)
-                                : (ref.watch(selectedOrder) == order.id ? pendingSelected  : pending)) ?? BitmapDescriptor.defaultMarker,
+                            icon:  bitmapDescriptor ?? BitmapDescriptor.defaultMarker,
                             //BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow)),
                             infoWindow: InfoWindow(
                               title: '#${index+1}',
@@ -250,9 +284,10 @@ class _RouteDetailsTechnicianState
                                 },
 
                                 initialCameraPosition: CameraPosition(
-                                  target: LatLng(
-                                      routeDetails.orders?.first.lat ?? double.parse(centerLat),
-                                      routeDetails.orders?.first.lng ?? double.parse(centerLng)),
+                                  target: routeDetails.orders?.isEmpty ?? false ? LatLng(double.parse(centerLat), double.parse(centerLng)) : LatLng(
+                                      routeDetails.orders!.first.lat,
+                                      routeDetails.orders!.first.lng
+                                  ),
                                   zoom: 8,
                                 ),
                                 myLocationEnabled: true,
@@ -325,9 +360,7 @@ class _RouteDetailsTechnicianState
                                         child: SwipeableButtonView(
                                           isActive: routeDetails.status == 3
                                               ? false
-                                              : (ref.watch(
-                                                      isAllOrdersFinished) ??
-                                                  false),
+                                              : (ref.watch(isAllOrdersFinished) ?? false),
                                           buttonText:
                                               'slide_to_finish'.tr(),
                                           buttontextstyle: const TextStyle(
