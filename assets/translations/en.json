@@ -185,8 +185,6 @@
   "Select Date" : "Select Date",
 
   "files_maximum" : "4 Files Maximum",
-  "Are you sure you want to update order type to be Pick-Up order" : "Are you sure you want to update order type to be Pick-Up order",
-  "Are you sure you want to update order type to be On-Site order you will need to complete payment process to finish this order": "Are you sure you want to update order type to be On-Site order you will need to complete payment process to finish this order",
   "Phone minimum 12 number": "Phone minimum 12 number",
   "please_enter_real_email" : "Please enter real email",
   "Account password sent to the technician email" : "Account password sent to the technician email",
@@ -220,10 +218,10 @@
   "Drop-Off": "Drop-Off",
   "add" : "Add",
   "Error" : "Error",
-  "Phone must be 12 number minimum": "Phone must be 12 number minimum",
 
   "Set Custom Visit Date": "Set Custom Visit Date",
-  "Items": "Items",
+  "Services": "Services",
+  "Service": "Service",
 
   "New Drop-Off Order" : "New Drop-Off Order",
   "Finish & Make Drop Off Order" : "Finish & Make Drop Off Order",
@@ -234,5 +232,11 @@
   "Undermaintence" : "Undermaintence",
   "mobile_no" : "Mobile No.",
   "telephone_no" : "Telephone No.",
-  "Track In Map" : "Track In Map"
+  "Track In Map" : "Track In Map",
+  "Please try to set the address again" : "Please try to set the address again",
+
+  "Mobile No. must be 12 number minimum" : "Mobile No. must be 12 number minimum",
+  "Telephone No. must be 7 number minimum": "Telephone No. must be 7 number minimum",
+  "Add Service" : "Add Service"
+
 }

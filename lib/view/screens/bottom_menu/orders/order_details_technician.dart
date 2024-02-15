@@ -32,8 +32,8 @@ import '../../../widgets/custsomer_card_new_order.dart';
 import '../../../widgets/gradient_background.dart';
 
 final addedFiles = StateProvider<int>((ref) => 0);
-final orderModeProvider = StateProvider<int?>((ref) => null);
-final orderPaymentModeProvider = StateProvider<int?>((ref) => null);
+final orderModeProvider = StateProvider<int?>((ref) => 1);
+final orderPaymentModeProvider = StateProvider<int>((ref) => 0);
 final machineIsBrokenProvider = StateProvider<bool?>((ref) => null);
 final customerAcceptOrderProvider = StateProvider<bool?>((ref) => null);
 final technicianTakeMachineProvider = StateProvider<bool?>((ref) => null);
@@ -82,8 +82,8 @@ class _OrderDetailsTechnicianState
       ref.read(selectedMachinesProvider).clear();
       ref.read(answeredQuestionsProvider).clear();
 
-      ref.read(orderModeProvider.notifier).state = null;
-      ref.read(orderPaymentModeProvider.notifier).state = null;
+      ref.read(orderModeProvider.notifier).state = 1;
+      ref.read(orderPaymentModeProvider.notifier).state = 0;
       ref.read(machineIsBrokenProvider.notifier).state = null;
       ref.read(customerAcceptOrderProvider.notifier).state = null;
       ref.read(technicianTakeMachineProvider.notifier).state = null;
@@ -184,7 +184,7 @@ class _OrderDetailsTechnicianState
                         // }
 
                         if(maxMaintenancePrice.text.isEmpty){
-                          maxMaintenancePrice.text = '${orderModel.maxMaintenancePrice ?? 'N/A'}';
+                          maxMaintenancePrice.text = '${orderModel.maxMaintenancePrice ?? ''}';
                         }
 
                         if(orderModel.status > 2){
@@ -193,13 +193,16 @@ class _OrderDetailsTechnicianState
 
                         Future.microtask(() {
 
-                          ref.read(orderModeProvider.notifier).state = orderModel.orderMode;
-
                           orderModel.devices?.forEach((element) {
                             ref.read(selectedMachinesProvider.notifier).addMachine(machineId: element.id);
                           });
 
                           if(orderModel.isPickup){
+
+                            ref.read(orderModeProvider.notifier).state = orderModel.orderMode;
+
+                            ref.read(orderPaymentModeProvider.notifier).state = orderModel.paymentWay ?? 0;
+
                             ref.read(isAmountReceived.notifier).state = orderModel.isAmountReceived;
 
                             ref.read(isCustomerConfirm.notifier).state = orderModel.isCustomerConfirm;
@@ -934,7 +937,7 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 AutoSizeText(
-                                  'Items'.tr(),
+                                  'Services'.tr(),
                                   style: TextStyle(
                                     fontSize: 15,
                                     color: Theme.of(context).primaryColor,
@@ -965,7 +968,7 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                                                 padding:
                                                 const EdgeInsets.all(10),
                                                 child: AutoSizeText(
-                                                  'Warenbezeichnug'.tr(),
+                                                  'Service'.tr(),
                                                   style: TextStyle(
                                                       color: Theme.of(context)
                                                           .primaryColor,
@@ -1314,7 +1317,7 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                                                                 .spaceBetween,
                                                             children: [
                                                               AutoSizeText(
-                                                                'Add New Price'.tr(),
+                                                                'Add New Service'.tr(),
                                                                 style: TextStyle(
                                                                     color: Theme.of(context)
                                                                         .primaryColor,
@@ -1351,7 +1354,7 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                                                               controller:
                                                               title,
                                                               label:
-                                                              'Warenbezeichnug'
+                                                              'Service'
                                                                   .tr(),
                                                               height: 100,
                                                               validator:
@@ -1369,6 +1372,8 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                                                           CustomTextFormField(
                                                               controller:
                                                               quantity,
+                                                              textInputType: TextInputType.number,
+                                                              maxLength: 3,
                                                               label: 'Anzahl'
                                                                   .tr(),
                                                               height: 60,
@@ -1446,7 +1451,7 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                                                     (dismiss) {})
                                                 .show();
                                           },
-                                          text: 'Add Price'.tr(),
+                                          text: 'Add Service'.tr(),
                                           textColor: Colors.white,
                                           radius: 10,
                                           height: 45,
@@ -1613,6 +1618,103 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                                 ),
                               ],
                             ),
+
+                          Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                border:
+                                Border.all(color: const Color(0xffDCDCDC))),
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: AutoSizeText(
+                                        '${'Netto Gesamt'.tr()} : ',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Theme.of(context).primaryColor,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: AutoSizeText(
+                                        '${orderModel.subtotal ?? 0} €',
+                                        style: TextStyle(
+                                          color: Theme.of(context).primaryColor,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: AutoSizeText(
+                                        '${'19% MwSt.'.tr()} : ',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Theme.of(context).primaryColor,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: AutoSizeText(
+                                        '${orderModel.vat ?? 0} €',
+                                        style: TextStyle(
+                                          color: Theme.of(context).primaryColor,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: AutoSizeText(
+                                        '${'*Endbetrag'.tr()} : ',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Theme.of(context).primaryColor,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: AutoSizeText(
+                                        '${orderModel.total ?? 0} €',
+                                        style: TextStyle(
+                                          color: Theme.of(context).primaryColor,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
                           Container(
                             width: double.infinity,
                             decoration: BoxDecoration(
@@ -1641,8 +1743,7 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                                         value: 1,
                                         contentPadding: EdgeInsets.zero,
                                         groupValue: ref.watch(
-                                            orderPaymentModeProvider) ??
-                                            1,
+                                            orderPaymentModeProvider),
                                         onChanged: (value) {
                                           if(orderModel.status < 3){
                                             ref
@@ -1721,6 +1822,7 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                           const SizedBox(
                             height: 10,
                           ),
+
                           Container(
                             width: double.infinity,
                             decoration: BoxDecoration(
@@ -1868,6 +1970,7 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(height: 10,),
+
                           Container(
                             width: double.infinity,
                             decoration: BoxDecoration(
@@ -2477,6 +2580,7 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                                   ));
                             },
                           ),
+
                           if (ref.watch(selectedFilesToUpload).isNotEmpty)
                             Column(
                               children: [
@@ -2505,34 +2609,59 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                               ],
                             ),
                           const SizedBox(height: 10,),
+
                           if(orderModel.status < 3)
                             CustomButton(
                                 onPressed: () {
-                                  ref
-                                      .watch(orderViewModelProvider.notifier)
-                                      .pickUpOrder(
-                                      orderId: orderModel.id,
-                                      type: ref.read(orderModeProvider) == 1 ? 1 : 2,
-                                      brand: brand.text,
-                                      orderMode: ref.read(orderModeProvider) ?? 1,
-                                      information: information.text,
-                                      devices: ref.watch(selectedMachinesProvider),
-                                      questions: ref.watch(answeredQuestionsProvider),
-                                      items: ref.watch(addedItemsToOrderProvider),
-                                      maxMaintenancePrice: double.tryParse(maxMaintenancePrice.text),
-                                      paidAmount: double.tryParse(paidAmount.text),
-                                      paymentWay: ref.watch(orderPaymentModeProvider) ?? 1,
-                                      isAmountReceived: ref.watch(isAmountReceived) ?? false,
-                                      isCustomerConfirm: ref.watch(isCustomerConfirm) ?? false
-                                  );
-                                  paidAmount.clear();
+                                 if((double.tryParse(paidAmount.text) ?? 0) > 0 && ref.watch(orderPaymentModeProvider) == 0){
+
+                                   AwesomeDialog(
+                                       context: context,
+                                       dialogType: DialogType.error,
+                                       animType: AnimType.rightSlide,
+                                       title: 'Error'.tr(),
+                                       desc: 'Please select payment type'.tr(),
+                                       autoDismiss: false,
+                                       dialogBackgroundColor: Colors.white,
+                                       btnCancel: CustomButton(
+                                         onPressed: () {
+                                           Navigator.of(context).pop();
+                                         },
+                                         radius: 10,
+                                         text: 'Ok'.tr(),
+                                         textColor: Colors.white,
+                                         bgColor: const Color(0xffd63d46),
+                                         height: 40,
+                                       ),
+                                       onDismissCallback: (dismiss) {})
+                                       .show();
+                                 }
+                                 else{
+                                   ref
+                                       .watch(orderViewModelProvider.notifier)
+                                       .pickUpOrder(
+                                       orderId: orderModel.id,
+                                       type: ref.watch(orderModeProvider) == 1 ? 1 : 2,
+                                       brand: brand.text,
+                                       orderMode: ref.watch(orderModeProvider) ?? 1,
+                                       information: information.text,
+                                       devices: ref.watch(selectedMachinesProvider),
+                                       questions: ref.watch(answeredQuestionsProvider),
+                                       items: ref.watch(addedItemsToOrderProvider),
+                                       maxMaintenancePrice: double.tryParse(maxMaintenancePrice.text),
+                                       paidAmount: double.tryParse(paidAmount.text),
+                                       paymentWay: ref.watch(orderPaymentModeProvider),
+                                       isAmountReceived: ref.watch(isAmountReceived) ?? false,
+                                       isCustomerConfirm: ref.watch(isCustomerConfirm) ?? false
+                                   );
+                                   paidAmount.clear();
+                                 }
                                 },
                                 text: 'Update Order'.tr(),
                                 textColor: Colors.white,
                                 bgColor: Theme.of(context).primaryColor),
-                          const SizedBox(
-                            height: 10,
-                          ),
+
+                          const SizedBox(height: 10,),
                           Row(
                             children: [
                               Expanded(
@@ -2560,6 +2689,7 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                                 )
                             ],
                           ),
+
                           const SizedBox(height: 10,),
                           CustomTextFormField(
                             label: 'order_report'.tr(),
@@ -2573,10 +2703,34 @@ class OrderDetailsTechnicianView extends ConsumerWidget {
                             CustomButton(
                                 onPressed: () {
                                   if(ref.watch(orderModeProvider) == 1){
-                                    ref.read(orderViewModelProvider.notifier).finishPickUpOrder(orderId: orderModel.id , report: report.text , orderMode: ref.read(orderModeProvider) ?? 1 , paymentWay: ref.watch(orderPaymentModeProvider) ?? 1,);
+                                      ref.read(orderViewModelProvider.notifier).finishPickUpOrder(orderId: orderModel.id , report: report.text , orderMode: ref.watch(orderModeProvider) ?? 1 , paymentWay: ref.watch(orderPaymentModeProvider),isPaidAmount: (double.tryParse(paidAmount.text) ?? 0) > 0);
                                   }
                                   else{
-                                    ref.read(orderViewModelProvider.notifier).updatePayment(orderId: orderModel.id,paymentWay: ref.watch(orderPaymentModeProvider) ?? 1, report: report.text , isDropOff: false);
+                                    if(ref.watch(orderPaymentModeProvider) != 0){
+                                      ref.read(orderViewModelProvider.notifier).updatePayment(orderId: orderModel.id,paymentWay: ref.watch(orderPaymentModeProvider), report: report.text , isDropOff: false);
+                                    }
+                                    else{
+                                      AwesomeDialog(
+                                          context: context,
+                                          dialogType: DialogType.error,
+                                          animType: AnimType.rightSlide,
+                                          title: 'Error'.tr(),
+                                          desc: 'Please select payment type'.tr(),
+                                          autoDismiss: false,
+                                          dialogBackgroundColor: Colors.white,
+                                          btnCancel: CustomButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            radius: 10,
+                                            text: 'Ok'.tr(),
+                                            textColor: Colors.white,
+                                            bgColor: const Color(0xffd63d46),
+                                            height: 40,
+                                          ),
+                                          onDismissCallback: (dismiss) {})
+                                          .show();
+                                    }
                                   }
                                 },
                                 text: 'Finish Order'.tr(),

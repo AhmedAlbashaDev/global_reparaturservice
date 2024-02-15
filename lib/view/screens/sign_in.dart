@@ -3,7 +3,6 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:global_reparaturservice/view/screens/forget_password.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../core/globals.dart';
@@ -39,11 +38,14 @@ class _SignInState extends ConsumerState<SignIn> {
 
     Future.microtask(() => ref.read(bottomNavigationMenuProvider.notifier).state = 0);
 
-    userId = TextEditingController(text: '123456789123');
-    password = TextEditingController(text: '123ahmed');
-    //
+    // userId = TextEditingController(text: '111111111111');
+    // password = TextEditingController(text: '123ahmed');
+
     // userId = TextEditingController(text: 'admin@admin.com');
     // password = TextEditingController(text: '123admin');
+
+    userId = TextEditingController();
+    password = TextEditingController();
 
     //sahlowle@gmail.com
     //q6eXUJrN
@@ -186,27 +188,27 @@ class _SignInState extends ConsumerState<SignIn> {
                             ),
                           ),
 
-                          const SizedBox(height: 10,),
+                          // const SizedBox(height: 10,),
+                          //
+                          // InkWell(
+                          //   onTap: (){
+                          //     Navigator.push(context, MaterialPageRoute(builder: (context) => const ForgetPasswordScreen()));
+                          //   },
+                          //   child: Padding(
+                          //     padding: const EdgeInsets.all(5.0),
+                          //     child: AutoSizeText(
+                          //       'forget_password'.tr(),
+                          //       style: TextStyle(
+                          //           color: Theme.of(context).primaryColor,
+                          //           fontSize: 15,
+                          //           fontWeight: FontWeight.bold
+                          //       ),
+                          //       textAlign: TextAlign.start,
+                          //     ),
+                          //   ),
+                          // ),
 
-                          InkWell(
-                            onTap: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const ForgetPasswordScreen()));
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: AutoSizeText(
-                                'forget_password'.tr(),
-                                style: TextStyle(
-                                    color: Theme.of(context).primaryColor,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold
-                                ),
-                                textAlign: TextAlign.start,
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 30,),
+                          const SizedBox(height: 20,),
 
 
                           ref.watch(authViewModelProvider).maybeWhen(

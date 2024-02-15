@@ -298,81 +298,81 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
                                           bgColor: Theme.of(context).primaryColor);
                                     }
                                 ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                ref.watch(usersDeleteTechnicianViewModelProvider).maybeWhen(
-                                    loading: () => Center(
-                                      child: Lottie.asset(
-                                          'assets/images/global_loader.json',
-                                          height: 50
-                                      ),
-                                    ),
-                                    orElse: (){
-                                      return CustomButton(
-                                          onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              barrierDismissible: false,
-                                              builder: (_) => Center(
-                                                child: Container(
-                                                  height: screenHeight * 20,
-                                                  width: screenWidth * 90,
-                                                  margin: const EdgeInsets.all(24),
-                                                  decoration: BoxDecoration(
-                                                      color: Colors.white,
-                                                      borderRadius: BorderRadius.circular(12)
-                                                  ),
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                    children: [
-                                                      Material(
-                                                        child: AutoSizeText(
-                                                          'are_you_sure_you_want_to_delete'.tr(),
-                                                          style: TextStyle(
-                                                              color: Theme.of(context).primaryColor,
-                                                              fontSize: 17,
-                                                              fontWeight: FontWeight.bold),
-                                                        ),
-                                                      ),
-                                                      Row(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                        children: [
-                                                          CustomButton(
-                                                            onPressed: (){
-                                                              Navigator.pop(context);
-                                                            },
-                                                            text: 'no'.tr(),
-                                                            textColor: Theme.of(context).primaryColor,
-                                                            bgColor: Colors.white,
-                                                          ),
-                                                          CustomButton(
-                                                            onPressed: (){
-                                                              Navigator.pop(context);
-                                                              ref
-                                                                  .read(usersDeleteTechnicianViewModelProvider
-                                                                  .notifier)
-                                                                  .delete(endPoint: 'drivers/${userModel?.id}',);
-                                                            },
-                                                            text: 'yes'.tr(),
-                                                            textColor: Colors.white,
-                                                            bgColor: Colors.red,
-                                                          )
-                                                        ],
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-
-                                          },
-                                          text: 'delete_technician'.tr(),
-                                          textColor: Colors.white,
-                                          bgColor: Colors.red);
-                                    }
-                                ),
+                                // const SizedBox(
+                                //   height: 10,
+                                // ),
+                                // ref.watch(usersDeleteTechnicianViewModelProvider).maybeWhen(
+                                //     loading: () => Center(
+                                //       child: Lottie.asset(
+                                //           'assets/images/global_loader.json',
+                                //           height: 50
+                                //       ),
+                                //     ),
+                                //     orElse: (){
+                                //       return CustomButton(
+                                //           onPressed: () {
+                                //             showDialog(
+                                //               context: context,
+                                //               barrierDismissible: false,
+                                //               builder: (_) => Center(
+                                //                 child: Container(
+                                //                   height: screenHeight * 20,
+                                //                   width: screenWidth * 90,
+                                //                   margin: const EdgeInsets.all(24),
+                                //                   decoration: BoxDecoration(
+                                //                       color: Colors.white,
+                                //                       borderRadius: BorderRadius.circular(12)
+                                //                   ),
+                                //                   child: Column(
+                                //                     crossAxisAlignment: CrossAxisAlignment.center,
+                                //                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                //                     children: [
+                                //                       Material(
+                                //                         child: AutoSizeText(
+                                //                           'are_you_sure_you_want_to_delete'.tr(),
+                                //                           style: TextStyle(
+                                //                               color: Theme.of(context).primaryColor,
+                                //                               fontSize: 17,
+                                //                               fontWeight: FontWeight.bold),
+                                //                         ),
+                                //                       ),
+                                //                       Row(
+                                //                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                //                         children: [
+                                //                           CustomButton(
+                                //                             onPressed: (){
+                                //                               Navigator.pop(context);
+                                //                             },
+                                //                             text: 'no'.tr(),
+                                //                             textColor: Theme.of(context).primaryColor,
+                                //                             bgColor: Colors.white,
+                                //                           ),
+                                //                           CustomButton(
+                                //                             onPressed: (){
+                                //                               Navigator.pop(context);
+                                //                               ref
+                                //                                   .read(usersDeleteTechnicianViewModelProvider
+                                //                                   .notifier)
+                                //                                   .delete(endPoint: 'drivers/${userModel?.id}',);
+                                //                             },
+                                //                             text: 'yes'.tr(),
+                                //                             textColor: Colors.white,
+                                //                             bgColor: Colors.red,
+                                //                           )
+                                //                         ],
+                                //                       )
+                                //                     ],
+                                //                   ),
+                                //                 ),
+                                //               ),
+                                //             );
+                                //
+                                //           },
+                                //           text: 'delete_technician'.tr(),
+                                //           textColor: Colors.white,
+                                //           bgColor: Colors.red);
+                                //     }
+                                // ),
                               ],
                             )
                           else

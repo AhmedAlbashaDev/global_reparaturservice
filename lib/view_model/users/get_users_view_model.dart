@@ -7,13 +7,13 @@ import '../../core/providers/dio_network_provider.dart';
 import '../../models/pagination_model.dart';
 import '../../models/response_state.dart';
 
-final usersAdminsViewModelProvider = StateNotifierProvider<UsersViewModel,ResponseState<PaginationModel<UserModel>>>((ref) {
+final usersAdminsViewModelProvider = StateNotifierProvider.autoDispose<UsersViewModel,ResponseState<PaginationModel<UserModel>>>((ref) {
   final cancelToken = CancelToken();
   ref.onDispose(cancelToken.cancel);
   return UsersViewModel(UsersRepository(dioClient: ref.read(dioClientNetworkProvider) , ref: ref));
 });
 
-final usersTechniciansViewModelProvider = StateNotifierProvider<UsersViewModel,ResponseState<PaginationModel<UserModel>>>((ref) {
+final usersTechniciansViewModelProvider = StateNotifierProvider.autoDispose<UsersViewModel,ResponseState<PaginationModel<UserModel>>>((ref) {
   final cancelToken = CancelToken();
   ref.onDispose(cancelToken.cancel);
   return UsersViewModel(UsersRepository(dioClient: ref.read(dioClientNetworkProvider) , ref: ref));

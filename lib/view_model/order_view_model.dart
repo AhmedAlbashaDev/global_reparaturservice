@@ -85,12 +85,11 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
   Future<void> dropOffOrder({required String referenceNumber ,required bool withRoute , required String? visitTime,
   required int guaranteeId, required String companyName, required String name, required String address, required String postalCode,
   required String partOfBuilding, required String phone,required String information
-  }) async{
+  }) async {
 
     setState(const ResponseState<OrderModel>.loading());
 
     await Future.delayed(const Duration(seconds: 1));
-
 
     final response = await ordersRepository.create(endPoint: 'orders/add-drop-off' ,data:
       {
@@ -128,7 +127,7 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
       value.whenOrNull(
         success: (data){
           if(isDropOff){
-            finishDropOffOrder(orderId: orderId, paymentWay: paymentWay);
+            finishDropOffOrder(orderId: orderId, paymentWay: paymentWay , report: report);
           }
           else{
             finishOnSiteOrder(orderId: orderId, report: report);
@@ -147,76 +146,24 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
     // });
   }
 
-  Future<void> updateAmount({required int orderId ,required String? amount}) async{
-
-    setState(const ResponseState<OrderModel>.loading());
-
-    final response = await ordersRepository.update(
-      orderId: orderId,
-      data: {
-        "amount" : amount,
-      },
-    );
-
-    response.whenOrNull(success: (data) {
-      setState(ResponseState<OrderModel>.success(data: data));
-    }, error: (error) {
-      setState(ResponseState<OrderModel>.error(error: error));
-    });
-  }
-
-  Future<void> updateOrderType({required int orderId ,required int? type}) async{
-
-    setState(const ResponseState<OrderModel>.loading());
-
-    final response = await ordersRepository.update(
-      orderId: orderId,
-      data: {
-        "type" : type,
-      },
-    );
-
-    response.whenOrNull(success: (data) {
-      setState(ResponseState<OrderModel>.success(data: data));
-    }, error: (error) {
-      setState(ResponseState<OrderModel>.error(error: error));
-    });
-  }
-
-  Future<void> sendInvoice({required int orderId}) async{
-
-    setState(const ResponseState<OrderModel>.loading());
-
-    final response = await ordersRepository.sendInvoice(endPoint: 'orders/send-invoice/$orderId');
-
-    response.whenOrNull(success: (data) {
-      setState(const ResponseState<OrderModel>.success(data: {'send_invoice' : true}));
-    }, error: (error) {
-      setState(ResponseState<OrderModel>.error(error: error));
-    });
-  }
-
-  Future<void> finishPickUpOrder({required int orderId , required String report , required int orderMode , required int paymentWay}) async{
+  Future<void> finishPickUpOrder({required int orderId , required String report , required int orderMode , required int? paymentWay , bool isPaidAmount = false}) async{
 
     setState(const ResponseState<OrderModel>.loading());
 
     await Future.delayed(const Duration(seconds: 1));
 
-    Map data = {
-      "status" : orderMode == 1 ? 3 : 4,
+    Map<String , dynamic> data = {
+      "status" : 3,
       'report' : report
     };
 
-    if(orderMode != 1){
+    if(isPaidAmount){
       data['payment_way'] = paymentWay;
     }
 
     final response = await ordersRepository.update(
-        orderId: orderId,
-        data: {
-          "status" : orderMode == 1 ? 3 : 4,
-          'report' : report
-        },
+      orderId: orderId,
+      data: data,
     );
 
     response.whenOrNull(success: (data) {
@@ -247,7 +194,7 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
     });
   }
 
-  Future<void> finishDropOffOrder({required int orderId , required int? paymentWay}) async{
+  Future<void> finishDropOffOrder({required int orderId , required int? paymentWay , required String report}) async{
 
     setState(const ResponseState<OrderModel>.loading());
 
@@ -257,11 +204,25 @@ class OrderViewModel extends StateNotifier<ResponseState<OrderModel>> {
       orderId: orderId,
       data: {
         "status" : 4,
+        'report' : report
       },
     );
 
     response.whenOrNull(success: (data) {
       setState(const ResponseState<OrderModel>.success(data: {'finish_drop_off_order' : true}));
+    }, error: (error) {
+      setState(ResponseState<OrderModel>.error(error: error));
+    });
+  }
+
+  Future<void> sendInvoice({required int orderId}) async{
+
+    setState(const ResponseState<OrderModel>.loading());
+
+    final response = await ordersRepository.sendInvoice(endPoint: 'orders/send-invoice/$orderId');
+
+    response.whenOrNull(success: (data) {
+      setState(const ResponseState<OrderModel>.success(data: {'send_invoice' : true}));
     }, error: (error) {
       setState(ResponseState<OrderModel>.error(error: error));
     });

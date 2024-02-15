@@ -683,7 +683,7 @@ class OrderDetailsAdminView extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AutoSizeText(
-                          'Items'.tr(),
+                          'Services'.tr(),
                           style: TextStyle(
                             fontSize: 15,
                             color: Theme.of(context).primaryColor,
@@ -715,7 +715,7 @@ class OrderDetailsAdminView extends ConsumerWidget {
                                         padding:
                                         const EdgeInsets.all(10),
                                         child: AutoSizeText(
-                                          'Warenbezeichnug'.tr(),
+                                          'Service'.tr(),
                                           style: TextStyle(
                                               color: Theme.of(context)
                                                   .primaryColor,
@@ -946,7 +946,7 @@ class OrderDetailsAdminView extends ConsumerWidget {
                                                         .spaceBetween,
                                                     children: [
                                                       AutoSizeText(
-                                                        'Add New Price'
+                                                        'Add New Service'
                                                             .tr(),
                                                         style: TextStyle(
                                                             color: Theme.of(context)
@@ -984,7 +984,7 @@ class OrderDetailsAdminView extends ConsumerWidget {
                                                       controller:
                                                       title,
                                                       label:
-                                                      'Warenbezeichnug'
+                                                      'Service'
                                                           .tr(),
                                                       height: 100,
                                                       validator:
@@ -1002,6 +1002,8 @@ class OrderDetailsAdminView extends ConsumerWidget {
                                                   CustomTextFormField(
                                                       controller:
                                                       quantity,
+                                                      textInputType: TextInputType.number,
+                                                      maxLength: 3,
                                                       label: 'Anzahl'
                                                           .tr(),
                                                       height: 60,
@@ -1073,7 +1075,7 @@ class OrderDetailsAdminView extends ConsumerWidget {
                                             (dismiss) {})
                                         .show();
                                   },
-                                  text: 'Add Price'.tr(),
+                                  text: 'Add Service'.tr(),
                                   textColor: Colors.white,
                                   radius: 10,
                                   height: 45,
@@ -1376,17 +1378,17 @@ class OrderDetailsAdminView extends ConsumerWidget {
                             textColor: Colors.white,
                             bgColor: Theme.of(context).primaryColor),
                       ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Expanded(
-                        child: CustomButton(
-                            onPressed: () {},
-                            text: 'Print file'.tr(),
-                            textColor: Colors.white,
-                            bgColor: Theme.of(context).primaryColor
-                        ),
-                      )
+                      // const SizedBox(
+                      //   width: 5,
+                      // ),
+                      // Expanded(
+                      //   child: CustomButton(
+                      //       onPressed: () {},
+                      //       text: 'Print file'.tr(),
+                      //       textColor: Colors.white,
+                      //       bgColor: Theme.of(context).primaryColor
+                      //   ),
+                      // )
                     ],
                   ),
                   const SizedBox(
@@ -1406,40 +1408,40 @@ class OrderDetailsAdminView extends ConsumerWidget {
                               ),
                             ],
                           ),
-                        if(orderModel.type != 3 && orderModel.status < 4)
-                        CustomButton(onPressed: (){
-                          AwesomeDialog(
-                              context: context,
-                              dialogType: DialogType.question,
-                              animType: AnimType.rightSlide,
-                              title: 'Cancel Order'.tr(),
-                              desc: 'Are you sure you want to cancel this order'.tr(),
-                              autoDismiss: false,
-                              dialogBackgroundColor: Colors.white,
-                              btnCancel: CustomButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                radius: 10,
-                                text: 'No'.tr(),
-                                textColor: Colors.white,
-                                bgColor: const Color(0xffd63d46),
-                                height: 40,
-                              ),
-                              btnOk: CustomButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  ref.read(orderViewModelProvider.notifier).cancelOrder(orderId: orderModel.id);
-                                },
-                                radius: 10,
-                                text: 'Yes'.tr(),
-                                textColor: Colors.white,
-                                bgColor: Theme.of(context).primaryColor,
-                                height: 40,
-                              ),
-                              onDismissCallback: (dismiss) {})
-                              .show();
-                        }, text: 'Cancel Order'.tr(), textColor: Colors.white, bgColor: Colors.redAccent),
+                        // if(orderModel.type != 3 && orderModel.status < 4)
+                        // CustomButton(onPressed: (){
+                        //   AwesomeDialog(
+                        //       context: context,
+                        //       dialogType: DialogType.question,
+                        //       animType: AnimType.rightSlide,
+                        //       title: 'Cancel Order'.tr(),
+                        //       desc: 'Are you sure you want to cancel this order'.tr(),
+                        //       autoDismiss: false,
+                        //       dialogBackgroundColor: Colors.white,
+                        //       btnCancel: CustomButton(
+                        //         onPressed: () {
+                        //           Navigator.of(context).pop();
+                        //         },
+                        //         radius: 10,
+                        //         text: 'No'.tr(),
+                        //         textColor: Colors.white,
+                        //         bgColor: const Color(0xffd63d46),
+                        //         height: 40,
+                        //       ),
+                        //       btnOk: CustomButton(
+                        //         onPressed: () {
+                        //           Navigator.of(context).pop();
+                        //           ref.read(orderViewModelProvider.notifier).cancelOrder(orderId: orderModel.id);
+                        //         },
+                        //         radius: 10,
+                        //         text: 'Yes'.tr(),
+                        //         textColor: Colors.white,
+                        //         bgColor: Theme.of(context).primaryColor,
+                        //         height: 40,
+                        //       ),
+                        //       onDismissCallback: (dismiss) {})
+                        //       .show();
+                        // }, text: 'Cancel Order'.tr(), textColor: Colors.white, bgColor: Colors.redAccent),
                         const SizedBox(
                           height: 10,
                         ),

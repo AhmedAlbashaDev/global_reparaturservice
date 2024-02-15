@@ -29,7 +29,8 @@ bool isNumeric(String? s) {
 
 // Google Map API Key
 
-const kGoogleApiKey = "AIzaSyBrfjwqJ1lK61Q_SpHjz4aIjjdh9Oh96eA";
+// const kGoogleApiKey = "AIzaSyBrfjwqJ1lK61Q_SpHjz4aIjjdh9Oh96eA";
+const kGoogleApiKey = "AIzaSyDGvpd0TiZ8YtuLWlpZ8ZYzSZEtasSUrEs";
 //AIzaSyC95kdIk-zL-KFFysNUC5GQKDnbx7wYmqE
 //AIzaSyBRlt7gIugQ9Hs726pgbfD6YRMcdmW4bRM
 

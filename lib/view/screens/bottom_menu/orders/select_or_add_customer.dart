@@ -219,7 +219,7 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
                                   enablePullDown: true,
                                   enablePullUp: true,
                                   onRefresh: () async {
-                                    ref.read(usersCustomersViewModelProvider.notifier).loadAll(endPoint: 'customers');
+                                    ref.read(usersCustomersViewModelProvider.notifier).loadAll(endPoint: 'customers?active=true');
                                   },
                                   onLoading: () async {
                                     if (usersCustomers.to != usersCustomers.total) {
@@ -353,13 +353,13 @@ class _SelectOrAddCustomerScreenState extends ConsumerState<SelectOrAddCustomerS
                         error: (error) => CustomError(
                           message: error.errorMessage ?? '',
                           onRetry: (){
-                            ref.read(usersCustomersViewModelProvider.notifier).loadAll(endPoint: 'customers');
+                            ref.read(usersCustomersViewModelProvider.notifier).loadAll(endPoint: 'customers?active=true');
                           },
                         ),
                         orElse: () => CustomError(
                           message: 'Unknown Error Please Try Again',
                           onRetry: (){
-                            ref.read(usersCustomersViewModelProvider.notifier).loadAll(endPoint: 'customers');
+                            ref.read(usersCustomersViewModelProvider.notifier).loadAll(endPoint: 'customers?active=true');
                           },
                         ),
                       ),

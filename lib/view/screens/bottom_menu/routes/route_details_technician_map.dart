@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +16,8 @@ import 'package:page_transition/page_transition.dart';
 import 'package:swipeable_button_view/swipeable_button_view.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../models/response_state.dart';
+import '../../../../models/routes.dart';
 import '../../../../view_model/route_view_model.dart';
 import '../../../widgets/custom_app_bar.dart';
 import '../../../widgets/custom_error.dart';
@@ -25,6 +28,7 @@ import 'finished_route.dart';
 final selectedOrder = StateProvider<int?>((ref) => null);
 final isAllOrdersFinished = StateProvider.autoDispose<bool?>((ref) => true);
 final isFinishedRouteProvider = StateProvider.autoDispose<bool>((ref) => false);
+final isFinishedRouteSuccessProvider = StateProvider.autoDispose<bool>((ref) => false);
 
 class RouteDetailsTechnician extends ConsumerStatefulWidget {
   const RouteDetailsTechnician({super.key, required this.routeId});
@@ -275,136 +279,138 @@ class _RouteDetailsTechnicianState
                           polyLinePoints.add(position);
                         });
 
-                        return Expanded(
-                          child: Stack(
-                            children: [
-                              GoogleMap(
-                                onMapCreated: (GoogleMapController controller) {
-                                  mapController = controller;
-                                },
+                        return ref.watch(finishRouteViewModelProvider).maybeWhen(
+                          error: (error) => CustomError(
+                            message: error.errorMessage ?? '',
+                            onRetry: () {
+                              ref
+                                  .read(routeViewModelProvider.notifier)
+                                  .loadOne(routeId: routeId);
+                            },
+                          ),
+                          orElse: (){
+                            return Expanded(
+                              child: Stack(
+                                children: [
+                                  GoogleMap(
+                                    onMapCreated: (GoogleMapController controller) {
+                                      mapController = controller;
+                                    },
 
-                                initialCameraPosition: CameraPosition(
-                                  target: routeDetails.orders?.isEmpty ?? false ? LatLng(double.parse(centerLat), double.parse(centerLng)) : LatLng(
-                                      routeDetails.orders!.first.lat,
-                                      routeDetails.orders!.first.lng
-                                  ),
-                                  zoom: 8,
-                                ),
-                                myLocationEnabled: true,
-                                myLocationButtonEnabled: false,
-                                zoomControlsEnabled: true,
-                                markers: _markers.values.toSet(),
-                                // polylines: {
-                                //   Polyline(
-                                //     polylineId: PolylineId('$routeId'),
-                                //     points: polyLinePoints,
-                                //     color: Theme.of(context).primaryColor.withOpacity(.5),
-                                //     width: 1,
-                                //       // polygonId: PolygonId("$routeId",),
-                                //       // points: polyLinePoints,
-                                //       // strokeWidth: 2,
-                                //       // strokeColor: Theme.of(context).primaryColor.withOpacity(.6),
-                                //       // fillColor: Theme.of(context).primaryColor.withOpacity(.5)
-                                //   )
-                                // },
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    height: 45,
-                                    margin: const EdgeInsets.all(20),
-                                    width: screenWidth * 90,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: CustomButton(
-                                            onPressed: () {
-                                              Navigator.push(context, MaterialPageRoute(builder: (context) => RouteDetailsTechnicianListView(orders: routeDetails.orders ?? [] , routeId: routeId,)));
-                                            },
-                                            text: 'Route Orders ListView'.tr(),
-                                            textColor: Colors.white,
-                                            bgColor: Theme.of(context).primaryColor.withOpacity(.9),
-                                            icon: const Icon(Icons.view_list , color: Colors.white,size: 30,),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10,),
-                                        CircleAvatar(
-                                          backgroundColor: Colors.white.withOpacity(.6),
-                                            radius: 22,
-                                            child: IconButton(onPressed: (){
-                                              ref.read(routeViewModelProvider.notifier).getLocation().then((position){
-                                                mapController?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: LatLng(position.latitude , position.longitude) , zoom: 13)));
-                                              });
-                                            },
-                                              icon: const Icon(Icons.my_location , size: 25,),
-                                              color: Theme.of(context).primaryColor,),
-                                        )
-                                      ],
+                                    initialCameraPosition: CameraPosition(
+                                      target: routeDetails.orders?.isEmpty ?? false ? LatLng(double.parse(centerLat), double.parse(centerLng)) : LatLng(
+                                          routeDetails.orders!.first.lat,
+                                          routeDetails.orders!.first.lng
+                                      ),
+                                      zoom: 8,
                                     ),
-                                  )
-                                ],
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Container(
-                                    height: 55,
-                                    margin: const EdgeInsets.all(20),
-                                    width: screenWidth * 90,
-                                    child: Center(
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 30.0),
-                                        child: SwipeableButtonView(
-                                          isActive: routeDetails.status == 3
-                                              ? false
-                                              : (ref.watch(isAllOrdersFinished) ?? false),
-                                          buttonText:
-                                              'slide_to_finish'.tr(),
-                                          buttontextstyle: const TextStyle(
-                                            fontSize: 13,
-                                            color: Colors.white,
-                                          ),
-                                          buttonWidget: Icon(
-                                            Icons.arrow_forward_ios_rounded,
-                                            color:
-                                                Theme.of(context).primaryColor,
-                                          ),
-                                          activeColor:
-                                              Theme.of(context).primaryColor,
-                                          isFinished: ref
-                                              .watch(isFinishedRouteProvider),
-                                          onWaitingProcess: () {
-                                            ref
-                                                .read(
+                                    myLocationEnabled: true,
+                                    myLocationButtonEnabled: false,
+                                    zoomControlsEnabled: true,
+                                    markers: _markers.values.toSet(),
+                                    // polylines: {
+                                    //   Polyline(
+                                    //     polylineId: PolylineId('$routeId'),
+                                    //     points: polyLinePoints,
+                                    //     color: Theme.of(context).primaryColor.withOpacity(.5),
+                                    //     width: 1,
+                                    //       // polygonId: PolygonId("$routeId",),
+                                    //       // points: polyLinePoints,
+                                    //       // strokeWidth: 2,
+                                    //       // strokeColor: Theme.of(context).primaryColor.withOpacity(.6),
+                                    //       // fillColor: Theme.of(context).primaryColor.withOpacity(.5)
+                                    //   )
+                                    // },
+                                  ),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        height: 45,
+                                        margin: const EdgeInsets.all(20),
+                                        width: screenWidth * 90,
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: CustomButton(
+                                                onPressed: () {
+                                                  Navigator.push(context, MaterialPageRoute(builder: (context) => RouteDetailsTechnicianListView(orders: routeDetails.orders ?? [] , routeId: routeId,)));
+                                                },
+                                                text: 'Route Orders ListView'.tr(),
+                                                textColor: Colors.white,
+                                                bgColor: Theme.of(context).primaryColor.withOpacity(.9),
+                                                icon: const Icon(Icons.view_list , color: Colors.white,size: 30,),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10,),
+                                            CircleAvatar(
+                                              backgroundColor: Colors.white.withOpacity(.6),
+                                              radius: 22,
+                                              child: IconButton(onPressed: (){
+                                                ref.read(routeViewModelProvider.notifier).getLocation().then((position){
+                                                  mapController?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: LatLng(position.latitude , position.longitude) , zoom: 13)));
+                                                });
+                                              },
+                                                icon: const Icon(Icons.my_location , size: 25,),
+                                                color: Theme.of(context).primaryColor,),
+                                            )
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Container(
+                                        height: 55,
+                                        margin: const EdgeInsets.all(20),
+                                        width: screenWidth * 90,
+                                        child: Center(
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 30.0),
+                                            child: SwipeableButtonView(
+                                              isActive: routeDetails.status == 3 ? false : (ref.watch(isAllOrdersFinished) ?? false),
+                                              buttonText: 'slide_to_finish'.tr(),
+                                              buttontextstyle: const TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.white,
+                                              ),
+                                              buttonWidget: Icon(
+                                                Icons.arrow_forward_ios_rounded,
+                                                color: Theme.of(context).primaryColor,
+                                              ),
+                                              activeColor: Theme.of(context).primaryColor,
+                                              isFinished: ref.watch(isFinishedRouteProvider),
+                                              onWaitingProcess: () {
+                                                ref
+                                                    .read(
                                                     finishRouteViewModelProvider
                                                         .notifier)
-                                                .finishRoute(routeId: routeId);
-                                          },
-                                          onFinish: () {
-                                            Navigator.push(
-                                                context,
-                                                PageTransition(
-                                                    type:
-                                                        PageTransitionType.fade,
-                                                    child:
-                                                        const FinishedRouteScreen()));
-
-                                            ref
-                                                .read(isFinishedRouteProvider
-                                                    .notifier)
-                                                .state = false;
-                                          },
+                                                    .finishRoute(routeId: routeId);
+                                              },
+                                              onFinish: () {
+                                                  Navigator.push(
+                                                      context,
+                                                      PageTransition(
+                                                          type:
+                                                          PageTransitionType.fade,
+                                                          child:
+                                                          const FinishedRouteScreen()));
+                                                  ref.read(isFinishedRouteProvider.notifier).state = false;
+                                              },
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
+                                      )
+                                    ],
                                   )
                                 ],
-                              )
-                            ],
-                          ),
+                              ),
+                            );
+                          },
                         );
                       },
                       error: (error) => CustomError(

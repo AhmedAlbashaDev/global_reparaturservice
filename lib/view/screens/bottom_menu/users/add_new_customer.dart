@@ -35,6 +35,8 @@ class AddNewCustomerScreen extends ConsumerStatefulWidget {
   ConsumerState createState() => AddNewCustomerScreenState(isUpdate: isUpdate , userModel: userModel);
 }
 
+//178 - 190 - 216
+
 class AddNewCustomerScreenState extends ConsumerState<AddNewCustomerScreen> {
 
   AddNewCustomerScreenState({required this.isUpdate , this.userModel});
@@ -52,9 +54,8 @@ class AddNewCustomerScreenState extends ConsumerState<AddNewCustomerScreen> {
   late TextEditingController city;
   late TextEditingController zone;
   late TextEditingController additional;
-
-  double? lat;
-  double? lng;
+  late TextEditingController lat;
+  late TextEditingController lng;
 
   static final GlobalKey<FormState> _addCustomerFormKey =
       GlobalKey<FormState>();
@@ -73,6 +74,8 @@ class AddNewCustomerScreenState extends ConsumerState<AddNewCustomerScreen> {
     city = TextEditingController();
     zone = TextEditingController();
     additional = TextEditingController();
+    lat = TextEditingController();
+    lng = TextEditingController();
 
     if(isUpdate){
       name.text = userModel?.name ?? '';
@@ -85,8 +88,8 @@ class AddNewCustomerScreenState extends ConsumerState<AddNewCustomerScreen> {
       city.text = userModel?.city ?? '';
       zone.text = userModel?.zoneArea ?? '';
       additional.text =  '';
-      lat = userModel?.lat;
-      lat = userModel?.lng;
+      lat.text = '${userModel?.lat}';
+      lat.text = '${userModel?.lng}';
     }
 
   }
@@ -103,6 +106,8 @@ class AddNewCustomerScreenState extends ConsumerState<AddNewCustomerScreen> {
     city.dispose();
     zone.dispose();
     additional.dispose();
+    lat.dispose();
+    lng.dispose();
     super.dispose();
   }
 
@@ -212,14 +217,13 @@ class AddNewCustomerScreenState extends ConsumerState<AddNewCustomerScreen> {
           );
         });
 
-
     if(ref.watch(selectedAddressToNewCustomer) != null){
       address.text = ref.read(selectedAddressToNewCustomer)?['address'] ?? '';
       postalCode.text = ref.read(selectedAddressToNewCustomer)?['postal_code'] ?? '';
       city.text = ref.read(selectedAddressToNewCustomer)?['city'] ?? '';
       zone.text = ref.read(selectedAddressToNewCustomer)?['zone_area'] ?? '';
-      lat = ref.read(selectedAddressToNewCustomer)?['lat'];
-      lng = ref.read(selectedAddressToNewCustomer)?['lng'];
+      lat.text = '${ref.read(selectedAddressToNewCustomer)?['lat']}';
+      lng.text = '${ref.read(selectedAddressToNewCustomer)?['lng']}';
       Future.microtask(() => ref.read(selectedAddressToNewCustomer.notifier).state = null);
     }
 
@@ -302,11 +306,11 @@ class AddNewCustomerScreenState extends ConsumerState<AddNewCustomerScreen> {
                             controller: email,
                             textInputType: TextInputType.emailAddress,
                             validator: (String? text) {
-                              if (text?.isEmpty ?? true) {
-                                return 'this_filed_required'.tr();
-                              } else if (!isValidEmail(text: text)) {
-                                return 'please_enter_valid_email'.tr();
-                              }
+                              // if (text?.isEmpty ?? true) {
+                              //   return 'this_filed_required'.tr();
+                              // } else if (!isValidEmail(text: text)) {
+                              //   return 'please_enter_valid_email'.tr();
+                              // }
                               return null;
                             },
                             label: 'email'.tr(),
@@ -385,12 +389,14 @@ class AddNewCustomerScreenState extends ConsumerState<AddNewCustomerScreen> {
                                 ),
                                 strictbounds: false,
                                 components: [Component(Component.country, "de")],
-                              );
+                              ).onError((error, stackTrace) {
+                                print('Error is $error');
+                                return null;
+                              });
 
                               if (prediction != null) {
 
-                                GoogleMapsPlaces places =
-                                GoogleMapsPlaces(apiKey: kGoogleApiKey);
+                                GoogleMapsPlaces places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
                                 PlacesDetailsResponse? detail =
                                 await places.getDetailsByPlaceId(
                                     prediction.placeId ?? '');
@@ -478,7 +484,6 @@ class AddNewCustomerScreenState extends ConsumerState<AddNewCustomerScreen> {
                                             if (_addCustomerFormKey.currentState
                                                 ?.validate() ??
                                                 false) {
-
                                               ref
                                                   .read(usersUpdateCustomerViewModelProvider
                                                   .notifier)
@@ -488,8 +493,8 @@ class AddNewCustomerScreenState extends ConsumerState<AddNewCustomerScreen> {
                                                   companyName: companyName.text,
                                                   email: email.text,
                                                   phone: phone.text,
-                                                  lat: lat,
-                                                  lng: lng,
+                                                  lat: double.tryParse(lat.text),
+                                                  lng: double.tryParse(lng.text),
                                                   postalCode: postalCode.text,
                                                   city: city.text,
                                                   zoneArea: zone.text,
@@ -579,23 +584,47 @@ class AddNewCustomerScreenState extends ConsumerState<AddNewCustomerScreen> {
                                         if (_addCustomerFormKey.currentState
                                             ?.validate() ??
                                             false) {
-                                          ref
-                                              .read(usersAddNewCustomerViewModelProvider
-                                              .notifier)
-                                              .create(
-                                              endPoint: 'customers',
-                                              name: name.text,
-                                              companyName: companyName.text,
-                                              email: email.text,
-                                              phoneNo: phone.text,
-                                              telephone: telephone.text,
-                                              address: address.text,
-                                              lat: lat,
-                                              lng: lng,
-                                              postalCode: postalCode.text,
-                                              city: city.text,
-                                              zoneArea: zone.text,
-                                              additional: additional.text);
+                                          if(lat.text.isNotEmpty && lng.text.isNotEmpty){
+                                            ref
+                                                .read(usersAddNewCustomerViewModelProvider
+                                                .notifier)
+                                                .create(
+                                                endPoint: 'customers',
+                                                name: name.text,
+                                                companyName: companyName.text,
+                                                email: email.text,
+                                                phoneNo: phone.text,
+                                                telephone: telephone.text,
+                                                address: address.text,
+                                                lat: double.tryParse(lat.text),
+                                                lng: double.tryParse(lng.text),
+                                                postalCode: postalCode.text,
+                                                city: city.text,
+                                                zoneArea: zone.text,
+                                                additional: additional.text);
+                                          }
+                                          else{
+                                            AwesomeDialog(
+                                                context: context,
+                                                dialogType: DialogType.error,
+                                                animType: AnimType.rightSlide,
+                                                title: 'Error'.tr(),
+                                                desc: 'Please try to set the address again'.tr(),
+                                                autoDismiss: false,
+                                                dialogBackgroundColor: Colors.white,
+                                                btnCancel: CustomButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  radius: 10,
+                                                  text: 'Ok'.tr(),
+                                                  textColor: Colors.white,
+                                                  bgColor: const Color(0xffd63d46),
+                                                  height: 40,
+                                                ),
+                                                onDismissCallback: (dismiss) {})
+                                                .show();
+                                          }
                                         }
                                       },
                                       text: 'add_new_customer'.tr(),

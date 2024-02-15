@@ -158,7 +158,6 @@ class RoutesRepository {
   Future<ResponseState<RoutesModel>> update({required int? routeId, required Map data}) async {
     try {
 
-
       final response = await dioClient.put('roads/$routeId' , data: data);
 
       if(response.data['success'] == false){

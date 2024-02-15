@@ -318,6 +318,80 @@ class _NewDropOffOrderState extends ConsumerState<NewDropOffOrder> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       AutoSizeText(
+                                        'maintenance_device'.tr(),
+                                        style: TextStyle(
+                                            color: Theme.of(context).primaryColor,
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      AutoSizeText(
+                                        orderModel.maintenanceDevice,
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .primaryColor,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border:
+                                      Border.all(color: const Color(0xffDCDCDC))),
+                                  padding: const EdgeInsets.all(12),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      AutoSizeText(
+                                        'brand'.tr(),
+                                        style: TextStyle(
+                                            color: Theme.of(context).primaryColor,
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      AutoSizeText(
+                                        orderModel.brand,
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .primaryColor,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border:
+                                      Border.all(color: const Color(0xffDCDCDC))),
+                                  padding: const EdgeInsets.all(12),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      AutoSizeText(
                                         'Rg. Empf.'.tr(),
                                         style: TextStyle(
                                             color: Theme.of(context).primaryColor,
@@ -393,7 +467,7 @@ class _NewDropOffOrderState extends ConsumerState<NewDropOffOrder> {
                                           Expanded(
                                             flex: 4,
                                             child: AutoSizeText(
-                                              (orderModel.customer.name ?? orderModel.customer.companyName) ?? '',
+                                              orderModel.customer.name ?? 'N/A',
                                               style: TextStyle(
                                                 color: Theme.of(context)
                                                     .primaryColor,
@@ -647,7 +721,7 @@ class _NewDropOffOrderState extends ConsumerState<NewDropOffOrder> {
                                       const SizedBox(
                                         height: 10,
                                       ),
-                                      CustomTextFormField(label: 'Plz', validator: (text){},height: 55,controller: postalCode,),
+                                      CustomTextFormField(label: 'Plz', validator: (text){},height: 55,controller: postalCode,textInputType: TextInputType.number,),
                                       const SizedBox(
                                         height: 10,
                                       ),
@@ -658,43 +732,6 @@ class _NewDropOffOrderState extends ConsumerState<NewDropOffOrder> {
                                       CustomTextFormField(label: 'Telefon', validator: (text){},height: 55,controller: telephone,),
                                       const SizedBox(
                                         height: 10,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Container(
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                      border:
-                                      Border.all(color: const Color(0xffDCDCDC))),
-                                  padding: const EdgeInsets.all(12),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      AutoSizeText(
-                                        'brand'.tr(),
-                                        style: TextStyle(
-                                            color: Theme.of(context).primaryColor,
-                                            fontSize: 17,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      AutoSizeText(
-                                        orderModel.brand,
-                                        style: TextStyle(
-                                          color: Theme.of(context)
-                                              .primaryColor,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600,
-                                        ),
                                       ),
                                     ],
                                   ),
@@ -915,7 +952,7 @@ class _NewDropOffOrderState extends ConsumerState<NewDropOffOrder> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       AutoSizeText(
-                                        'Items'.tr(),
+                                        'Services'.tr(),
                                         style: TextStyle(
                                           fontSize: 15,
                                           color: Theme.of(context).primaryColor,
@@ -945,7 +982,7 @@ class _NewDropOffOrderState extends ConsumerState<NewDropOffOrder> {
                                                       padding:
                                                       const EdgeInsets.all(10),
                                                       child: AutoSizeText(
-                                                        'Warenbezeichnug'.tr(),
+                                                        'Service'.tr(),
                                                         style: TextStyle(
                                                             color: Theme.of(context)
                                                                 .primaryColor,

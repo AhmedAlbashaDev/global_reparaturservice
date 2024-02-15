@@ -245,7 +245,13 @@ class _UsersTechniciansTabState extends ConsumerState<UsersTechniciansTab> {
                                 child: Container(
                                     margin: const EdgeInsets.all(5),
                                     child: MaterialButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => AddNewTechnicianScreen(isUpdate: true,userModel: usersTechnicians.data[index],))).then((value) {
+                                          if(value == 'update'){
+                                            ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers');
+                                          }
+                                        });
+                                      },
                                       padding: EdgeInsets.zero,
                                       shape: RoundedRectangleBorder(
                                           borderRadius:

@@ -53,7 +53,7 @@ class _TrackTechnicianState extends ConsumerState<TrackTechnician> {
         final marker = Marker(
           markerId: MarkerId(order.referenceNo),
           position: position,
-          icon: (order.status == 3
+          icon: (order.status == 4
               ? completed
               : pending) ?? BitmapDescriptor.defaultMarker,
           //BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow)),

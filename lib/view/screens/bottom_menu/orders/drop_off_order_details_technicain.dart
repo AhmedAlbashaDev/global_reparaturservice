@@ -47,10 +47,15 @@ class _DropOddOrderDetailsTechnicianState extends ConsumerState<DropOddOrderDeta
   final RefreshController _refreshController =
   RefreshController(initialRefresh: false);
 
+  static late TextEditingController report;
+
   _DropOddOrderDetailsTechnicianState({required this.orderId, required this.routeId});
 
   @override
   void initState() {
+
+    report = TextEditingController();
+
     Future.microtask(() {
       ref.read(loadOrderViewModelProvider.notifier).loadOne(orderId: orderId);
       ref.read(getDevicesViewModelProvider.notifier).getDevices();
@@ -58,6 +63,12 @@ class _DropOddOrderDetailsTechnicianState extends ConsumerState<DropOddOrderDeta
       ref.read(orderPaymentModeProvider.notifier).state = 1;
     });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    report.dispose();
+    super.dispose();
   }
 
   @override
@@ -190,11 +201,15 @@ class _DropOddOrderDetailsTechnicianState extends ConsumerState<DropOddOrderDeta
                     globalOrderModel = orderModel;
 
                     return DropOffOrderTechnicianView(
-                        orderModel: globalOrderModel!);
+                        orderModel: globalOrderModel!,
+                        report: report,
+                    );
                   },
                   success: (data) {
                     return DropOffOrderTechnicianView(
-                        orderModel: globalOrderModel!);
+                        orderModel: globalOrderModel!,
+                        report: report,
+                    );
                   },
                   error: (error) => CustomError(
                     message: error.errorMessage ?? '',
@@ -226,7 +241,8 @@ class _DropOddOrderDetailsTechnicianState extends ConsumerState<DropOddOrderDeta
 
 class DropOffOrderTechnicianView extends ConsumerWidget {
   final OrderModel orderModel;
-  const DropOffOrderTechnicianView({super.key ,required this.orderModel});
+  final TextEditingController report;
+  const DropOffOrderTechnicianView({super.key ,required this.orderModel , required this.report});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -1277,7 +1293,7 @@ class DropOffOrderTechnicianView extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             AutoSizeText(
-                              'Items'.tr(),
+                              'Services'.tr(),
                               style: TextStyle(
                                 fontSize: 15,
                                 color: Theme.of(context).primaryColor,
@@ -1307,7 +1323,7 @@ class DropOffOrderTechnicianView extends ConsumerWidget {
                                             padding:
                                             const EdgeInsets.all(10),
                                             child: AutoSizeText(
-                                              'Warenbezeichnug'.tr(),
+                                              'Service'.tr(),
                                               style: TextStyle(
                                                   color: Theme.of(context)
                                                       .primaryColor,
@@ -1790,6 +1806,14 @@ class DropOffOrderTechnicianView extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 10,),
+                      CustomTextFormField(
+                        label: 'order_report'.tr(),
+                        controller: report,
+                        height: 60,
+                        readOnly: orderModel.status > 2,
+                        validator: (text) {},
+                      ),
+                      const SizedBox(height: 10,),
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
@@ -1819,7 +1843,31 @@ class DropOffOrderTechnicianView extends ConsumerWidget {
                       const SizedBox(height: 10,),
                       if(orderModel.status != 4)
                       CustomButton(onPressed: (){
-                        ref.read(orderViewModelProvider.notifier).updatePayment(orderId: orderModel.id, paymentWay: ref.read(orderPaymentModeProvider) ?? 1, report: '', isDropOff: true);
+                        if(ref.watch(orderPaymentModeProvider) != 0){
+                          ref.read(orderViewModelProvider.notifier).updatePayment(orderId: orderModel.id, paymentWay: ref.read(orderPaymentModeProvider) ?? 1, report: report.text, isDropOff: true);
+                        }
+                        else{
+                          AwesomeDialog(
+                              context: context,
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              title: 'Error'.tr(),
+                              desc: 'Please select payment type'.tr(),
+                              autoDismiss: false,
+                              dialogBackgroundColor: Colors.white,
+                              btnCancel: CustomButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                radius: 10,
+                                text: 'Ok'.tr(),
+                                textColor: Colors.white,
+                                bgColor: const Color(0xffd63d46),
+                                height: 40,
+                              ),
+                              onDismissCallback: (dismiss) {})
+                              .show();
+                        }
                       }, text: 'Finish Drop Off Order', textColor: Colors.white, bgColor: Theme.of(context).primaryColor)
                     ],
                   )
