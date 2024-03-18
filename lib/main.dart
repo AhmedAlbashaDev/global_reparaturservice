@@ -116,29 +116,29 @@ Future<void> main() async {
 
   Stripe.publishableKey = dotenv.env['STRIPE_PUBLISH'] ?? '';
 
-  // runApp(
-  //     ProviderScope(
-  //       child: EasyLocalization(
-  //           supportedLocales: const [Locale('en'), Locale('de')],
-  //           path: 'assets/translations',
-  //           fallbackLocale: const Locale('en'),
-  //           startLocale: const Locale('en'),
-  //           useOnlyLangCode: true,
-  //           child: const MyApp()),
-  //     )
-  //   );
-
   runApp(
-      ProviderScope(child: DevicePreview(
-        enabled: true,
-        builder: (context) => EasyLocalization(
+      ProviderScope(
+        child: EasyLocalization(
             supportedLocales: const [Locale('en'), Locale('de')],
             path: 'assets/translations',
             fallbackLocale: const Locale('en'),
             startLocale: const Locale('en'),
+            useOnlyLangCode: true,
             child: const MyApp()),
-      ))
-  );
+      )
+    );
+
+  // runApp(
+  //     ProviderScope(child: DevicePreview(
+  //       enabled: true,
+  //       builder: (context) => EasyLocalization(
+  //           supportedLocales: const [Locale('en'), Locale('de')],
+  //           path: 'assets/translations',
+  //           fallbackLocale: const Locale('en'),
+  //           startLocale: const Locale('en'),
+  //           child: const MyApp()),
+  //     ))
+  // );
 
 }
 

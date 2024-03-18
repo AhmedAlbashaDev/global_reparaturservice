@@ -15,6 +15,7 @@ import '../../../widgets/empty_widget.dart';
 import '../../../widgets/pagination_footer.dart';
 import '../../../widgets/customer_card.dart';
 import '../../search.dart';
+import 'add_new_customer.dart';
 //UsersCustomersTab
 class UsersCustomersTab extends ConsumerStatefulWidget {
   const UsersCustomersTab({super.key});
@@ -246,7 +247,21 @@ class _UsersCustomersTabState extends ConsumerState<UsersCustomersTab> {
                             child: SlideAnimation(
                               verticalOffset: 50.0,
                               child: FadeInAnimation(
-                                  child: CustomerCard(userModel: usersCustomers.data[index],)
+                                  child: CustomerCard(
+                                    userModel: usersCustomers.data[index],
+                                    onPressed: (){
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => AddNewCustomerScreen(
+                                        isUpdate: true,
+                                        userModel: usersCustomers.data[index],
+                                      ))).then((value) {
+                                        if(value == 'update'){
+                                          ref
+                                              .read(usersCustomersViewModelProvider.notifier)
+                                              .loadAll(endPoint: 'customers');
+                                        }
+                                      });
+                                    },
+                                  )
                               ),
                             ),
                           );

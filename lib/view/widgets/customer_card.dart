@@ -8,9 +8,10 @@ import '../../view_model/users/get_users_view_model.dart';
 import '../screens/bottom_menu/users/add_new_customer.dart';
 
 class CustomerCard extends ConsumerWidget {
-  const CustomerCard({super.key , this.userModel});
+  const CustomerCard({super.key , this.userModel ,required this.onPressed});
 
   final UserModel? userModel;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -62,26 +63,37 @@ class CustomerCard extends ConsumerWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 5,),
-                          AutoSizeText(
-                            userModel!.email ?? '',
-                            style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w500),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          if(userModel!.email?.isNotEmpty ?? false)
+                          Column(
+                            children: [
+                              AutoSizeText(
+                                userModel!.email ?? '',
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 5,),
+                            ],
                           ),
-                          const SizedBox(height: 5,),
-                          AutoSizeText(
-                            '${userModel?.address ?? ''} - ${userModel?.city ?? ''} - ${userModel?.postalCode ?? ''}',
-                            style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w500),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                          if((userModel!.address?.isNotEmpty ?? false) || (userModel!.city?.isNotEmpty ?? false) || (userModel!.postalCode != null))
+                          Column(
+                            children: [
+                              AutoSizeText(
+                                '${userModel?.address ?? ''} - ${userModel?.city ?? ''} - ${userModel?.postalCode ?? ''}',
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 5,),
+                            ],
                           ),
-                          const SizedBox(height: 5,),
+                          if(userModel?.isDisabled !=  null)
                           Row(
                             children: [
                               CircleAvatar(
@@ -104,18 +116,7 @@ class CustomerCard extends ConsumerWidget {
                       ),
                     ),
                     IconButton(
-                      onPressed: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => AddNewCustomerScreen(
-                          isUpdate: true,
-                          userModel: userModel,
-                        ))).then((value) {
-                          if(value == 'update'){
-                            ref
-                                .read(usersCustomersViewModelProvider.notifier)
-                                .loadAll(endPoint: 'customers');
-                          }
-                        });
-                      },
+                      onPressed: onPressed,
                       icon: Image.asset('assets/images/edit.png' , height: 20,),
                     ),
                   ],

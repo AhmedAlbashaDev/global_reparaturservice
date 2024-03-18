@@ -8,6 +8,7 @@ import 'package:lottie/lottie.dart';
 import '../../../../core/globals.dart';
 import '../../../../models/response_state.dart';
 import '../../../../models/user.dart';
+import '../../../../view_model/users/customers/toggle_customer_status_view_model.dart';
 import '../../../../view_model/users/technicains/add_new_technician_view_model.dart';
 import '../../../../view_model/users/technicains/delete_technician_view_model.dart';
 import '../../../../view_model/users/technicains/update_technician_view_model.dart';
@@ -198,6 +199,37 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
           );
         });
 
+    ref.listen<ResponseState<UserModel>>(usersToggleCustomerStatusViewModelProvider,
+            (previous, next) {
+          next.whenOrNull(
+            data: (user) {
+              Navigator.pop(context , 'update');
+            },
+            error: (error) {
+              AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.error,
+                  animType: AnimType.rightSlide,
+                  title: 'Error'.tr(),
+                  desc: error.errorMessage,
+                  autoDismiss: false,
+                  dialogBackgroundColor: Colors.white,
+                  btnCancel: CustomButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    radius: 10,
+                    text: 'Ok'.tr(),
+                    textColor: Colors.white,
+                    bgColor: const Color(0xffd63d46),
+                    height: 40,
+                  ),
+                  onDismissCallback: (dismiss) {})
+                  .show();
+            },
+          );
+        });
+
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -217,9 +249,36 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         children: [
-                          const SizedBox(
-                            height: 10,
-                          ),
+                          const SizedBox(height: 10,),
+                          if(isUpdate)
+                            Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 12,
+                                        backgroundColor: userModel?.isDisabled ?? false ? Colors.red : Colors.green,
+                                      ),
+                                      const SizedBox(width: 10,),
+                                      AutoSizeText(
+                                        userModel?.isDisabled ?? false ? 'Disabled'.tr() : 'Active'.tr(),
+                                        style: TextStyle(
+                                            color: Theme.of(context).primaryColor,
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 15,),
+                              ],
+                            ),
+                          const SizedBox(height: 10,),
                           CustomTextFormField(
                             controller: name,
                             validator: (String? text) {
@@ -298,81 +357,67 @@ class _State extends ConsumerState<AddNewTechnicianScreen> {
                                           bgColor: Theme.of(context).primaryColor);
                                     }
                                 ),
-                                // const SizedBox(
-                                //   height: 10,
-                                // ),
-                                // ref.watch(usersDeleteTechnicianViewModelProvider).maybeWhen(
-                                //     loading: () => Center(
-                                //       child: Lottie.asset(
-                                //           'assets/images/global_loader.json',
-                                //           height: 50
-                                //       ),
-                                //     ),
-                                //     orElse: (){
-                                //       return CustomButton(
-                                //           onPressed: () {
-                                //             showDialog(
-                                //               context: context,
-                                //               barrierDismissible: false,
-                                //               builder: (_) => Center(
-                                //                 child: Container(
-                                //                   height: screenHeight * 20,
-                                //                   width: screenWidth * 90,
-                                //                   margin: const EdgeInsets.all(24),
-                                //                   decoration: BoxDecoration(
-                                //                       color: Colors.white,
-                                //                       borderRadius: BorderRadius.circular(12)
-                                //                   ),
-                                //                   child: Column(
-                                //                     crossAxisAlignment: CrossAxisAlignment.center,
-                                //                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                //                     children: [
-                                //                       Material(
-                                //                         child: AutoSizeText(
-                                //                           'are_you_sure_you_want_to_delete'.tr(),
-                                //                           style: TextStyle(
-                                //                               color: Theme.of(context).primaryColor,
-                                //                               fontSize: 17,
-                                //                               fontWeight: FontWeight.bold),
-                                //                         ),
-                                //                       ),
-                                //                       Row(
-                                //                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                //                         children: [
-                                //                           CustomButton(
-                                //                             onPressed: (){
-                                //                               Navigator.pop(context);
-                                //                             },
-                                //                             text: 'no'.tr(),
-                                //                             textColor: Theme.of(context).primaryColor,
-                                //                             bgColor: Colors.white,
-                                //                           ),
-                                //                           CustomButton(
-                                //                             onPressed: (){
-                                //                               Navigator.pop(context);
-                                //                               ref
-                                //                                   .read(usersDeleteTechnicianViewModelProvider
-                                //                                   .notifier)
-                                //                                   .delete(endPoint: 'drivers/${userModel?.id}',);
-                                //                             },
-                                //                             text: 'yes'.tr(),
-                                //                             textColor: Colors.white,
-                                //                             bgColor: Colors.red,
-                                //                           )
-                                //                         ],
-                                //                       )
-                                //                     ],
-                                //                   ),
-                                //                 ),
-                                //               ),
-                                //             );
-                                //
-                                //           },
-                                //           text: 'delete_technician'.tr(),
-                                //           textColor: Colors.white,
-                                //           bgColor: Colors.red);
-                                //     }
-                                // ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                ref.watch(usersToggleCustomerStatusViewModelProvider).maybeWhen(
+                                    loading: () => Center(
+                                      child: Lottie.asset(
+                                          'assets/images/global_loader.json',
+                                          height: 50
+                                      ),
+                                    ),
+                                    orElse: (){
+                                      return CustomButton(
+                                          onPressed: () {
+                                            if(userModel?.isDisabled ?? false){
+                                              ref
+                                                  .read(usersToggleCustomerStatusViewModelProvider
+                                                  .notifier)
+                                                  .enable(endPoint: 'drivers/active/${userModel?.id}',);
+                                            }
+                                            else{
+                                              AwesomeDialog(
+                                                  context: context,
+                                                  dialogType: DialogType.question,
+                                                  animType: AnimType.rightSlide,
+                                                  title: 'disable_technician'.tr(),
+                                                  desc: 'Are you sure you want to disable this technician'.tr(),
+                                                  autoDismiss: false,
+                                                  dialogBackgroundColor: Colors.white,
+                                                  btnCancel: CustomButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop();
+                                                    },
+                                                    radius: 10,
+                                                    text: 'No'.tr(),
+                                                    textColor: Colors.white,
+                                                    bgColor: const Color(0xffd63d46),
+                                                    height: 40,
+                                                  ),
+                                                  btnOk: CustomButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop();
+                                                      ref
+                                                          .read(usersToggleCustomerStatusViewModelProvider
+                                                          .notifier)
+                                                          .disable(endPoint: 'drivers/${userModel?.id}',);
+                                                    },
+                                                    radius: 10,
+                                                    text: 'Yes'.tr(),
+                                                    textColor: Colors.white,
+                                                    bgColor: Theme.of(context).primaryColor,
+                                                    height: 40,
+                                                  ),
+                                                  onDismissCallback: (dismiss) {})
+                                                  .show();
+                                            }
+                                          },
+                                          text: userModel?.isDisabled ?? false ? 'activate_technician'.tr() : 'disable_technician'.tr(),
+                                          textColor: Colors.white,
+                                          bgColor: userModel?.isDisabled ?? false ? Theme.of(context).primaryColor : Colors.red);
+                                    }
+                                ),
                               ],
                             )
                           else

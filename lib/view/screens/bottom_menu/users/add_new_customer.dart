@@ -189,7 +189,6 @@ class AddNewCustomerScreenState extends ConsumerState<AddNewCustomerScreen> {
             (previous, next) {
           next.whenOrNull(
             data: (user) {
-
               Navigator.pop(context , 'update');
             },
             error: (error) {
@@ -531,7 +530,7 @@ class AddNewCustomerScreenState extends ConsumerState<AddNewCustomerScreen> {
                                                   context: context,
                                                   dialogType: DialogType.question,
                                                   animType: AnimType.rightSlide,
-                                                  title: 'Disable Customer'.tr(),
+                                                  title: 'disable_customer'.tr(),
                                                   desc: 'Are you sure you want to disable this customer\n All orders without route for this customer will not be able to add to route'.tr(),
                                                   autoDismiss: false,
                                                   dialogBackgroundColor: Colors.white,

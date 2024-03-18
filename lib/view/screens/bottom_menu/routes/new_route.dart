@@ -71,7 +71,7 @@ class _NewRouteScreenState extends ConsumerState<NewRouteScreen>
         ref.read(selectedOrdersToNewOrder).addAll(routesModel?.orders?.toList() ?? []);
       }
       ref.read(ordersViewModelProvider.notifier).loadAll(pendingOrdersOnly: true);
-      ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers');
+      ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers?active=true');
     });
 
     searchController = TextEditingController();

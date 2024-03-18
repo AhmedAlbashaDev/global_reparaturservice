@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:global_reparaturservice/view/screens/bottom_menu/users/add_new_technician.dart';
+import 'package:global_reparaturservice/view/widgets/customer_card.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -242,91 +243,21 @@ class _UsersTechniciansTabState extends ConsumerState<UsersTechniciansTab> {
                             child: SlideAnimation(
                               verticalOffset: 50.0,
                               child: FadeInAnimation(
-                                child: Container(
-                                    margin: const EdgeInsets.all(5),
-                                    child: MaterialButton(
-                                      onPressed: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => AddNewTechnicianScreen(isUpdate: true,userModel: usersTechnicians.data[index],))).then((value) {
-                                          if(value == 'update'){
-                                            ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers');
-                                          }
-                                        });
-                                      },
-                                      padding: EdgeInsets.zero,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(10)),
-                                      clipBehavior: Clip.antiAlias,
-                                      elevation: .5,
-                                      color: Colors.white,
-                                      child: Container(
-                                        height: 90,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                          BorderRadius.circular(10),
-                                          color: Colors.white,
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 16, vertical: 8),
-                                        child: Center(
-                                          child: Row(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment
-                                                .spaceBetween,
-                                            children: [
-                                              Column(
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                                mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                                children: [
-                                                  AutoSizeText(
-                                                    (usersTechnicians.data[index].name ?? usersTechnicians.data[index].companyName) ?? '',
-                                                    style: TextStyle(
-                                                        color:
-                                                        Theme.of(context)
-                                                            .primaryColor,
-                                                        fontSize: 15,
-                                                        fontWeight:
-                                                        FontWeight.bold),
-                                                  ),
-                                                  const SizedBox(
-                                                    height: 10,
-                                                  ),
-                                                  AutoSizeText(
-                                                    usersTechnicians.data[index]
-                                                        .phone ??
-                                                        '${usersTechnicians
-                                                            .data[index]
-                                                            .email}',
-                                                    style: TextStyle(
-                                                        color:
-                                                        Theme.of(context)
-                                                            .primaryColor,
-                                                        fontSize: 10,
-                                                        fontWeight:
-                                                        FontWeight.w500),
-                                                  ),
-                                                ],
-                                              ),
-                                              IconButton(
-                                                onPressed: () {
-                                                  Navigator.push(context, MaterialPageRoute(builder: (context) => AddNewTechnicianScreen(isUpdate: true,userModel: usersTechnicians.data[index],))).then((value) {
-                                                    if(value == 'update'){
-                                                      ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers');
-                                                    }
-                                                  });
-                                                },
-                                                icon: Image.asset(
-                                                  'assets/images/edit.png',
-                                                  height: 20,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    )),
+                                child: CustomerCard(
+                                  userModel: usersTechnicians.data[index],
+                                  onPressed: (){
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => AddNewTechnicianScreen(
+                                      isUpdate: true,
+                                      userModel: usersTechnicians.data[index],
+                                    ))).then((value) {
+                                      if(value == 'update'){
+                                        ref
+                                            .read(usersTechniciansViewModelProvider.notifier)
+                                            .loadAll(endPoint: 'drivers');
+                                      }
+                                    });
+                                  },
+                                )
                               ),
                             ),
                           );

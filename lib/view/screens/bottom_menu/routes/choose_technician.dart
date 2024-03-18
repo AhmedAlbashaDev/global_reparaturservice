@@ -34,7 +34,7 @@ class _ChooseTechnicianState extends ConsumerState<ChooseTechnician> {
 
   @override
   void initState() {
-    ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers');
+    ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers?active=true');
     super.initState();
   }
 
@@ -210,7 +210,7 @@ class _ChooseTechnicianState extends ConsumerState<ChooseTechnician> {
                                     enablePullDown: true,
                                     enablePullUp: true,
                                     onRefresh: () async {
-                                      ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers');
+                                      ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers?active=true');
                                     },
                                     onLoading: () async {
                                       if (technicians.to != technicians.total) {
@@ -345,14 +345,14 @@ class _ChooseTechnicianState extends ConsumerState<ChooseTechnician> {
                           error: (error) => CustomError(
                             message: error.errorMessage ?? '',
                             onRetry: (){
-                              ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers',);
+                              ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers?active=true',);
                             },
                           ),
                           orElse: () => Center(
                             child: CustomError(
                               message: 'Unknown Error Please Try Again',
                               onRetry: (){
-                                ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers',);
+                                ref.read(usersTechniciansViewModelProvider.notifier).loadAll(endPoint: 'drivers?active=true',);
                               },
                             ),
                           ),
